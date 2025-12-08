@@ -1,16 +1,7 @@
-import React from "react";
-import TopNav from "@/components/pages/dashboard/TopNav";
-import Footer from "@/components/pages/dashboard/Footer";
-
-export default function Home() {
-  return (
-    <div className="min-h-screen bg-white text-black ">
-      {/* Header */}
-      <TopNav />
-
-      <main>
-        {/* Hero */}
-        <section className="relative overflow-hidden">
+const Section2 = () => (
+    <>
+      {/* Hero */}
+      <section className="relative overflow-hidden">
           <img
             src="/hero-commercial-hvac.jpg"
             alt="Commercial HVAC"
@@ -73,7 +64,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+      </section>
 
         {/* Two Services */}
         <section
@@ -792,12 +783,8 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Footer */}
-      <Footer />
-    </div>
+      </section>
+    </>
   );
-}
+
+export default section2;
