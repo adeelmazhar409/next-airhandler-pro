@@ -81,7 +81,9 @@ export default function Auth() {
           {/* Card */}
           <div className="bg-white border border-black/40 shadow-[0_0_0_1px_rgba(0,0,0,0.1),4px_4px_0_0_rgba(0,0,0,1)]">
             <div className="p-6">
-              <h3 className="text-2xl text-black font-semibold">Forgot Password</h3>
+              <h3 className="text-2xl text-black font-semibold">
+                Forgot Password
+              </h3>
               <p className="text-sm text-neutral-500 mt-1">
                 We'll send you a link to reset your password
               </p>
@@ -90,7 +92,10 @@ export default function Auth() {
             <div className="px-6 pb-6">
               <form onSubmit={handleForgotPassword} className="space-y-4">
                 <div className="space-y-2">
-                  <label htmlFor="reset-email" className="text-sm text-black font-medium">
+                  <label
+                    htmlFor="reset-email"
+                    className="text-sm text-black font-medium"
+                  >
                     Email Address
                   </label>
                   <div className="relative">
@@ -249,31 +254,23 @@ export default function Auth() {
             </div>
           </div>
 
-          <div className="p-6">
-            {/* Tab Content Header */}
-            <div className="text-center mb-6">
-              {activeTab === "signin" ? (
-                <>
-                  <h3 className="text-2xl font-semibold text-black">Welcome Back</h3>
-                  <p className="text-sm text-neutral-500 ">
-                    Sign in to your account to continue
-                  </p>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-2xl font-semibold text-black">Create Account</h3>
-                  <p className="text-sm text-neutral-500 mt-1">
-                    Get started with your CRM today
-                  </p>
-                </>
-              )}
-            </div>
-
-            {/* Sign In Form */}
-            {activeTab === "signin" && (
+          {/* Sign In Form */}
+          {activeTab === "signin" && (
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-semibold text-black">
+                  Welcome Back
+                </h3>
+                <p className="text-sm text-neutral-500 ">
+                  Sign in to your account to continue
+                </p>
+              </div>
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <label htmlFor="signin-email" className="text-sm text-black font-medium">
+                  <label
+                    htmlFor="signin-email"
+                    className="text-sm text-black font-medium"
+                  >
                     Email
                   </label>
                   <div className="relative">
@@ -393,13 +390,26 @@ export default function Auth() {
                   </button>
                 </div>
               </form>
-            )}
+            </div>
+          )}
 
-            {/* Sign Up Form */}
-            {activeTab === "signup" && (
+          {/* Sign Up Form */}
+          {activeTab === "signup" && (
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-semibold text-black">
+                  Create Account
+                </h3>
+                <p className="text-sm text-neutral-500 ">
+                  Get started with your CRM today
+                </p>
+              </div>
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <label htmlFor="signup-email" className="text-sm text-black font-medium">
+                  <label
+                    htmlFor="signup-email"
+                    className="text-sm text-black font-medium"
+                  >
                     Email
                   </label>
                   <div className="relative">
@@ -797,8 +807,8 @@ export default function Auth() {
                   Create Account
                 </button>
               </form>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="text-center text-sm text-neutral-500">
@@ -810,5 +820,3 @@ export default function Auth() {
     </div>
   );
 }
-
-
