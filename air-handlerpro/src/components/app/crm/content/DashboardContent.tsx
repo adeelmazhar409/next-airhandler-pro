@@ -1,7 +1,16 @@
 import React from "react";
-import StatsCardsRow from "./StatCardRow";
-import ChartPlaceholder from "./ChartPlaceholder";
-import { AvgDealSizeIcon, CallsIcon, ConversionRateIcon, EmailsIcon, OverdueTasksIcon, TotalPipelineIcon, UpcomingTasksIcon, WonDealsIcon } from "../icons/icons";
+import StatsCardsRow from "../UI-components/StatCardRow";
+import ChartPlaceholder from "../UI-components/ChartPlaceholder";
+import {
+  AvgDealSizeIcon,
+  CallsIcon,
+  ConversionRateIcon,
+  EmailsIcon,
+  OverdueTasksIcon,
+  TotalPipelineIcon,
+  UpcomingTasksIcon,
+  WonDealsIcon,
+} from "../../../icons/icons";
 
 export default function DashboardContent() {
   const pipelineStats = [

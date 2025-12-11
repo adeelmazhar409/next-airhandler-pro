@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import Actbox from "./Actbox";
-import { BuildingIcon } from "../icons/icons";
-import { SiteIcon } from "../icons/icons";
+import Actbox from "../UI-components/Actbox";
+import { BuildingIcon } from "../../../icons/icons";
+import { SiteIcon } from "../../../icons/icons";
 
 export default function CompaniesContent() {
   const [view, setView] = useState<"Companies" | "sites">("Companies");
@@ -11,15 +11,15 @@ export default function CompaniesContent() {
     icon: <BuildingIcon />,
     description:
       "Companies help you organize your contacts and deals by grouping them under a single entity.",
-  }
-  
-    const siteValue = {
-      header: false,
-      value: "Sites",
-      icon: <SiteIcon/>,
-      description:
-        "Sites help you manage locations associated with your companies and streamline service operations.",
-    };
+  };
+
+  const siteValue = {
+    header: false,
+    value: "Sites",
+    icon: <SiteIcon />,
+    description:
+      "Sites help you manage locations associated with your companies and streamline service operations.",
+  };
   return (
     <div className="">
       <div className="flex gap-2 mb-6">
@@ -72,14 +72,9 @@ export default function CompaniesContent() {
         </button>
       </div>
 
-      {view === "Companies" && (
+      {view === "Companies" && <Actbox {...companyValue} />}
 
-        <Actbox {...companyValue} />
-      )}
-
-      {view === "sites" && (
-        <Actbox {...siteValue} />)}
-          
+      {view === "sites" && <Actbox {...siteValue} />}
     </div>
   );
 }

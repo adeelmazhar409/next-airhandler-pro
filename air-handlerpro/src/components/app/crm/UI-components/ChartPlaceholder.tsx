@@ -1,5 +1,5 @@
 import React from "react";
-import { ChartIcon } from "../icons/icons";
+import { ChartIcon } from "../../../icons/icons";
 
 interface ChartPlaceholderProps {
   title: string;
