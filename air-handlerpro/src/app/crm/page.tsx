@@ -24,11 +24,11 @@ import {
 } from "@/components/icons/icons";
 
 export default function CRMDashboard() {
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [activePage, setActivePage] = useState("crm");
+  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [activePage, setActivePage] = useState("CRM");
 
   const tabs = [
-    { name: "Dashboard", value: "dashboard" },
+    { name: "Dashboard", value: "Dashboard" },
     { name: "Pipeline", value: "pipeline" },
     { name: "Activities", value: "activities" },
     { name: "Contacts", value: "contacts" },
@@ -61,7 +61,7 @@ export default function CRMDashboard() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case "dashboard":
+      case "Dashboard":
         return <DashboardContent />;
       case "pipeline":
         return <PipelineContent />;
@@ -91,7 +91,7 @@ export default function CRMDashboard() {
 
 const renderPage = () => {
   const pages: Record<string, React.ReactElement> = {
-    crm: renderCRMPage(),
+    "CRM": renderCRMPage(),
     contacts: <ContactsPage />,
     "ai-estimate": <AIEstimateBuilderPage />,
     "service-estimate": <ServiceEstimateProPage />,
@@ -107,7 +107,7 @@ const renderPage = () => {
     <div className="flex h-screen bg-gray-50">
       <Sidebar activePage={activePage} onPageChange={setActivePage} />
       <main className="flex-1 overflow-y-auto">
-        <Header />
+        <Header value={activePage} />
         <div className="p-8">{renderPage()}</div>
       </main>
     </div>
