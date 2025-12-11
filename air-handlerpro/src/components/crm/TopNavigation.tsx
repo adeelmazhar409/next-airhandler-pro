@@ -17,11 +17,11 @@ interface TabNavigationProps {
 }
 
 const tabWidths: Record<string, string> = {
-  dashboard: "95px",
+  dashboard: "90px",
   pipeline: "78px",
   activities: "92px",
   contacts: "84px",
-  companies: "100px",
+  companies: "80px",
 };
 
 const tabIcons: Record<string, React.ReactNode> = {
@@ -38,7 +38,7 @@ export default function TabNavigation({
   return (
     <div className="mb-6">
       <div className="border-b border-gray-200 relative">
-        <nav className="flex gap-8">
+        <nav className="flex gap-6">
           {tabs.map((tab, index) => (
             <button
               key={index}
@@ -59,7 +59,7 @@ export default function TabNavigation({
         <div
           className="absolute bottom-0 h-0.5 bg-gray-900 transition-all duration-300 ease-in-out"
           style={{
-            left: `${tabs.findIndex((tab) => tab.value === activeTab) * 128}px`,
+            left: `${tabs.findIndex((tab) => tab.value === activeTab) * 119 }px`,
             width: tabWidths[activeTab] || "95px",
           }}
         />

@@ -10,47 +10,52 @@ import {
   MenuIcon,
 } from "@/components/icons/icons";
 
+interface SidebarProps {
+  activePage: string;
+  onPageChange: (page: string) => void;
+}
+
 const navigationItems = [
   {
     name: "CRM",
     icon: <CRMIcon />,
-    active: true,
+    value: "crm",
   },
   {
     name: "Contacts",
     icon: <ContactsIcon />,
-    active: false,
+    value: "contacts",
   },
   {
     name: "AI Estimate Builder",
     icon: <AIEstimateBuilderIcon />,
-    active: false,
+    value: "ai-estimate",
   },
   {
     name: "Service Estimate Pro",
     icon: <ServiceEstimateProIcon />,
-    active: false,
+    value: "service-estimate",
   },
   {
     name: "Maintenance Estimate Pro",
     icon: <MaintenanceEstimateProIcon />,
-    active: false,
+    value: "maintenance-estimate",
   },
   {
     name: "Service Reports",
     icon: <ServiceReportsIcon />,
-    active: false,
+    value: "service-reports",
   },
   {
     name: "Job Walks",
     icon: <JobWalksIcon />,
-    active: false,
+    value: "job-walks",
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
   return (
-    <aside className="w-[290px] bg-white border-r border-gray-200 flex flex-col">
+    <aside className="w-[250px] bg-white border-r border-gray-200 flex flex-col">
       {/* Sidebar Header */}
       <div className="p-4 border-b border-gray-200">
         <button className="p-2 hover:bg-gray-100 rounded">
@@ -67,18 +72,18 @@ export default function Sidebar() {
 
           <nav className="space-y-1">
             {navigationItems.map((item, index) => (
-              <a
+              <button
                 key={index}
-                href="#"
-                className={`flex items-center gap-3 px-3 py-2.5 ${
-                  item.active
+                onClick={() => onPageChange(item.value)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 text-left ${
+                  activePage === item.value
                     ? "text-gray-900 bg-gray-100 font-medium"
                     : "text-gray-700 hover:bg-gray-50"
                 }`}
               >
                 {item.icon}
-                <span className="text-[15px]">{item.name}</span>
-              </a>
+                <span className="text-[13px]">{item.name}</span>
+              </button>
             ))}
           </nav>
         </div>

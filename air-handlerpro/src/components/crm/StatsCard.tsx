@@ -19,14 +19,14 @@ export default function StatsCard({
 }: StatsCardProps) {
   return (
     <div
-      className={`bg-white border border-black/40 shadow-[0_0_0_1px_rgba(0,0,0,0.1),4px_4px_0_0_rgba(0,0,0,1)] p-6 ${
+      className={`bg-white border border-black/40 shadow-[0_0_0_1px_rgba(0,0,0,0.1),4px_4px_0_0_rgba(0,0,0,1)] px-5 py-3 ${
         hoverable
           ? "transition-transform hover:scale-105 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.1),6px_6px_0_0_rgba(0,0,0,1)]"
           : ""
       }`}
     >
       <div className="flex items-center justify-between mb-3">
-        <div className="text-[15px] font-semibold text-gray-900 flex items-center gap-2">
+        <div className="text-[13px] font-semibold text-gray-900 flex items-center gap-2">
           {title}
           {alert && (
             <div className="w-5 h-5 rounded-full bg-red-50 flex items-center justify-center">
@@ -47,7 +47,7 @@ export default function StatsCard({
         {icon}
       </div>
       <p
-        className={`text-4xl font-bold mb-1 ${
+        className={`text-3xl font-bold mb-1 ${
           alert ? "text-red-600" : "text-gray-900"
         }`}
       >
