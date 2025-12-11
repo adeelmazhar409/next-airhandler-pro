@@ -16,7 +16,7 @@ export default function MainApplication() {
 
   const renderPage = () => {
     const pages: Record<string, React.ReactElement> = {
-      CRM: CRMDashboard(),
+      CRM: <CRMDashboard />,
       contacts: <ContactsPage />,
       "ai-estimate": <AIEstimateBuilderPage />,
       "service-estimate": <ServiceEstimateProPage />,
@@ -25,7 +25,7 @@ export default function MainApplication() {
       "job-walks": <JobWalksPage />,
     };
 
-    return pages[activePage] || CRMDashboard();
+    return pages[activePage] || <CRMDashboard/>;
   };
 
   return (
