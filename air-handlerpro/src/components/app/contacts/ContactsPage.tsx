@@ -1,12 +1,22 @@
-
-import React from "react";
-import StatsCard from "../crm/UI-components/StatsCard";
+import { useState } from "react";
+import StatsCardsRow from "../UI-components/StatCardRow";
 import Heading from "../Heading";
 import Button from "../button";
-import SearchAndFilters from "../crm/UI-components/SearchAndFilter";
-import Actbox from "../crm/UI-components/Actbox";
-import { ActiveCustomersIcon, ContactsIcon, CRMIcon, ServiceSitesIcon , NocontactIcon} from "@/components/icons/icons";
+import SearchAndFilters from "../UI-components/SearchAndFilter";
+import Actbox from "../UI-components/Actbox";
+import {
+  ActiveCustomersIcon,
+  ContactsIcon,
+  CRMIcon,
+  ServiceSitesIcon,
+  NocontactIcon,
+} from "@/components/icons/icons";
+import { InputField } from "@/components/interface/DataTypes";
+
 export default function ContactsPage() {
+  const [searchValue, setSearchValue] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+
   const topStats = [
     {
       title: "Total Companies",
@@ -31,20 +41,57 @@ export default function ContactsPage() {
     },
   ];
 
-  const InputData = {
-    value1: "All Statuses",
-    value2: "All Types",
-    value3: "Name",
-    Buttons: true,
-  }
+  const inputFields: InputField[] = [
+    {
+      type: "search",
+      placeholder: "Enter name to search...",
+      disable: false,
+      show: true,
+      onChange: (value) => console.log("Search:", value),
+    },
+    {
+      type: "dropdownButton",
+      name: "All Types",
+      options: ["Type 1", "Type 2", "Type 3", "Type 4"],
+      disable: false,
+      show: true,
+      onChange: (value) => setSelectedType(value),
+    },
+    {
+      type: "filterButton",
+      name: "Filter",
+      disable: false,
+      show: true,
+      onClick: () => console.log("Filter clicked"),
+    },
+    {
+      type: "sortButton",
+      name: "Sort",
+      disable: false,
+      show: true,
+      onClick: () => console.log("Sort clicked"),
+    },
+    {
+      type: "gridButton",
+      disable: false,
+      show: true,
+      onClick: () => console.log("Grid view"),
+    },
+    {
+      type: "listButton",
+      disable: false,
+      show: true,
+      onClick: () => console.log("List view"),
+    },
+  ];
 
   const value = {
     header: false,
     value: "Contacts",
-    icon: <NocontactIcon/>,
-    description:
-      "Manage your customer and prospect relationships here.",
+    icon: <NocontactIcon />,
+    description: "Manage your customer and prospect relationships here.",
   };
+  
   return (
     <div className=" bg-gray-50 p-8">
       <div className="flex justify-between items-center ">
@@ -52,21 +99,17 @@ export default function ContactsPage() {
           title="Contact"
           description="Manage your customer and prospect relationships"
         />
-<Button value="Contact"/>
-
+        <Button value="Contact" />
       </div>
       {/* Stats Cards Row */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
-        {topStats.map((stat, index) => (
-          <StatsCard key={index} {...stat} />
-        ))}
-      </div>
-
+      <StatsCardsRow stats={topStats} />
 
       {/* Search and Filters Row */}
-      
-      <SearchAndFilters {...InputData} />
-
+      <SearchAndFilters
+        fields={inputFields}
+        searchValue={searchValue}
+        onSearchChange={setSearchValue}
+      />
 
       {/* Results Count */}
       <div className="mb-6">
@@ -74,9 +117,7 @@ export default function ContactsPage() {
       </div>
 
       {/* Empty State */}
-
-      <Actbox  {...value} />
-      
+      <Actbox {...value} />
     </div>
   );
 }

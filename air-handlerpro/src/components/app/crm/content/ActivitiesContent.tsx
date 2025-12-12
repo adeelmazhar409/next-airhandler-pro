@@ -1,6 +1,6 @@
 import React from "react";
 import { ActitivtyIcon } from "../../../icons/icons";
-import Actbox from "../UI-components/Actbox";
+import Actbox from "../../UI-components/Actbox";
 import { ClockIcon } from "../../../icons/icons";
 
 export default function ActivitiesContent() {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Actbox from "../UI-components/Actbox";
+import Actbox from "../../UI-components/Actbox";
 import { BuildingIcon } from "../../../icons/icons";
 import { SiteIcon } from "../../../icons/icons";
 

@@ -1,6 +1,6 @@
 import React from "react";
-import StatsCardsRow from "../UI-components/StatCardRow";
-import ChartPlaceholder from "../UI-components/ChartPlaceholder";
+import StatsCardsRow from "../../UI-components/StatCardRow";
+import ChartPlaceholder from "../../UI-components/ChartPlaceholder";
 import {
   AvgDealSizeIcon,
   CallsIcon,

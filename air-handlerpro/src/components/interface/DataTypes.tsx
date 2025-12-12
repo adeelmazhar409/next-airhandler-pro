@@ -20,4 +20,23 @@ interface StatsCardsRowProps {
   stats: StatData[];
 }
 
-export type { PasswordStrength, StatsCardsRowProps };
+type InputFieldType = "search" | "dropdownButton" | "filterButton" | "sortButton" | "gridButton" | "listButton";
+interface InputField {
+  type: InputFieldType;
+  placeholder?: string;
+  name?: string;
+  options?: (string | number)[];
+  disable?: boolean;
+  show?: boolean;
+  icon?: React.ReactNode;
+  onChange?: (value: string) => void;
+  onClick?: () => void;
+}
+
+interface Message {
+  type: "user" | "assistant";
+  text: string;
+  time: string;
+}
+
+export type { PasswordStrength, StatsCardsRowProps, InputField, Message };

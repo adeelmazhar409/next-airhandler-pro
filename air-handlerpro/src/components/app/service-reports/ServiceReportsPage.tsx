@@ -1,5 +1,5 @@
 import Heading from "../Heading";
-import Actbox from "../crm/UI-components/Actbox";
+import Actbox from "../UI-components/Actbox";
 import { WorkerOrderIcon } from "@/components/icons/icons";
 
 export default function ServiceReports() {
