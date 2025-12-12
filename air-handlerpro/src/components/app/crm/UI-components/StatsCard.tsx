@@ -2,9 +2,9 @@ import React from "react";
 
 interface StatsCardProps {
   title: string;
-  value: string | number;
+  value?: string | number;
   subtitle?: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   alert?: boolean;
   hoverable?: boolean;
 }

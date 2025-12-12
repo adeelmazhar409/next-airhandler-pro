@@ -1,15 +1,32 @@
-import React from "react";
+"use client";
 
-export default function MaintenanceEstimateProPage() {
+import Button from "../button";
+import Actbox from "../crm/UI-components/Actbox";
+import Heading from "../Heading";
+import { ClockIcon } from "@/components/icons/icons";
+
+export default function MaintenanceEstimatePro() {
+const data = {
+  header: false,
+  value:  "Estimate",
+  icon: <ClockIcon />,
+  description:
+    "Create and manage professional maintenance estimates with advanced features.",
+};
   return (
-    <div className="bg-white border border-black/40 shadow-[0_0_0_1px_rgba(0,0,0,0.1),4px_4px_0_0_rgba(0,0,0,1)] p-8 rounded-lg">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">
-        MaintenanceEstimateProPage
-      </h2>
-      <p className="text-gray-600">
-        This is the main MaintenanceEstimateProPage page from sidebar
-        navigation.
-      </p>
+    <div className=" bg-gray-50 p-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <Heading title="Maintenance Estimate Pro" description=" Create and manage professional maintenance estimates with advanced
+            features."/>
+        
+        <Button value="Estimate"/>
+      </div>
+
+      {/* Empty State Card */}
+ 
+      <Actbox {...data} />
+ 
     </div>
   );
 }

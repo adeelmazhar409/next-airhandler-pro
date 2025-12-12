@@ -33,7 +33,7 @@ export default function MainApplication() {
       <Sidebar activePage={activePage} onPageChange={setActivePage} />
       <main className="flex-1 overflow-y-auto">
         <Header value={activePage} />
-        <div className="p-8">{renderPage()}</div>
+        <div className="">{renderPage()}</div>
       </main>
     </div>
   );

@@ -1,14 +1,63 @@
 import React from "react";
+import Heading from "../Heading";
+import Button from "../button";
+import StatsCard from "../crm/UI-components/StatsCard";
+import Actbox from "../crm/UI-components/Actbox";
+import { ServiceEstimateIcon } from "../../icons/icons";
+export default function ServiceEstimates() {
+  const data = [
+    {
+      title: "Pre-Built Estimates",
+      subtitle:
+        "Select from standard service estimates Quick access to common HVAC service jobs including compressor replacements, condenser fan motors, and coil cleanings.",
+    },
+    {
+      title: "Custom Builder",
+      subtitle:
+        "Build fully customized estimates Add labor hours, materials, and tasks to create detailed custom estimates tailored to your specific job requirements.",
+    },
+    {
+      title: "Branded Proposals",
+      subtitle:
+        "Professional customer-facing proposals Generate custom proposals based on your company brand guidelines configured in Company Admin.",
+    },
+  ];
 
-export default function ServiceEstimateProPage() {
+  const ActboxData = {
+    header: true,
+    value: "Estimates",
+    icon:<ServiceEstimateIcon/>,
+    headerIcon: <ServiceEstimateIcon />,
+    description:
+      "No estimates yet. Create your first estimate to get started.",
+  }
+
   return (
-    <div className="bg-white border border-black/40 shadow-[0_0_0_1px_rgba(0,0,0,0.1),4px_4px_0_0_rgba(0,0,0,1)] p-8 rounded-lg">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">
-        ServiceEstimateProPage
-      </h2>
-      <p className="text-gray-600">
-        This is the main ServiceEstimateProPage page from sidebar navigation.
-      </p>
+    <div className=" bg-gray-50 p-8">
+      {/* Header */}
+
+      <div className="flex  items-center justify-between ">
+        <Heading
+          title="Service Estimates"
+          description=" Build accurate estimates for compressor replacements, motor repairs,
+            coil cleanings, and more"
+        />
+
+        <Button value=" Create New Estimate" />
+        
+      </div>
+
+      {/* Cards Grid */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        {/* Pre-Built Estimates Card */}
+        {data.map((data, index) => (
+          <StatsCard key={index} {...data} />))}
+       
+
+      </div>
+
+      {/* Recent Estimates Section */}
+      <Actbox {...ActboxData} />
     </div>
   );
 }

@@ -44,6 +44,12 @@ export default function CRMDashboard() {
     },
   ];
 
+  const InputData = {
+    value1: "All Types",
+    value2: "Filter",
+    value3: "Sort",
+  }
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "Dashboard":
@@ -62,8 +68,8 @@ export default function CRMDashboard() {
   };
 
   return (
-    <>
-      <SearchAndFilters />
+    <div className="p-8">
+      <SearchAndFilters  {...InputData}  />
       <StatsCardsRow stats={topStats} />
       <TabNavigation
         tabs={tabs}
@@ -71,6 +77,6 @@ export default function CRMDashboard() {
         onTabChange={setActiveTab}
       />
       {renderTabContent()}
-    </>
+    </div>
   );
 }

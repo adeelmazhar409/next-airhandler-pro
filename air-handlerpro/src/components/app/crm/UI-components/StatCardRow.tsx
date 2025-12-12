@@ -4,7 +4,7 @@ import {StatsCardsRowProps} from "@/components/interface/DataTypes"
 
 export default function StatsCardsRow({ stats }: StatsCardsRowProps) {
   return (
-    <div className="grid grid-cols-4 gap-6 mb-7">
+    <div className="grid grid-cols-4 h-fit gap-6 mb-7">
       {stats.map((stat, index) => (
         <StatsCard key={index} {...stat} />
       ))}

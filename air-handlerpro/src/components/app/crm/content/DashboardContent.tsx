@@ -76,7 +76,7 @@ export default function DashboardContent() {
       <StatsCardsRow stats={activityStats} />
 
       {/* Charts Section */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2  gap-6">
         <ChartPlaceholder title="Pipeline by Stage" />
         <ChartPlaceholder title="Activities by Type" />
       </div>

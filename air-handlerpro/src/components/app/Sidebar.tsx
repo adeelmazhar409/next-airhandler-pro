@@ -57,7 +57,7 @@ export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
   return (
     <aside className="w-[250px] bg-white border-r border-gray-200 flex flex-col">
       {/* Sidebar Header */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-3 border-b border-gray-200">
         <button className="p-2 hover:bg-gray-100 rounded">
           <MenuIcon />
         </button>
