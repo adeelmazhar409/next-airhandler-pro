@@ -1,7 +1,7 @@
 import React from "react";
-import StatsCard from "../UI-components/StatsCard";
+import StatsCard from "../../UI-components/StatsCard";
 import { ContactsIcon, NocontactIcon } from "../../../icons/icons";
-import Actbox from "../UI-components/Actbox";
+import Actbox from "../../UI-components/Actbox";
 
 export default function ContactsContent() {
   const value = {

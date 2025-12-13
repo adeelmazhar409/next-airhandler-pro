@@ -24,32 +24,32 @@ const navigationItems = [
   {
     name: "Contacts",
     icon: <ContactsIcon />,
-    value: "contacts",
+    value: "Contacts",
   },
   {
     name: "AI Estimate Builder",
     icon: <AIEstimateBuilderIcon />,
-    value: "ai-estimate",
+    value: "AI Estimate Builder",
   },
   {
     name: "Service Estimate Pro",
     icon: <ServiceEstimateProIcon />,
-    value: "service-estimate",
+    value: "Service Estimate Pro",
   },
   {
     name: "Maintenance Estimate Pro",
     icon: <MaintenanceEstimateProIcon />,
-    value: "maintenance-estimate",
+    value: "Maintenance Estimate Pro",
   },
   {
     name: "Service Reports",
     icon: <ServiceReportsIcon />,
-    value: "service-reports",
+    value: "Service Reports",
   },
   {
     name: "Job Walks",
     icon: <JobWalksIcon />,
-    value: "job-walks",
+    value: "Job Walks",
   },
 ];
 

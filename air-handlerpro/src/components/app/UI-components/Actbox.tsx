@@ -1,6 +1,5 @@
 import React from "react";
-import Button from "../../button";
-
+import Button from "../button";
 
 interface ActboxProps {
   header?: boolean; // Optional: whether to show the header
@@ -33,7 +32,9 @@ export default function Actbox({
 
         {/* Empty State Content */}
         <div className="p-12 text-center">
-          <div className="mx-auto w-14 h-14 mb-4 text-gray-300 flex justify-center items-center">{icon}</div>
+          <div className="mx-auto w-14 h-14 mb-4 text-gray-300 flex justify-center items-center">
+            {icon}
+          </div>
           <p className="text-sm font-medium text-gray-500">
             No {value.toLowerCase()} found
           </p>

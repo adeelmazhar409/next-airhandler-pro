@@ -1,9 +1,10 @@
 import React from "react";
 import Heading from "../Heading";
 import Button from "../button";
-import StatsCard from "../crm/UI-components/StatsCard";
-import Actbox from "../crm/UI-components/Actbox";
+import StatsCard from "../UI-components/StatsCard";
+import Actbox from "../UI-components/Actbox";
 import { ServiceEstimateIcon } from "../../icons/icons";
+
 export default function ServiceEstimates() {
   const data = [
     {
@@ -26,16 +27,14 @@ export default function ServiceEstimates() {
   const ActboxData = {
     header: true,
     value: "Estimates",
-    icon:<ServiceEstimateIcon/>,
+    icon: <ServiceEstimateIcon />,
     headerIcon: <ServiceEstimateIcon />,
-    description:
-      "No estimates yet. Create your first estimate to get started.",
-  }
+    description: "No estimates yet. Create your first estimate to get started.",
+  };
 
   return (
     <div className=" bg-gray-50 p-8">
       {/* Header */}
-
       <div className="flex  items-center justify-between ">
         <Heading
           title="Service Estimates"
@@ -44,18 +43,15 @@ export default function ServiceEstimates() {
         />
 
         <Button value=" Create New Estimate" />
-        
       </div>
 
       {/* Cards Grid */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {/* Pre-Built Estimates Card */}
         {data.map((data, index) => (
-          <StatsCard key={index} {...data} />))}
-       
-
+          <StatsCard key={index} {...data} />
+        ))}
       </div>
-
       {/* Recent Estimates Section */}
       <Actbox {...ActboxData} />
     </div>
