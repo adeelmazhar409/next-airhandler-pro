@@ -21,16 +21,19 @@ export default function Auth() {
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Sign in:", email, password);
+      window.location.assign("/system");
   };
 
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Sign up:", email, password, confirmPassword);
+      window.location.assign("/system");
   };
 
   const handleForgotPassword = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Reset password for:", resetEmail);
+      window.location.assign("/system");
   };
 
   // Show Forgot Password Screen
@@ -63,7 +66,7 @@ export default function Auth() {
           <div className="p-6 pb-0">
             <div className="inline-flex h-10 items-center justify-center bg-neutral-100 p-1 text-neutral-500 w-full">
               <button
-                onClick={() => setActiveTab("signin")}
+                onClick={() => setActiveTab("signin") }
                 className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all flex-1 ${
                   activeTab === "signin"
                     ? "bg-white text-neutral-900 shadow-sm"

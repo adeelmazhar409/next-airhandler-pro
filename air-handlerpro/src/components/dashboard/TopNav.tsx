@@ -26,13 +26,13 @@ const TopNav = () => (
       </nav>
       <div className="flex items-center gap-2">
         <a
-          href="https://consulting.airhandlerpro.com/customer-auth?mode=login"
+          href=""
           className="border border-black bg-white hover:bg-neutral-100  px-3 py-2 text-sm font-medium"
         >
           Consulting Login
         </a>
         <a
-          href="/auth?app=job"
+          href="/auth"
           className="border border-black bg-white hover:bg-neutral-100  px-3 py-2 text-sm font-medium"
         >
           Job Login

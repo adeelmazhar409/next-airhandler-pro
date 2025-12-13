@@ -107,7 +107,7 @@ const Section2 = () =>   {
                 </div>
               </div>
               <a
-                href="/auth?app=job"
+                href="/auth"
                 className="w-full inline-flex items-center justify-center bg-neutral-900 text-white hover:bg-neutral-800  px-4 py-2 text-sm font-medium"
               >
                 Get Started Free
