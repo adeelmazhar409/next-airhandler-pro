@@ -5,13 +5,30 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Your custom color palette */
+  --platinum: #DCDCDD;
+  --silver: #C5C3C6;
+  --charcoal: #46494C;
+  --slate: #4C5C68;
+  --cerulean: #1985A1;
 }
 
 @theme inline {
+  /* Base colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  
+  /* Fonts */
   --font-sans: 'Space Grotesk', var(--font-geist-sans);
   --font-mono: 'Space Mono', var(--font-geist-mono);
+  
+  /* Your custom colors integrated into Tailwind */
+  --color-platinum: var(--platinum);
+  --color-silver: var(--silver);
+  --color-charcoal: var(--charcoal);
+  --color-slate: var(--slate);
+  --color-cerulean: var(--cerulean);
 }
 
 @media (prefers-color-scheme: dark) {
