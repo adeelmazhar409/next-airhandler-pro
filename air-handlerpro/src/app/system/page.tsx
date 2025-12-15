@@ -15,8 +15,8 @@ export default function MainApplication() {
 
   const renderPage = () => {
     const pages: Record<string, React.ReactElement> = {
-      "CRM": <CRMDashboard />,
-      "Contacts": <ContactsPage />,
+      CRM: <CRMDashboard />,
+      Contacts: <ContactsPage />,
       "AI Estimate Builder": <AIEstimateBuilderPage />,
       "Service Estimate Pro": <ServiceEstimateProPage />,
       "Maintenance Estimate Pro": <MaintenanceEstimateProPage />,
@@ -28,7 +28,7 @@ export default function MainApplication() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-white">
       <Sidebar activePage={activePage} onPageChange={setActivePage} />
       <main className="flex-1 overflow-y-auto">
         <Header value={activePage} />

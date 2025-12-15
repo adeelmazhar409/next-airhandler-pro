@@ -19,11 +19,11 @@ export default function Actbox({
   return (
     <div className="mx-auto my-3 px-4">
       {/* Main Card */}
-      <div className="bg-white rounded-lg border border-gray-300 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-silver shadow-sm overflow-hidden">
         {/* Optional Header */}
         {header && (
-          <div className="px-4 py-3 border-b border-gray-300">
-            <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2 ">
+          <div className="px-4 py-3 border-b border-silver">
+            <h2 className="text-sm font-bold text-charcoal flex items-center gap-2">
               {headerIcon}
               {value}
             </h2>
@@ -32,13 +32,13 @@ export default function Actbox({
 
         {/* Empty State Content */}
         <div className="p-12 text-center">
-          <div className="mx-auto w-14 h-14 mb-4 text-gray-300 flex justify-center items-center">
+          <div className="mx-auto w-14 h-14 mb-4 text-silver flex justify-center items-center">
             {icon}
           </div>
-          <p className="text-sm font-medium text-gray-500">
+          <p className="text-sm font-medium text-slate">
             No {value.toLowerCase()} found
           </p>
-          <p className="text-xs text-gray-400 mt-1.5 max-w-md mx-auto">
+          <p className="text-xs text-slate/70 mt-1.5 max-w-md mx-auto">
             {description}
           </p>
         </div>

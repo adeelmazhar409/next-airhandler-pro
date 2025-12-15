@@ -38,7 +38,7 @@ export default function SearchAndFilters({
                 field.onChange?.(e.target.value);
               }}
               disabled={field.disable}
-              className="w-full pl-12 pr-4 py-2 border border-black text-[15px] text-black focus:outline-none focus:ring-2 focus:ring-neutral-700 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full pl-12 pr-4 py-2 border border-silver text-[15px] text-charcoal placeholder:text-slate/60 focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-cerulean disabled:bg-platinum disabled:cursor-not-allowed transition-colors"
             />
           </div>
         );
@@ -49,7 +49,7 @@ export default function SearchAndFilters({
             <select
               disabled={field.disable}
               onChange={(e) => field.onChange?.(e.target.value)}
-              className="appearance-none pl-4 pr-10 py-2 border border-black text-[15px] text-gray-700 font-medium hover:cursor-pointer bg-white min-w-[140px] disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="appearance-none pl-4 pr-10 py-2 border border-silver text-[15px] text-charcoal font-medium hover:cursor-pointer bg-white min-w-[140px] disabled:bg-platinum disabled:cursor-not-allowed transition-colors hover:border-cerulean"
             >
               <option value="">{field.name || "Select"}</option>
               {field.options?.map((option, idx) => (
@@ -70,7 +70,7 @@ export default function SearchAndFilters({
             key={index}
             onClick={field.onClick}
             disabled={field.disable}
-            className="flex items-center gap-2 px-4 py-2 text-black border border-black text-[15px] font-medium hover:cursor-pointer hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 text-charcoal border border-silver text-[15px] font-medium hover:cursor-pointer hover:bg-platinum hover:border-cerulean disabled:bg-platinum disabled:cursor-not-allowed transition-colors"
           >
             <FilterIcon />
             {field.name || "Filter"}
@@ -83,7 +83,7 @@ export default function SearchAndFilters({
             key={index}
             onClick={field.onClick}
             disabled={field.disable}
-            className="flex items-center gap-2 px-4 py-2 border border-black text-[15px] font-medium text-black hover:cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 border border-silver text-[15px] font-medium text-charcoal hover:cursor-pointer hover:bg-platinum hover:border-cerulean disabled:bg-platinum disabled:cursor-not-allowed transition-colors"
           >
             <SortIcon />
             {field.name || "Sort"}
@@ -96,10 +96,10 @@ export default function SearchAndFilters({
             key={index}
             onClick={field.onClick}
             disabled={field.disable}
-            className="p-3 border border-black hover:bg-gray-50 hover:cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="p-3 border border-silver hover:bg-platinum hover:border-cerulean hover:cursor-pointer disabled:bg-platinum disabled:cursor-not-allowed transition-colors"
             aria-label="Grid view"
           >
-           <GridIcon />
+            <GridIcon />
           </button>
         );
 
@@ -109,7 +109,7 @@ export default function SearchAndFilters({
             key={index}
             onClick={field.onClick}
             disabled={field.disable}
-            className="p-3 border border-black hover:bg-gray-50 hover:cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="p-3 border border-silver hover:bg-platinum hover:border-cerulean hover:cursor-pointer disabled:bg-platinum disabled:cursor-not-allowed transition-colors"
             aria-label="List view"
           >
             <ListIcon />

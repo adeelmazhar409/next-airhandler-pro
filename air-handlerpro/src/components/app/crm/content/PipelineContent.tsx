@@ -11,10 +11,10 @@ interface Deal {
 }
 
 const stages = [
-  { name: "Lead", color: "bg-gray-500" },
-  { name: "Qualified", color: "bg-blue-500" },
+  { name: "Lead", color: "bg-silver" },
+  { name: "Qualified", color: "bg-cerulean" },
   { name: "Proposal", color: "bg-yellow-500" },
-  { name: "Negotiation", color: "bg-orange-500" },
+  { name: "Negotiation", color: "bg-slate" },
   { name: "Closed Won", color: "bg-green-500" },
   { name: "Closed Lost", color: "bg-red-500" },
 ];
@@ -52,16 +52,16 @@ export default function PipelineContent() {
   );
 
   return (
-    <div className="max-h-screen bg-gray-50">
+    <div className="max-h-screen bg-platinum/10">
       <div className="max-w-full mx-auto">
         {/* View Toggle Buttons */}
         <div className="flex gap-2 mb-4">
           <button
             onClick={() => setView("cards")}
-            className={`flex items-center gap-1 px-3 py-1.5 border border-black font-medium transition-colors rounded-md ${
+            className={`flex items-center gap-1 px-3 py-1.5 border font-medium transition-colors rounded-md ${
               view === "cards"
-                ? "bg-black text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
+                ? "bg-cerulean text-white border-cerulean"
+                : "bg-white text-charcoal border-silver hover:bg-platinum"
             }`}
           >
             <svg
@@ -82,10 +82,10 @@ export default function PipelineContent() {
 
           <button
             onClick={() => setView("table")}
-            className={`flex items-center gap-1 px-3 py-1.5 border border-black font-medium transition-colors rounded-md ${
+            className={`flex items-center gap-1 px-3 py-1.5 border font-medium transition-colors rounded-md ${
               view === "table"
-                ? "bg-black text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
+                ? "bg-cerulean text-white border-cerulean"
+                : "bg-white text-charcoal border-silver hover:bg-platinum"
             }`}
           >
             <svg
@@ -115,19 +115,19 @@ export default function PipelineContent() {
               return (
                 <div
                   key={stage.name}
-                  className="flex-shrink-0 w-60 bg-gray-100 rounded-lg border-2 border-gray-300"
+                  className="flex-shrink-0 w-60 bg-platinum/30 rounded-lg border-2 border-silver"
                 >
                   {/* Column Header */}
-                  <div className="p-3 border-b-2 border-gray-300 bg-white rounded-t-lg flex items-center justify-between">
+                  <div className="p-3 border-b-2 border-silver bg-white rounded-t-lg flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div
                         className={`w-3 h-3 rounded-full ${stage.color}`}
                       ></div>
-                      <span className="font-semibold text-gray-800 text-sm">
+                      <span className="font-semibold text-charcoal text-sm">
                         {stage.name}
                       </span>
                     </div>
-                    <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-700">
+                    <div className="w-7 h-7 rounded-full bg-platinum flex items-center justify-center text-xs font-bold text-charcoal">
                       {stageDeals.length}
                     </div>
                   </div>
@@ -135,22 +135,22 @@ export default function PipelineContent() {
                   {/* Cards */}
                   <div className="p-2 space-y-2 min-h-60">
                     {stageDeals.length === 0 ? (
-                      <p className="text-center text-gray-400 text-sm py-8">
+                      <p className="text-center text-slate text-sm py-8">
                         No deals in this stage
                       </p>
                     ) : (
                       stageDeals.map((deal) => (
                         <div
                           key={deal.id}
-                          className="bg-white p-3 rounded-lg border border-gray-300 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                          className="bg-white p-3 rounded-lg border border-silver shadow-sm hover:shadow-md hover:border-cerulean transition-all cursor-pointer"
                         >
-                          <h4 className="font-semibold text-gray-900 mb-1 text-sm">
+                          <h4 className="font-semibold text-charcoal mb-1 text-sm">
                             {deal.dealName}
                           </h4>
-                          <p className="text-xs text-gray-600 mb-2">
+                          <p className="text-xs text-slate mb-2">
                             {deal.accountName}
                           </p>
-                          <p className="text-base font-bold text-gray-900">
+                          <p className="text-base font-bold text-cerulean">
                             ${deal.amount.toLocaleString()}
                           </p>
                         </div>
@@ -165,22 +165,22 @@ export default function PipelineContent() {
 
         {/* Table View */}
         {view === "table" && (
-          <div className="bg-white rounded-lg border-2 border-gray-300 overflow-hidden">
+          <div className="bg-white rounded-lg border-2 border-silver overflow-hidden">
             {/* Search Bar */}
-            <div className="p-3 border-b border-gray-300">
+            <div className="p-3 border-b border-silver">
               <input
                 type="text"
                 placeholder="Search deals..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="w-full px-3 py-2 border border-silver rounded-md focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-cerulean text-sm text-charcoal placeholder:text-slate/60"
               />
             </div>
 
             {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-platinum/30">
                   <tr>
                     {[
                       "Account Name",
@@ -192,9 +192,9 @@ export default function PipelineContent() {
                     ].map((header) => (
                       <th
                         key={header}
-                        className="px-4 py-2 text-left text-xs font-semibold text-gray-900"
+                        className="px-4 py-2 text-left text-xs font-semibold text-charcoal"
                       >
-                        <button className="flex items-center gap-1 hover:text-gray-600">
+                        <button className="flex items-center gap-1 hover:text-cerulean transition-colors">
                           {header}
                           <svg
                             className="w-3 h-3"
@@ -219,7 +219,7 @@ export default function PipelineContent() {
                     <tr>
                       <td
                         colSpan={6}
-                        className="px-4 py-12 text-center text-gray-500 text-sm"
+                        className="px-4 py-12 text-center text-slate text-sm"
                       >
                         {deals.length === 0
                           ? "No deals yet. Click 'New Deal' to add your first one."
@@ -230,26 +230,26 @@ export default function PipelineContent() {
                     filteredDeals.map((deal) => (
                       <tr
                         key={deal.id}
-                        className="border-t border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="border-t border-silver hover:bg-platinum/20 transition-colors cursor-pointer"
                       >
-                        <td className="px-4 py-3 text-sm text-gray-900">
+                        <td className="px-4 py-3 text-sm text-charcoal">
                           {deal.accountName}
                         </td>
-                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                        <td className="px-4 py-3 text-sm font-medium text-charcoal">
                           {deal.dealName}
                         </td>
-                        <td className="px-4 py-3 text-sm font-bold text-gray-900">
+                        <td className="px-4 py-3 text-sm font-bold text-cerulean">
                           ${deal.amount.toLocaleString()}
                         </td>
                         <td className="px-4 py-3">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-cerulean/20 text-cerulean">
                             {deal.stage}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">
+                        <td className="px-4 py-3 text-sm text-slate">
                           {deal.closingDate}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">
+                        <td className="px-4 py-3 text-sm text-slate">
                           {deal.serviceSite}
                         </td>
                       </tr>
@@ -263,7 +263,7 @@ export default function PipelineContent() {
 
         {/* Floating New Deal Button */}
         {view === "table" && (
-          <button className="fixed bottom-8 right-8 bg-black text-white px-5 py-2.5 rounded-lg font-semibold shadow-xl hover:bg-gray-800 transition-all flex items-center gap-2 z-50">
+          <button className="fixed bottom-8 right-8 bg-cerulean text-white px-5 py-2.5 rounded-lg font-semibold shadow-xl hover:bg-slate transition-all flex items-center gap-2 z-50">
             <svg
               className="w-5 h-5"
               fill="none"

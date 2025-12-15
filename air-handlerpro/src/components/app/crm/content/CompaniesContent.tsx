@@ -27,8 +27,8 @@ export default function CompaniesContent() {
           onClick={() => setView("Companies")}
           className={`flex items-center gap-2 px-4 py-2 border border-black font-medium transition-colors rounded-md ${
             view === "Companies"
-              ? "bg-black text-white"
-              : "bg-white text-gray-700 hover:bg-gray-100"
+              ? "bg-cerulean text-white"
+              : "bg-white text-charcoal hover:bg-charcoal/30"
           }`}
         >
           <svg
@@ -51,8 +51,8 @@ export default function CompaniesContent() {
           onClick={() => setView("sites")}
           className={`flex items-center gap-2 px-4 py-2 border border-black font-medium transition-colors rounded-md ${
             view === "sites"
-              ? "bg-black text-white"
-              : "bg-white text-gray-700 hover:bg-gray-100"
+              ? "bg-cerulean text-white"
+              : "bg-white text-charcoal hover:bg-charcoal/30"
           }`}
         >
           <svg

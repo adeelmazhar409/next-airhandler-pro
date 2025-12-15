@@ -37,7 +37,7 @@ export default function TabNavigation({
 }: TabNavigationProps) {
   return (
     <div className="mb-6">
-      <div className="border-b border-gray-200 relative">
+      <div className="border-b border-charcol relative">
         <nav className="flex gap-6">
           {tabs.map((tab, index) => (
             <button
@@ -45,8 +45,8 @@ export default function TabNavigation({
               onClick={() => onTabChange(tab.value)}
               className={`pb-4 px-1 text-[15px] font-medium flex items-center gap-2 relative transition-colors ${
                 activeTab === tab.value
-                  ? "text-gray-900 font-semibold"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "text-charcoal/70 font-semibold"
+                  : "text-charcoal hover:text-charcoal/80"
               }`}
             >
               {tabIcons[tab.value]}
@@ -57,9 +57,9 @@ export default function TabNavigation({
 
         {/* Animated Underline */}
         <div
-          className="absolute bottom-0 h-0.5 bg-gray-900 transition-all duration-300 ease-in-out"
+          className="absolute bottom-0 h-0.5 bg-cerulean transition-all duration-300 ease-in-out"
           style={{
-            left: `${tabs.findIndex((tab) => tab.value === activeTab) * 119 }px`,
+            left: `${tabs.findIndex((tab) => tab.value === activeTab) * 119}px`,
             width: tabWidths[activeTab] || "95px",
           }}
         />

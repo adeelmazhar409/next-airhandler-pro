@@ -42,7 +42,7 @@ export default function ServiceReports() {
           key={section.id}
           className={index < sections.length - 1 ? "mb-8" : ""}
         >
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
+          <h2 className="text-lg font-bold text-charcoal mb-4">
             {section.title}
           </h2>
           <Actbox {...section.boxData} />

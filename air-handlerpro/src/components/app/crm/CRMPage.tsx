@@ -81,7 +81,7 @@ export default function CRMDashboard() {
       disable: false,
       show: true,
       onClick: () => console.log("Sort clicked"),
-    }
+    },
   ];
 
   const renderTabContent = () => {
@@ -102,7 +102,7 @@ export default function CRMDashboard() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-8 bg-platinum/10">
       <SearchAndFilters
         fields={inputFields}
         searchValue={searchValue}
@@ -118,5 +118,3 @@ export default function CRMDashboard() {
     </div>
   );
 }
-
-

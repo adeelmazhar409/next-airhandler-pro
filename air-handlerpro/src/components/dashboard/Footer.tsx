@@ -1,9 +1,9 @@
 const Footer = () => (
-  <footer className="border-t">
+  <footer className="border-t border-silver">
     <div className="container mx-auto max-w-7xl px-4 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
-      <div className="flex items-center gap-2 text-sm text-neutral-500">
+      <div className="flex items-center gap-2 text-sm text-slate">
         <svg
-          className="h-4 w-4"
+          className="h-4 w-4 text-cerulean"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -17,21 +17,25 @@ const Footer = () => (
         </svg>
         AirHandler Pro — HVAC estimating software
       </div>
-      <nav className="flex items-center gap-4 text-sm text-neutral-500">
-        <a href="#services" className="hover:text-neutral-900">
+      <nav className="flex items-center gap-4 text-sm text-slate">
+        <a href="#services" className="hover:text-cerulean transition-colors">
           Services
         </a>
-        <a href="#hvac-software" className="hover:text-neutral-900">
+        <a
+          href="#hvac-software"
+          className="hover:text-cerulean transition-colors"
+        >
           HVAC Software
         </a>
-        <a href="#consulting" className="hover:text-neutral-900">
+        <a href="#consulting" className="hover:text-cerulean transition-colors">
           Consulting
         </a>
-        <a href="/auth" className="hover:text-neutral-900">
+        <a href="/auth" className="hover:text-cerulean transition-colors">
           Sign In
         </a>
       </nav>
     </div>
   </footer>
 );
+
 export default Footer;

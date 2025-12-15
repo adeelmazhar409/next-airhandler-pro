@@ -91,10 +91,10 @@ export default function ContactsPage() {
     icon: <NocontactIcon />,
     description: "Manage your customer and prospect relationships here.",
   };
-  
+
   return (
-    <div className=" bg-gray-50 p-8">
-      <div className="flex justify-between items-center ">
+    <div className="bg-platinum/10 p-8">
+      <div className="flex justify-between items-center">
         <Heading
           title="Contact"
           description="Manage your customer and prospect relationships"
@@ -113,7 +113,7 @@ export default function ContactsPage() {
 
       {/* Results Count */}
       <div className="mb-6">
-        <p className="text-sm text-gray-600">Showing 0 of 0 contacts</p>
+        <p className="text-sm text-slate">Showing 0 of 0 contacts</p>
       </div>
 
       {/* Empty State */}

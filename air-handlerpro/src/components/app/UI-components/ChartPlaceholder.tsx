@@ -7,10 +7,16 @@ interface ChartPlaceholderProps {
 
 export default function ChartPlaceholder({ title }: ChartPlaceholderProps) {
   return (
-    <div className="bg-white border border-black/40 shadow-[0_0_0_1px_rgba(0,0,0,0.1),4px_4px_0_0_rgba(0,0,0,1)] transition-transform hover:scale-105 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.1),6px_6px_0_0_rgba(0,0,0,1)] p-6">
-      <div className="text-lg font-semibold text-gray-900 mb-6">{title}</div>
+    <div
+      className="bg-white border border-silver transition-transform hover:scale-105 p-6"
+      style={{
+        boxShadow:
+          "rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset",
+      }}
+    >
+      <div className="text-lg font-semibold text-charcoal mb-6">{title}</div>
       <div className="flex items-center justify-center h-[320px]">
-        <div className="text-center text-gray-400">
+        <div className="text-center text-silver">
           <ChartIcon />
           <p className="text-sm">No data available</p>
         </div>

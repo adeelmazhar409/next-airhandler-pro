@@ -14,7 +14,7 @@ export default function MaintenanceEstimatePro() {
       "Create and manage professional maintenance estimates with advanced features.",
   };
   return (
-    <div className=" bg-gray-50 p-8">
+    <div className="  p-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <Heading
