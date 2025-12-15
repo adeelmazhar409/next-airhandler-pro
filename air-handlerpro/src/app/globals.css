@@ -11,7 +11,7 @@
   --silver: #C5C3C6;
   --charcoal: #46494C;
   --slate: #4C5C68;
-  --cerulean: #000000;
+  --cerulean: #1985A1;
 }
 
 @theme inline {
@@ -33,8 +33,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #ffffff;
-    --foreground: #000000;
+    --background: #0a0a0a;
+    --foreground: #ffffff;
   }
 }
 
