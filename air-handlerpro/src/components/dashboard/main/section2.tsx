@@ -1,6 +1,12 @@
 import { title } from "process";
 import Mainbox from "./mainbox";
-import { BuildingIcon, purposalBuild } from "@/components/icons/icons";
+import {
+  BuildingIcon,
+  MobileIcon,
+  purposalBuild,
+  RightArrowIcon,
+} from "@/components/icons/icons";
+import Link from "next/link";
 
 const Section2 = () => {
   const softwarecard = {
@@ -77,38 +83,49 @@ const Section2 = () => {
     button: false,
   };
 
-
-   const operation = {
-     title: "Operations Optimization",
-     titleIcon: <BuildingIcon className="h-6 w-6 text-cerulean" />,
-     description:
-       "Streamline workflows, improve team efficiency, and implement systems that scale with your business growth.",
-     descriptionSize: "text-sm",
-     list: [],
-     button: false,
-   };
-   const profit = {
-     title: "Profitability Analysis",
-     titleIcon: <BuildingIcon className="h-6 w-6 text-cerulean" />,
-     description:
-       "Identify margin leaks, optimize pricing strategies, and maximize profitability across all service lines.",
-     descriptionSize: "text-sm",
-     list: [],
-     button: false,
+  const operation = {
+    title: "Operations Optimization",
+    titleIcon: <BuildingIcon className="h-6 w-6 text-cerulean" />,
+    description:
+      "Streamline workflows, improve team efficiency, and implement systems that scale with your business growth.",
+    descriptionSize: "text-sm",
+    list: [],
+    button: false,
   };
-  
-   const upgrade = {
-     title: "Upgrade to AirHandler Pro",
-     titleIcon: <BuildingIcon className="h-6 w-6 text-cerulean" />,
-     description:
-       "Consulting clients can add AirHandler Pro software at a special rate to complement strategic guidance with powerful operational tools.",
-     descriptionSize: "text-sm",
-     list: [],
-     button: true,
-     buttonText: "View Both Services",
-     buttonHref: "#services",
-     buttonColor: "bg-cerulean text-white  ",
-   };
+
+  const profit = {
+    title: "Profitability Analysis",
+    titleIcon: <BuildingIcon className="h-6 w-6 text-cerulean" />,
+    description:
+      "Identify margin leaks, optimize pricing strategies, and maximize profitability across all service lines.",
+    descriptionSize: "text-sm",
+    list: [],
+    button: false,
+  };
+
+  const upgrade = {
+    title: "Upgrade to AirHandler Pro",
+    titleIcon: <BuildingIcon className="h-6 w-6 text-cerulean" />,
+    description:
+      "Consulting clients can add AirHandler Pro software at a special rate to complement strategic guidance with powerful operational tools.",
+    descriptionSize: "text-sm",
+    list: [],
+    button: true,
+    buttonText: "View Both Services",
+    buttonHref: "#services",
+    buttonColor: "bg-cerulean text-white  ",
+  };
+
+  const mobile = {
+    title: "Built for mobile",
+    titleIcon: <MobileIcon className="h-6 w-6 text-cerulean" />,
+    description:
+      "Create and send estimates in the field. AirHandler Pro is responsive and fast on phones and tablets.",
+    descriptionSize: "text-sm",
+    list: [],
+    button: false,
+  };
+
   return (
     <>
       {/* Two Services */}
@@ -318,32 +335,7 @@ const Section2 = () => {
                 </li>
               </ul>
             </div>
-            <div>
-              <div className="inline-block bg-white border border-silver shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(76,92,104,1)] max-w-2xl">
-                <div className="p-6">
-                  <h3 className="text-2xl font-semibold flex items-center gap-2 text-charcoal">
-                    <svg
-                      className="h-5 w-5 text-cerulean"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                      />
-                    </svg>
-                    Built for mobile
-                  </h3>
-                </div>
-                <div className="px-6 pb-6 text-sm text-slate">
-                  Create and send estimates in the field. AirHandler Pro is
-                  responsive and fast on phones and tablets.
-                </div>
-              </div>
-            </div>
+            <Mainbox {...mobile} />
           </div>
         </div>
       </section>
@@ -364,19 +356,7 @@ const Section2 = () => {
           <div className="inline-block bg-white border border-silver shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(25,133,161,1)] max-w-2xl">
             <div className="p-6">
               <h3 className="text-2xl font-semibold flex items-center gap-2 text-charcoal">
-                <svg
-                  className="h-5 w-5 text-cerulean"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                  />
-                </svg>
+                <MobileIcon className="h-5 w-5 text-cerulean" />
                 Field
               </h3>
             </div>
@@ -440,31 +420,19 @@ const Section2 = () => {
                 profitably.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a
+                <Link
                   href="/auth"
-                  className="inline-flex items-center gap-2 justify-center bg-cerulean text-white hover:bg-slate px-8 py-3 text-sm font-medium transition-colors"
+                  className="inline-flex items-center gap-2 justify-center bg-cerulean text-white hover:bg-slate px-8 py-3 text-sm font-medium transition-colors rounded-pill"
                 >
                   Try HVAC Software
-                  <svg
-                    className="ml-2 h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 12h14M12 5l7 7-7 7"
-                    />
-                  </svg>
-                </a>
-                <a
+                  <RightArrowIcon />
+                </Link>
+                <Link
                   href="#consulting"
-                  className="inline-flex items-center justify-center bg-platinum text-charcoal hover:bg-silver px-8 py-3 text-sm font-medium transition-colors"
+                  className="inline-flex items-center justify-center bg-platinum text-charcoal hover:bg-silver px-8 py-3 text-sm font-medium transition-colors rounded-pill"
                 >
                   Explore Consulting
-                </a>
+                </Link>
               </div>
             </div>
           </div>

@@ -1,11 +1,13 @@
+import { RightArrowIcon } from "@/components/icons/icons";
+import Link from "next/link";
 import React from "react";
 
 interface MainboxProps {
-    title: string;
-    titleSize?: string;
+  title: string;
+  titleSize?: string;
   titleIcon?: React.ReactNode;
-    description: string;
-    descriptionSize?: string;
+  description: string;
+  descriptionSize?: string;
   list?: {
     value: string;
     icon: React.ReactNode;
@@ -15,15 +17,14 @@ interface MainboxProps {
   buttonHref?: string;
   buttonColor?: string;
   buttontwo?: boolean;
-  
 }
 
 export default function Mainbox({
-    title,
-    titleSize,
+  title,
+  titleSize,
   titleIcon,
-    description,
-    descriptionSize,
+  description,
+  descriptionSize,
   list,
   button,
   buttonText,
@@ -33,11 +34,8 @@ export default function Mainbox({
 }: MainboxProps) {
   return (
     <div
-      className="bg-white border border-silver flex flex-col justify-between "
-      style={{
-        boxShadow:
-          "rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset",
-      }}
+      className="bg-white border border-silver flex flex-col justify-between rounded-small-block shadow-[0_2px_4px_rgba(0,0,0,0.1),0_8px_16px_rgba(76,92,104,0.2),0_16px_32px_rgba(76,92,104,0.15)]"
+     
     >
       <div className="p-6">
         <h3
@@ -60,49 +58,25 @@ export default function Mainbox({
           </div>
         )}
         <div className="flex ">
-          <a
-            href={buttonHref}
+          <Link
+            href={buttonHref || "#"}
             className={`w-full ${
               button ? "flex" : "hidden"
-            } items-center justify-center hover:bg-slate hover:text-white px-4 py-2 text-sm font-medium transition-colors ${buttonColor}`}
+            } items-center justify-center hover:bg-slate hover:text-white px-4 py-2 text-sm font-medium rounded-pill transition-colors ${buttonColor}`}
           >
             {buttonText}
-            <svg
-              className="ml-2 h-4 w-4" 
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 12h14M12 5l7 7-7 7"
-              />
-            </svg>
-          </a>
+            <RightArrowIcon />
+          </Link>
 
-          <a
-            href={buttonHref}
+          <Link
+            href={buttonHref || "#"}
             className={`w-full ${
               buttontwo ? "flex" : "hidden"
-            } items-center justify-center hover:bg-slate hover:text-white px-4 py-2 text-sm font-medium transition-colors ${buttonColor}`}
+            } items-center justify-center hover:bg-slate hover:text-white px-4 py-2 text-sm font-medium rounded-pill transition-colors ${buttonColor}`}
           >
             {buttonText}
-            <svg
-              className="ml-2 h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 12h14M12 5l7 7-7 7"
-              />
-            </svg>
-          </a>
+            <RightArrowIcon />
+          </Link>
         </div>
       </div>
     </div>

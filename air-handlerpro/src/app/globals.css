@@ -29,7 +29,15 @@
   --color-charcoal: var(--charcoal);
   --color-slate: var(--slate);
   --color-cerulean: var(--cerulean);
+
+    /* Add custom border radius values */
+    --radius-big-block: 48px;
+    --radius-small-block: 32px;
+    --radius-pill: 9999px;
+    --radius-normal: 6px;
+
 }
+
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -43,3 +51,4 @@ body {
   color: var(--foreground);
   font-family: 'Space Grotesk', sans-serif;
 }
+

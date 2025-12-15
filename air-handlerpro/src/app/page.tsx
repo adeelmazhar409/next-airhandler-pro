@@ -6,7 +6,7 @@ import Seaction1 from "@/components/dashboard/main/section1";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-cerulean text-black ">
+    <div className="min-h-screen bg-white text-black ">
       {/* Header */}
       <TopNav />
 

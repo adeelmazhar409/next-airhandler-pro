@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 const TopNav = () => (
@@ -25,24 +26,24 @@ const TopNav = () => (
         </a>
       </nav>
       <div className="flex items-center gap-2">
-        <a
+        {/* <Link
           href=""
-          className="border border-silver bg-white hover:bg-platinum px-3 py-2 text-sm font-medium text-charcoal transition-colors"
+          className="border border-silver bg-white hover:bg-platinum px-3 py-2 text-sm font-medium text-charcoal rounded-normal transition-transform duration-300 ease-in-out hover:scale-105"
         >
           Consulting Login
-        </a>
-        <a
+        </Link> */}
+        <Link
           href="/auth"
-          className="border border-silver bg-white hover:bg-platinum px-3 py-2 text-sm font-medium text-charcoal transition-colors"
+          className="border border-silver bg-white hover:bg-platinum px-3 py-2 text-sm font-medium text-charcoal rounded-normal transition-transform duration-300 ease-in-out hover:scale-105"
         >
           Job Login
-        </a>
-        <a
+        </Link>
+        <Link
           href="/auth"
-          className="bg-cerulean text-white hover:bg-slate px-4 py-2 text-sm font-medium transition-colors"
+          className="bg-cerulean text-white hover:bg-slate px-4 py-2 text-sm font-medium rounded-normal transition-transform duration-300 ease-in-out hover:scale-105"
         >
           Get Started
-        </a>
+        </Link>
       </div>
     </div>
   </header>

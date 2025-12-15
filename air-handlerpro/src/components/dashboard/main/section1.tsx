@@ -1,8 +1,11 @@
+import { RightArrowIcon } from "@/components/icons/icons";
+import Link from "next/link";
+
 const Section1 = () => {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden mx-10 rounded-b-big-block">
         <img
           src="/hero-commercial-hvac.jpg"
           alt="Commercial HVAC"
@@ -10,43 +13,31 @@ const Section1 = () => {
         />
         <div className="absolute inset-0 bg-charcoal/50"></div>
         <div className="relative text-white">
-          <div className="container mx-auto max-w-7xl px-4 py-20 md:py-28">
+          <div className="container mx-auto max-w-7xl px-4 py-10 md:py-28">
             <div className="max-w-3xl">
               <h1 className="text-4xl md:text-6xl font-bold">
                 HVAC software & business consulting to grow your company
               </h1>
               <p className="mt-6 text-lg md:text-xl leading-8">
                 Get the tools to estimate faster and more profitably with
-                AirHandler Pro. Need strategic guidance? Our consulting
-                services help you scale operations, increase profitability,
-                and build a stronger business.
+                AirHandler Pro. Need strategic guidance? Our consulting services
+                help you scale operations, increase profitability, and build a
+                stronger business.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <a
+                <Link
                   href="/auth"
-                  className="inline-flex items-center justify-center bg-cerulean text-white hover:bg-slate px-8 gap-2 py-3 text-sm font-medium transition-colors"
+                  className="inline-flex items-center justify-center rounded-pill bg-cerulean/90 hover:bg-cerulean text-white px-8 gap-2 py-3 text-sm font-medium transition-transform duration-300 ease-in-out hover:scale-105"
                 >
                   Try HVAC Software
-                  <svg
-                    className="ml-2 h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 12h14M12 5l7 7-7 7"
-                    />
-                  </svg>
-                </a>
-                <a
+                  <RightArrowIcon />
+                </Link>
+                <Link
                   href="#consulting"
-                  className="inline-flex items-center justify-center bg-platinum text-charcoal hover:bg-silver px-8 py-3 text-sm font-medium transition-colors"
+                  className="inline-flex items-center justify-center rounded-pill bg-white/80 hover:bg-white text-charcoal px-8 py-3 text-sm font-medium transition-transform duration-300 ease-in-out hover:scale-105"
                 >
                   Business Consulting
-                </a>
+                </Link>
               </div>
               <div className="mt-8 flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center rounded-full gap-1 bg-platinum text-charcoal px-3 py-1 text-xs font-semibold">
