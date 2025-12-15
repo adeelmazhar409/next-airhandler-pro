@@ -14,7 +14,7 @@ interface MainboxProps {
   buttonText?: string;
   buttonHref?: string;
   buttonColor?: string;
-  buttonrwo?: boolean;
+  buttontwo?: boolean;
   
 }
 
