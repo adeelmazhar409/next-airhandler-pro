@@ -19,13 +19,14 @@ export default function StatsCard({
 }: StatsCardProps) {
   return (
     <div
-      className={`bg-white border border-silver px-5 py-3 ${
-        hoverable ? "" : ""
-      }`}
-      style={{
-        boxShadow:
-          "rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset",
-      }}
+      className={`bg-white border-2 rounded-3xl border-charcoal px-5 py-3 
+        transition-all duration-300
+        shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(76,92,104,1)]
+        ${
+          hoverable
+            ? "hover:shadow-[0_0_0_2px_rgba(25,133,161,1),8px_8px_0_0_rgba(76,92,104,1)] hover:-translate-y-1"
+            : ""
+        }`}
     >
       <div className="flex items-center justify-between mb-3">
         <div className="text-[13px] font-semibold text-charcoal flex items-center gap-2">

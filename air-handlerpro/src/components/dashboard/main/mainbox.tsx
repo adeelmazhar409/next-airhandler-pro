@@ -17,6 +17,10 @@ interface MainboxProps {
   buttonHref?: string;
   buttonColor?: string;
   buttontwo?: boolean;
+  buttontwoText?: string;
+  buttontwoHref?: string;
+  buttontwoColor?: string;
+  center?: string;
 }
 
 export default function Mainbox({
@@ -31,15 +35,22 @@ export default function Mainbox({
   buttonHref,
   buttonColor,
   buttontwo,
+  buttontwoColor,
+  buttontwoText,
+  buttontwoHref,
+  center,
 }: MainboxProps) {
   return (
     <div
-      className="bg-white border border-silver flex flex-col justify-between rounded-small-block shadow-[0_2px_4px_rgba(0,0,0,0.1),0_8px_16px_rgba(76,92,104,0.2),0_16px_32px_rgba(76,92,104,0.15)]"
-     
+      className={`${center} bg-white border-2 border-charcoal flex flex-col justify-between rounded-small-block 
+        transition-all duration-300
+        shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(76,92,104,1)]
+        hover:shadow-[0_0_0_2px_rgba(25,133,161,1),8px_8px_0_0_rgba(76,92,104,1)]
+        hover:-translate-y-1`}
     >
       <div className="p-6">
         <h3
-          className={` ${titleSize} font-semibold flex items-center gap-2 text-charcoal`}
+          className={`${titleSize} font-semibold flex items-center gap-2 text-charcoal`}
         >
           {titleIcon}
           {title}
@@ -57,10 +68,10 @@ export default function Mainbox({
             ))}
           </div>
         )}
-        <div className="flex ">
+        <div className="flex justify-center gap-4">
           <Link
             href={buttonHref || "#"}
-            className={`w-full ${
+            className={`${
               button ? "flex" : "hidden"
             } items-center justify-center hover:bg-slate hover:text-white px-4 py-2 text-sm font-medium rounded-pill transition-colors ${buttonColor}`}
           >
@@ -69,12 +80,12 @@ export default function Mainbox({
           </Link>
 
           <Link
-            href={buttonHref || "#"}
-            className={`w-full ${
+            href={buttontwoHref || "#"}
+            className={`${
               buttontwo ? "flex" : "hidden"
-            } items-center justify-center hover:bg-slate hover:text-white px-4 py-2 text-sm font-medium rounded-pill transition-colors ${buttonColor}`}
+            } items-center justify-center hover:bg-slate hover:text-white px-4 py-2 text-sm font-medium rounded-pill transition-colors ${buttontwoColor}`}
           >
-            {buttonText}
+            {buttontwoText}
             <RightArrowIcon />
           </Link>
         </div>

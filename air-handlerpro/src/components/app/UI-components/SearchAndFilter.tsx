@@ -38,7 +38,7 @@ export default function SearchAndFilters({
                 field.onChange?.(e.target.value);
               }}
               disabled={field.disable}
-              className="w-full pl-12 pr-4 py-2 border border-silver text-[15px] text-charcoal placeholder:text-slate/60 focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-cerulean disabled:bg-platinum disabled:cursor-not-allowed transition-colors"
+              className="w-full pl-12 rounded-lg pr-4 py-2 border border-silver text-[15px] text-charcoal placeholder:text-slate/60 focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-cerulean disabled:bg-platinum disabled:cursor-not-allowed transition-colors"
             />
           </div>
         );
@@ -49,7 +49,7 @@ export default function SearchAndFilters({
             <select
               disabled={field.disable}
               onChange={(e) => field.onChange?.(e.target.value)}
-              className="appearance-none pl-4 pr-10 py-2 border border-silver text-[15px] text-charcoal font-medium hover:cursor-pointer bg-white min-w-[140px] disabled:bg-platinum disabled:cursor-not-allowed transition-colors hover:border-cerulean"
+              className="appearance-none rounded-lg pl-4 pr-10 py-2 border border-silver text-[15px] text-charcoal font-medium hover:cursor-pointer bg-white min-w-[140px] disabled:bg-platinum disabled:cursor-not-allowed transition-colors hover:border-cerulean"
             >
               <option value="">{field.name || "Select"}</option>
               {field.options?.map((option, idx) => (
@@ -70,7 +70,7 @@ export default function SearchAndFilters({
             key={index}
             onClick={field.onClick}
             disabled={field.disable}
-            className="flex items-center gap-2 px-4 py-2 text-charcoal border border-silver text-[15px] font-medium hover:cursor-pointer hover:bg-platinum hover:border-cerulean disabled:bg-platinum disabled:cursor-not-allowed transition-colors"
+            className="flex items-center rounded-lg gap-2 px-4 py-2 text-charcoal border border-silver text-[15px] font-medium hover:cursor-pointer hover:bg-platinum hover:border-cerulean disabled:bg-platinum disabled:cursor-not-allowed transition-colors"
           >
             <FilterIcon />
             {field.name || "Filter"}
@@ -83,7 +83,7 @@ export default function SearchAndFilters({
             key={index}
             onClick={field.onClick}
             disabled={field.disable}
-            className="flex items-center gap-2 px-4 py-2 border border-silver text-[15px] font-medium text-charcoal hover:cursor-pointer hover:bg-platinum hover:border-cerulean disabled:bg-platinum disabled:cursor-not-allowed transition-colors"
+            className="flex items-center rounded-lg gap-2 px-4 py-2 border border-silver text-[15px] font-medium text-charcoal hover:cursor-pointer hover:bg-platinum hover:border-cerulean disabled:bg-platinum disabled:cursor-not-allowed transition-colors"
           >
             <SortIcon />
             {field.name || "Sort"}

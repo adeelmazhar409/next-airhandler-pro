@@ -24,7 +24,7 @@ const Section2 = () => {
     button: true,
     buttonText: "Learn More",
     buttonHref: "/auth",
-    buttonColor: "bg-cerulean text-white",
+    buttonColor: "bg-cerulean text-white w-full",
   };
 
   const consultingcard = {
@@ -42,7 +42,7 @@ const Section2 = () => {
     button: true,
     buttonText: "Learn More",
     buttonHref: "#consulting",
-    buttonColor: "bg-platinum text-charcoal",
+    buttonColor: "bg-platinum text-charcoal w-full",
   };
 
   const estimating = {
@@ -126,6 +126,48 @@ const Section2 = () => {
     button: false,
   };
 
+  const field = {
+    title: "Field",
+    titleIcon: <MobileIcon className="h-6 w-6 text-cerulean" />,
+    description:
+      "Quick-create options, photos, and notes so techs can generate accurate quotes on site.",
+    descriptionSize: "text-sm",
+  };
+
+   const sales = {
+     title: "Field",
+     titleIcon: <MobileIcon className="h-6 w-6 text-cerulean" />,
+     description:
+       "Quick-create options, photos, and notes so techs can generate accurate quotes on site.",
+     descriptionSize: "text-sm",
+  };
+  
+   const office = {
+     title: "Field",
+     titleIcon: <MobileIcon className="h-6 w-6 text-cerulean" />,
+     description:
+       "Quick-create options, photos, and notes so techs can generate accurate quotes on site.",
+     descriptionSize: "text-sm",
+  };
+  
+   const ready = {
+     title: "Ready to grow your HVAC business?",
+     titleSize: "text-2xl md:text-3xl text-center",
+     description:
+       "Whether you need powerful estimating software, strategic business consulting, or both — we're here to help you scale profitably.",
+     descriptionSize: "text-sm",
+     list: [],
+     button: true,
+     buttonText: "Try HVAC Software",
+     buttonHref: "/auth",
+     buttonColor: "bg-cerulean text-white ",
+     buttontwo: true,
+     buttontwoText: "Explore Consulting",
+     buttontwoHref: "#consulting",
+     buttontwoColor: "bg-platinum text-charcoal w-fit ",
+     center: "items-center",
+   };
+
   return (
     <>
       {/* Two Services */}
@@ -151,7 +193,7 @@ const Section2 = () => {
       </section>
 
       {/* HVAC Software Details */}
-      <section id="hvac-software" className="bg-platinum/30">
+      <section id="hvac-software" className="bg-cerulean ">
         <div className="container mx-auto max-w-7xl px-4 py-16 md:py-24">
           <div className="grid gap-10 md:grid-cols-2 md:items-center">
             <div>
@@ -166,7 +208,7 @@ const Section2 = () => {
               <div className="mt-6 grid gap-4">
                 <div className="flex items-start gap-3">
                   <svg
-                    className="h-5 w-5 text-cerulean mt-0.5"
+                    className="h-5 w-5   mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -189,7 +231,7 @@ const Section2 = () => {
                 </div>
                 <div className="flex items-start gap-3">
                   <svg
-                    className="h-5 w-5 text-cerulean mt-0.5"
+                    className="h-5 w-5  mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -212,7 +254,7 @@ const Section2 = () => {
                 </div>
                 <div className="flex items-start gap-3">
                   <svg
-                    className="h-5 w-5 text-cerulean mt-0.5"
+                    className="h-5 w-5  mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -272,7 +314,7 @@ const Section2 = () => {
       </section>
 
       {/* Maintenance Agreements */}
-      <section id="agreements" className="bg-platinum/30">
+      <section id="agreements" className="bg-cerulean/70">
         <div className="container mx-auto max-w-7xl px-4 py-16 md:py-24">
           <div className="grid gap-10 md:grid-cols-2 md:items-center">
             <div>
@@ -353,89 +395,18 @@ const Section2 = () => {
           office, or on the go.
         </p>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          <div className="inline-block bg-white border border-silver shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(25,133,161,1)] max-w-2xl">
-            <div className="p-6">
-              <h3 className="text-2xl font-semibold flex items-center gap-2 text-charcoal">
-                <MobileIcon className="h-5 w-5 text-cerulean" />
-                Field
-              </h3>
-            </div>
-            <div className="px-6 pb-6 text-sm text-slate">
-              Quick-create options, photos, and notes so techs can generate
-              accurate quotes on site.
-            </div>
-          </div>
-          <div className="inline-block bg-white border border-silver shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(25,133,161,1)] max-w-2xl">
-            <div className="p-6">
-              <h3 className="text-2xl font-semibold flex items-center gap-2 text-charcoal">
-                <img src="/calculator.png" alt="" className="h-5" />
-                Office
-              </h3>
-            </div>
-            <div className="px-6 pb-6 text-sm text-slate">
-              Detailed costing, approvals, and templates for consistent,
-              profitable estimates.
-            </div>
-          </div>
-          <div className="inline-block bg-white border border-silver shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(25,133,161,1)] max-w-2xl">
-            <div className="p-6">
-              <h3 className="text-2xl font-semibold flex items-center gap-2 text-charcoal">
-                <svg
-                  className="h-5 w-5 text-cerulean"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                  />
-                </svg>
-                Sales
-              </h3>
-            </div>
-            <div className="px-6 pb-6 text-sm text-slate">
-              Pipeline tools and proposal follow-ups to move deals to won
-              faster.
-            </div>
-          </div>
+          <Mainbox  {...field} />
+          <Mainbox {...sales} />
+          <Mainbox {...office} />
+          
         </div>
       </section>
 
       {/* CTA Section */}
-      <section id="cta" className="bg-platinum/30">
+      <section id="cta" className="bg-cerulean/50">
         <div className="container mx-auto max-w-7xl px-4 py-16 md:py-24">
-          <div className="bg-white border border-silver shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(25,133,161,1)]">
-            <div className="p-6">
-              <h3 className="text-2xl md:text-3xl font-semibold text-center text-charcoal">
-                Ready to grow your HVAC business?
-              </h3>
-            </div>
-            <div className="px-6 pb-6">
-              <p className="text-slate text-center max-w-2xl mx-auto mb-8">
-                Whether you need powerful estimating software, strategic
-                business consulting, or both — we're here to help you scale
-                profitably.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link
-                  href="/auth"
-                  className="inline-flex items-center gap-2 justify-center bg-cerulean text-white hover:bg-slate px-8 py-3 text-sm font-medium transition-colors rounded-pill"
-                >
-                  Try HVAC Software
-                  <RightArrowIcon />
-                </Link>
-                <Link
-                  href="#consulting"
-                  className="inline-flex items-center justify-center bg-platinum text-charcoal hover:bg-silver px-8 py-3 text-sm font-medium transition-colors rounded-pill"
-                >
-                  Explore Consulting
-                </Link>
-              </div>
-            </div>
-          </div>
+          <Mainbox {...ready} />
+    
         </div>
       </section>
     </>

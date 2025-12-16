@@ -8,11 +8,11 @@ interface ChartPlaceholderProps {
 export default function ChartPlaceholder({ title }: ChartPlaceholderProps) {
   return (
     <div
-      className="bg-white border border-silver transition-transform hover:scale-105 p-6"
-      style={{
-        boxShadow:
-          "rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset",
-      }}
+      className="bg-white border-2 rounded-lg border-charcoal p-6
+        transition-all duration-300
+        shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(76,92,104,1)]
+        hover:shadow-[0_0_0_2px_rgba(25,133,161,1),8px_8px_0_0_rgba(76,92,104,1)]
+        hover:-translate-y-1"
     >
       <div className="text-lg font-semibold text-charcoal mb-6">{title}</div>
       <div className="flex items-center justify-center h-[320px]">
