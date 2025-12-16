@@ -1,25 +1,37 @@
 import { title } from "process";
 import Mainbox from "./mainbox";
 import {
+  ActitivtyIcon,
+  BagIcon,
   BuildingIcon,
+  CalculatorIcon,
+  CircleIcon,
+  ClipboardIcon,
+  ContactsIcon,
+  EfficiencyIcon,
+  FileIcon,
+  GrowthIcon,
+  LightIcon,
   MobileIcon,
   purposalBuild,
   RightArrowIcon,
+  RocketIcon,
+  TeamIcon,
 } from "@/components/icons/icons";
 import Link from "next/link";
 
 const Section2 = () => {
   const softwarecard = {
     title: "AirHandler Pro Software",
-    titleIcon: <BuildingIcon className="h-6 w-6" />,
+    titleIcon: <CalculatorIcon className="h-6 w-6" />,
     titleSize: "text-2xl",
     description:
       "HVAC estimating software built for commercial contractors. Create maintenance agreements, proposals, and estimates fast to boost profitability and close more deals.",
     list: [
-      { icon: <BuildingIcon />, value: "Commercial HVAC focus" },
-      { icon: <BuildingIcon />, value: "Estimate templates" },
-      { icon: <BuildingIcon />, value: "Maintenance agreements" },
-      { icon: <BuildingIcon />, value: "Proposal builder" },
+      { icon: <RocketIcon className="h-4 w-4 text-cerulean"/>, value: "Commercial HVAC focus" },
+      { icon: <ClipboardIcon className="h-4 w-4 "/>, value: "Estimate templates" },
+      { icon: <FileIcon/>, value: "Maintenance agreements" },
+      { icon: <GrowthIcon />, value: "Proposal builder" },
     ],
     button: true,
     buttonText: "Learn More",
@@ -29,15 +41,21 @@ const Section2 = () => {
 
   const consultingcard = {
     title: "Business Consulting",
-    titleIcon: <BuildingIcon className="h-6 w-6" />,
+    titleIcon: <BagIcon className="h-6 w-6" />,
     titleSize: "text-2xl",
     description:
       "Strategic consulting services to help you scale operations, increase profitability, and build a stronger HVAC business. Expert guidance tailored to your growth goals.",
     list: [
-      { icon: <BuildingIcon />, value: "Strategic business planning" },
-      { icon: <BuildingIcon />, value: "Operational efficiency analysis" },
-      { icon: <BuildingIcon />, value: "Growth strategy development" },
-      { icon: <BuildingIcon />, value: "Profitability optimization" },
+      {
+        icon: <CircleIcon className="h-4 w-4 text-cerulean" />,
+        value: "Strategic business planning",
+      },
+      {
+        icon: <EfficiencyIcon className="h-4 w-4 text-cerulean" />,
+        value: "Operational efficiency analysis",
+      },
+      { icon: <LightIcon />, value: "Growth strategy development" },
+      { icon: <GrowthIcon className="h-4 w-4 text-cerulean" />, value: "Profitability optimization" },
     ],
     button: true,
     buttonText: "Learn More",
@@ -47,7 +65,7 @@ const Section2 = () => {
 
   const estimating = {
     title: "Estimating at its core",
-    titleIcon: <BuildingIcon className="h-6 w-6 text-cerulean" />,
+    titleIcon: <CalculatorIcon className="h-6 w-6 text-cerulean" />,
     description:
       "Libraries, templates, and automation reduce manual entry and speed up every estimate. Create maintenance agreements, small quotes, and large project proposals with the same intuitive flow.",
     descriptionSize: "text-sm",
@@ -57,7 +75,7 @@ const Section2 = () => {
 
   const Purposal = {
     title: "Estimating at its core",
-    titleIcon: <BuildingIcon className="h-4 w-4 text-cerulean" />,
+    titleIcon: <FileIcon className="h-4 w-4 text-cerulean" />,
     description: "Branded PDFs and e‑sign ready.",
     descriptionSize: "text-sm text-center",
     list: [],
@@ -66,7 +84,7 @@ const Section2 = () => {
 
   const Team = {
     title: "Team-ready",
-    titleIcon: <BuildingIcon className="h-4 w-4 text-cerulean" />,
+    titleIcon: <TeamIcon className="h-4 w-4 text-cerulean" />,
     description: "Works for field, office, and sales roles.",
     descriptionSize: "text-sm text-center",
     list: [],
@@ -75,7 +93,7 @@ const Section2 = () => {
 
   const planning = {
     title: "Strategic Planning",
-    titleIcon: <BuildingIcon className="h-6 w-6 text-cerulean" />,
+    titleIcon: <CircleIcon className="h-6 w-6 text-cerulean" />,
     description:
       "Develop clear growth strategies, set achievable goals, and create actionable roadmaps for your business expansion.",
     descriptionSize: "text-sm",
@@ -85,7 +103,7 @@ const Section2 = () => {
 
   const operation = {
     title: "Operations Optimization",
-    titleIcon: <BuildingIcon className="h-6 w-6 text-cerulean" />,
+    titleIcon: <EfficiencyIcon className="h-6 w-6 text-cerulean" />,
     description:
       "Streamline workflows, improve team efficiency, and implement systems that scale with your business growth.",
     descriptionSize: "text-sm",
@@ -95,7 +113,7 @@ const Section2 = () => {
 
   const profit = {
     title: "Profitability Analysis",
-    titleIcon: <BuildingIcon className="h-6 w-6 text-cerulean" />,
+    titleIcon: <GrowthIcon className="h-6 w-6 text-cerulean" />,
     description:
       "Identify margin leaks, optimize pricing strategies, and maximize profitability across all service lines.",
     descriptionSize: "text-sm",
@@ -105,7 +123,7 @@ const Section2 = () => {
 
   const upgrade = {
     title: "Upgrade to AirHandler Pro",
-    titleIcon: <BuildingIcon className="h-6 w-6 text-cerulean" />,
+    titleSize:"text-2xl",
     description:
       "Consulting clients can add AirHandler Pro software at a special rate to complement strategic guidance with powerful operational tools.",
     descriptionSize: "text-sm",
@@ -114,6 +132,7 @@ const Section2 = () => {
     buttonText: "View Both Services",
     buttonHref: "#services",
     buttonColor: "bg-cerulean text-white  ",
+    center:"items-center"
   };
 
   const mobile = {
@@ -135,20 +154,20 @@ const Section2 = () => {
   };
 
    const sales = {
-     title: "Field",
-     titleIcon: <MobileIcon className="h-6 w-6 text-cerulean" />,
+     title: "Sales",
+     titleIcon: <TeamIcon className="h-6 w-6 text-cerulean" />,
      description:
-       "Quick-create options, photos, and notes so techs can generate accurate quotes on site.",
+       "Pipeline tools and proposal follow‑ups to move deals to “won” faster.",
      descriptionSize: "text-sm",
-  };
+   };
   
    const office = {
-     title: "Field",
-     titleIcon: <MobileIcon className="h-6 w-6 text-cerulean" />,
+     title: "Office",
+     titleIcon: <CalculatorIcon className="h-6 w-6 text-cerulean" />,
      description:
-       "Quick-create options, photos, and notes so techs can generate accurate quotes on site.",
+       "Detailed costing, approvals, and templates for consistent, profitable estimates.",
      descriptionSize: "text-sm",
-  };
+   };
   
    const ready = {
      title: "Ready to grow your HVAC business?",
@@ -200,7 +219,7 @@ const Section2 = () => {
               <h2 className="text-3xl md:text-4xl font-semibold text-charcoal">
                 More than a CRM. Your HVAC sales engine.
               </h2>
-              <p className="mt-4 text-slate">
+              <p className="mt-4 text-charcoal">
                 AirHandler Pro optimizes your sales pipeline end-to-end — from
                 lead capture to proposal approval. Automate handoffs,
                 standardize pricing, and keep every opportunity moving.
@@ -224,7 +243,7 @@ const Section2 = () => {
                     <div className="font-medium text-charcoal">
                       Pipeline visibility
                     </div>
-                    <div className="text-sm text-slate">
+                    <div className="text-sm text-charcoal">
                       Track every opportunity and stage with clarity.
                     </div>
                   </div>
