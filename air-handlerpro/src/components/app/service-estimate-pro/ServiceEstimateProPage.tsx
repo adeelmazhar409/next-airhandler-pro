@@ -1,6 +1,6 @@
 import React from "react";
 import Heading from "../Heading";
-import Button from "../button";
+import Button from "../UI-components/button";
 import StatsCard from "../UI-components/StatsCard";
 import Actbox from "../UI-components/Actbox";
 import { ServiceEstimateIcon } from "../../icons/icons";

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import StatsCardsRow from "../UI-components/StatCardRow";
 import Heading from "../Heading";
-import Button from "../button";
+import Button from "../UI-components/button";
 import SearchAndFilters from "../UI-components/SearchAndFilter";
 import Actbox from "../UI-components/Actbox";
 import {

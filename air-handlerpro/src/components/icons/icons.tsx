@@ -135,9 +135,9 @@ const ActivitiesIcon = () => (
   </svg>
 );
 
-const ContactsIcon = () => (
+const ContactsIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg
-    className="w-4 h-4 text-gray-400"
+    className={`w-4 h-4 ${color}`}
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -151,9 +151,9 @@ const ContactsIcon = () => (
   </svg>
 );
 
-const CRMIcon = () => (
+const CRMIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg
-    className="w-4 h-4 text-gray-400"
+    className={`w-4 h-4 ${color}`}
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -944,7 +944,7 @@ const ClipboardIcon = ({ className }: any) => (
   </svg>
 );
 
-const FileIcon = ({className}: any) => (
+const FileIcon = ({ className }: any) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -954,7 +954,6 @@ const FileIcon = ({className}: any) => (
     strokeWidth="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-   
   >
     <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
     <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
@@ -964,7 +963,7 @@ const FileIcon = ({className}: any) => (
   </svg>
 );
 
-const GrowthIcon = ({className}:any) => (
+const GrowthIcon = ({ className }: any) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -973,7 +972,7 @@ const GrowthIcon = ({className}:any) => (
     strokeWidth="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-   className={className}
+    className={className}
   >
     <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
     <polyline points="16 7 22 7 22 13"></polyline>
@@ -981,17 +980,15 @@ const GrowthIcon = ({className}:any) => (
 );
 
 const CalculatorIcon = ({ className }: any) => (
-  <svg  strokeWidth="2"
+  <svg
+    strokeWidth="2"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-  
     stroke-linecap="round"
     stroke-linejoin="round"
     className={className}
-   
- 
   >
     <rect width="16" height="20" x="4" y="2" rx="2"></rect>
     <line x1="8" x2="16" y1="6" y2="6"></line>
@@ -1022,18 +1019,16 @@ const BagIcon = ({ className }: any) => (
   </svg>
 );
 
-const CircleIcon = ({className}:any) => (
+const CircleIcon = ({ className }: any) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-   className={className}
+    className={className}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-  
-   
   >
     <circle cx="12" cy="12" r="10"></circle>
     <circle cx="12" cy="12" r="6"></circle>
@@ -1041,17 +1036,16 @@ const CircleIcon = ({className}:any) => (
   </svg>
 );
 
-const EfficiencyIcon = ({className}:any) => (
+const EfficiencyIcon = ({ className }: any) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
- className={className}
+    className={className}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-  
   >
     <path d="M3 3v16a2 2 0 0 0 2 2h16"></path>
     <path d="M18 17V9"></path>
@@ -1063,14 +1057,12 @@ const EfficiencyIcon = ({className}:any) => (
 const LightIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-   
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-   
   >
     <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path>
     <path d="M9 18h6"></path>
@@ -1078,13 +1070,13 @@ const LightIcon = () => (
   </svg>
 );
 
-const TeamIcon = ({className}:any) => (
-  <svg  strokeWidth="2"
+const TeamIcon = ({ className }: any) => (
+  <svg
+    strokeWidth="2"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-  
     stroke-linecap="round"
     stroke-linejoin="round"
     className={className}
@@ -1143,7 +1135,6 @@ const UsersIcon = () => (
     />
   </svg>
 );
-
 
 const SettingsIcon = () => (
   <svg
