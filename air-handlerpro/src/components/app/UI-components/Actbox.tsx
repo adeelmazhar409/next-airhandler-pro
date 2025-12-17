@@ -1,5 +1,5 @@
 import React from "react";
-import Button from "../button";
+import Button from "./button";
 
 interface ActboxProps {
   header?: boolean; // Optional: whether to show the header
@@ -7,6 +7,7 @@ interface ActboxProps {
   headerIcon?: React.ReactNode; // Icon next to header title
   icon: React.ReactNode; // Large icon in empty state
   description: string; // Helper text below "No {value} found"
+  formOpen?: () => void;
 }
 
 export default function Actbox({
@@ -15,6 +16,7 @@ export default function Actbox({
   headerIcon,
   icon,
   description,
+  formOpen
 }: ActboxProps) {
   return (
     <div className="mx-auto my-3 px-4">
@@ -46,7 +48,7 @@ export default function Actbox({
 
       {/* Floating New Button */}
       <div className="mt-4 text-center">
-        <Button value={value} />
+        <Button onClick={formOpen} value={value} />
       </div>
     </div>
   );

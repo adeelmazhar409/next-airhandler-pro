@@ -7,13 +7,8 @@ interface ChartPlaceholderProps {
 
 export default function ChartPlaceholder({ title }: ChartPlaceholderProps) {
   return (
-    <div
-      className="rounded-2xl bg-white border-2  border-charcoal p-6
-        transition-all duration-300
-        shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(76,92,104,1)]
-        hover:shadow-[0_0_0_2px_rgba(25,133,161,1),8px_8px_0_0_rgba(76,92,104,1)]
-        hover:-translate-y-1"
-    >
+    <div className="bg-white rounded-normal p-6 transition-transform duration-300 hover:scale-101 ease-in-out
+        shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_4px_8px_rgba(76,92,104,0.3),0_1px_2px_rgba(0,0,0,0.2)]">
       <div className="text-lg font-semibold text-charcoal mb-6">{title}</div>
       <div className="flex items-center justify-center h-[320px]">
         <div className="text-center text-silver">

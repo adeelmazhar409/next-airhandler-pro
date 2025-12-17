@@ -1,5 +1,7 @@
 "use client";
 
+import DynamicFormBuilder from "@/components/forms/DynamicFormBuilder";
+
 // // 1. Layered Depth Shadow (Multiple layers)
 // shadow-[0_4px_0_0_rgba(76,92,104,1),0_8px_0_0_rgba(70,73,76,0.5),0_12px_20px_0_rgba(0,0,0,0.15)]
 
@@ -60,32 +62,5 @@
 
 // Hover transition between shadows
 export default function Test() {
-  return (
-    <>
-      <button
-        className="
-    bg-white 
-    border-2 
-    border-charcoal
-    transition-all 
-    duration-300
-    shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(76,92,104,1)]
-    hover:shadow-[0_0_0_2px_rgba(25,133,161,1),8px_8px_0_0_rgba(76,92,104,1)]
-    hover:-translate-y-1
-  "
-      >
-        Hover Me
-      </button>
 
-      {/* Or with your color variables */}
-      <div
-        className="
-    shadow-[0_0_20px_rgba(25,133,161,0.6),0_0_40px_rgba(25,133,161,0.4)]
-    hover:shadow-[0_0_30px_rgba(25,133,161,0.8),0_0_60px_rgba(25,133,161,0.6)]
-  "
-      >
-        Neon Glow
-      </div>
-    </>
-  );
 }

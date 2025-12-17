@@ -32,8 +32,7 @@ export default function CRMDashboard() {
     {
       title: "Total Companies",
       value: "0",
-      icon: <CRMIcon />,
-      hoverable: false,
+      icon: <CRMIcon color="text-gray-400" />,
     },
     {
       title: "Service Sites",
@@ -48,7 +47,7 @@ export default function CRMDashboard() {
     {
       title: "Prospects",
       value: "0",
-      icon: <ContactsIcon />,
+      icon: <ContactsIcon color="text-gray-400"/>,
     },
   ];
 

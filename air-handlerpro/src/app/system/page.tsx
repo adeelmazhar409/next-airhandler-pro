@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Sidebar from "@/components/app/Sidebar";
+import Sidebar from "@/components/app/Sidebar-comp/Sidebar";
 import Header from "@/components/app/UI-components/Header";
 import CRMDashboard from "@/components/app/crm/CRMPage";
 import ContactsPage from "@/components/app/contacts/ContactsPage";

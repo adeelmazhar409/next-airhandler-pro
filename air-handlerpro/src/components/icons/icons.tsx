@@ -135,9 +135,9 @@ const ActivitiesIcon = () => (
   </svg>
 );
 
-const ContactsIcon = () => (
+const ContactsIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg
-    className="w-4 h-4 text-gray-400"
+    className={`w-4 h-4 ${color}`}
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -151,9 +151,9 @@ const ContactsIcon = () => (
   </svg>
 );
 
-const CRMIcon = () => (
+const CRMIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg
-    className="w-4 h-4 text-gray-400"
+    className={`w-4 h-4 ${color}`}
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
@@ -944,7 +944,7 @@ const ClipboardIcon = ({ className }: any) => (
   </svg>
 );
 
-const FileIcon = ({className}: any) => (
+const FileIcon = ({ className }: any) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -964,7 +964,7 @@ const FileIcon = ({className}: any) => (
   </svg>
 );
 
-const GrowthIcon = ({className}:any) => (
+const GrowthIcon = ({ className }: any) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -981,7 +981,8 @@ const GrowthIcon = ({className}:any) => (
 );
 
 const CalculatorIcon = ({ className }: any) => (
-  <svg  strokeWidth="2"
+  <svg
+    strokeWidth="2"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     fill="none"
@@ -990,8 +991,6 @@ const CalculatorIcon = ({ className }: any) => (
     strokeLinecap="round"
     strokeLinejoin="round"
     className={className}
-   
- 
   >
     <rect width="16" height="20" x="4" y="2" rx="2"></rect>
     <line x1="8" x2="16" y1="6" y2="6"></line>
@@ -1022,10 +1021,10 @@ const BagIcon = ({ className }: any) => (
   </svg>
 );
 
-const CircleIcon = ({className}:any) => (
+const CircleIcon = ({ className }: any) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-   className={className}
+    className={className}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -1041,10 +1040,10 @@ const CircleIcon = ({className}:any) => (
   </svg>
 );
 
-const EfficiencyIcon = ({className}:any) => (
+const EfficiencyIcon = ({ className }: any) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
- className={className}
+    className={className}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -1063,7 +1062,6 @@ const EfficiencyIcon = ({className}:any) => (
 const LightIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-   
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -1078,8 +1076,9 @@ const LightIcon = () => (
   </svg>
 );
 
-const TeamIcon = ({className}:any) => (
-  <svg  strokeWidth="2"
+const TeamIcon = ({ className }: any) => (
+  <svg
+    strokeWidth="2"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     fill="none"
@@ -1143,7 +1142,6 @@ const UsersIcon = () => (
     />
   </svg>
 );
-
 
 const SettingsIcon = () => (
   <svg

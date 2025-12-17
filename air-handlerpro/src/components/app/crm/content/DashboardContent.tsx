@@ -45,7 +45,6 @@ export default function DashboardContent() {
       value: "0",
       subtitle: "Need attention",
       icon: <OverdueTasksIcon />,
-      alert: true,
     },
     {
       title: "Upcoming",

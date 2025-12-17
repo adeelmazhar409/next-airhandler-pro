@@ -75,7 +75,7 @@ export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
               <button
                 key={index}
                 onClick={() => onPageChange(item.value)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg transition-colors ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg transition-colors cursor-pointer ${
                   activePage === item.value
                     ? " bg-white text-charcoal  font-medium"
                     : " hover:bg-platinum hover:text-charcoal"
