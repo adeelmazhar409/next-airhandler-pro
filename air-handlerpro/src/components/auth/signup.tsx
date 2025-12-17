@@ -15,6 +15,7 @@ const SignUpForm = ({
   onPasswordChange,
   onConfirmPasswordChange,
   onSubmit,
+  loading = false,
 }: {
   email: string;
   password: string;
@@ -23,6 +24,7 @@ const SignUpForm = ({
   onPasswordChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onConfirmPasswordChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
+  loading?: boolean;
 }) => {
   const pwdInfo = getPasswordInfo(password);
 
@@ -41,6 +43,7 @@ const SignUpForm = ({
           onChange={onEmailChange}
           placeholder="Enter your email"
           icon={<EmailIcon />}
+          disabled={loading}
         />
 
         <div>
@@ -51,6 +54,7 @@ const SignUpForm = ({
             onChange={onPasswordChange}
             placeholder="Create a password"
             minLength={8}
+            disabled={loading}
           />
           {password && <PasswordStrengthMeter pwdInfo={pwdInfo} />}
         </div>
@@ -62,13 +66,15 @@ const SignUpForm = ({
           onChange={onConfirmPasswordChange}
           placeholder="Confirm your password"
           minLength={8}
+          disabled={loading}
         />
 
         <button
           type="submit"
-          className="w-full inline-flex items-center justify-center bg-cerulean text-white hover:bg-slate px-4 py-2 text-sm font-medium transition-colors"
+          disabled={loading}
+          className="w-full inline-flex items-center justify-center bg-cerulean text-white hover:bg-slate px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Create Account
+          {loading ? "Creating account..." : "Create Account"}
         </button>
       </form>
     </div>

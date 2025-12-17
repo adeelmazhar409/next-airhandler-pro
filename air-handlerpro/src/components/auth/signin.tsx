@@ -9,6 +9,7 @@ const SignInForm = ({
   onPasswordChange,
   onSubmit,
   onForgotPassword,
+  loading = false,
 }: {
   email: string;
   password: string;
@@ -16,6 +17,7 @@ const SignInForm = ({
   onPasswordChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent) => void;
   onForgotPassword: () => void;
+  loading?: boolean;
 }) => (
   <div className="p-6">
     <div className="text-center mb-6">
@@ -31,6 +33,7 @@ const SignInForm = ({
         onChange={onEmailChange}
         placeholder="Enter your email"
         icon={<EmailIcon />}
+        disabled={loading}
       />
 
       <PasswordField
@@ -39,20 +42,23 @@ const SignInForm = ({
         value={password}
         onChange={onPasswordChange}
         placeholder="Enter your password"
+        disabled={loading}
       />
 
       <button
         type="submit"
-        className="w-full inline-flex items-center justify-center bg-cerulean text-white hover:bg-slate px-4 py-2 text-sm font-medium transition-colors"
+        disabled={loading}
+        className="w-full inline-flex items-center justify-center bg-cerulean text-white hover:bg-slate px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Sign In
+        {loading ? "Signing in..." : "Sign In"}
       </button>
 
       <div className="text-center mt-4">
         <button
           type="button"
           onClick={onForgotPassword}
-          className="text-sm text-cerulean hover:text-slate hover:underline transition-colors"
+          disabled={loading}
+          className="text-sm text-cerulean hover:text-slate hover:underline transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Forgot your password?
         </button>

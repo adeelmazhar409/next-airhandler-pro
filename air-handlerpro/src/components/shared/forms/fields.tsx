@@ -16,6 +16,7 @@ const InputField = ({
     onChange,
     placeholder,
     icon,
+    disabled = false,
   }: {
     id: string;
     type: string;
@@ -24,6 +25,7 @@ const InputField = ({
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     placeholder: string;
     icon: React.ReactNode;
+    disabled?: boolean;
   }) => (
     <div className="space-y-2">
       <label htmlFor={id} className="text-sm text-black font-medium">
@@ -39,7 +41,8 @@ const InputField = ({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className="flex text-neutral-500 h-10 w-full border border-neutral-200 bg-white px-3 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+          disabled={disabled}
+          className="flex text-neutral-500 h-10 w-full border border-neutral-200 bg-white px-3 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed"
           required
         />
       </div>
@@ -54,6 +57,7 @@ const InputField = ({
     onChange,
     placeholder,
     minLength,
+    disabled = false,
   }: {
     id: string;
     label: string;
@@ -61,9 +65,10 @@ const InputField = ({
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     placeholder: string;
     minLength?: number;
+    disabled?: boolean;
   }) => {
     const [showPassword, setShowPassword] = useState(false);
-  
+
     return (
       <div className="space-y-2">
         <label htmlFor={id} className="text-sm text-black font-medium">
@@ -79,14 +84,16 @@ const InputField = ({
             placeholder={placeholder}
             value={value}
             onChange={onChange}
-            className="flex h-10 text-neutral-500 w-full border border-neutral-200 bg-white px-3 py-2 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+            disabled={disabled}
+            className="flex h-10 text-neutral-500 w-full border border-neutral-200 bg-white px-3 py-2 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed"
             required
             minLength={minLength}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500"
+            disabled={disabled}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {showPassword ? <EyeOffIcon /> : <EyeIcon />}
           </button>
