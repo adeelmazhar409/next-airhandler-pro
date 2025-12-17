@@ -3,8 +3,6 @@
 // // 1. Layered Depth Shadow (Multiple layers)
 // shadow-[0_4px_0_0_rgba(76,92,104,1),0_8px_0_0_rgba(70,73,76,0.5),0_12px_20px_0_rgba(0,0,0,0.15)]
 
-// // 2. Neon Glow Effect
-// shadow-[0_0_20px_rgba(25,133,161,0.6),0_0_40px_rgba(25,133,161,0.4),0_0_60px_rgba(25,133,161,0.2)]
 
 // // 3. Brutal/Neobrutalism Shadow (Offset with border)
 // shadow-[0_0_0_2px_rgba(70,73,76,1),8px_8px_0_0_rgba(25,133,161,1)]

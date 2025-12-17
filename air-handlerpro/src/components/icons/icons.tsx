@@ -952,8 +952,8 @@ const FileIcon = ({className}: any) => (
     className={className}
     stroke="currentColor"
     strokeWidth="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeLinecap="round"
+    strokeLinejoin="round"
    
   >
     <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
@@ -971,8 +971,8 @@ const GrowthIcon = ({className}:any) => (
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeLinecap="round"
+    strokeLinejoin="round"
    className={className}
   >
     <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
@@ -987,8 +987,8 @@ const CalculatorIcon = ({ className }: any) => (
     fill="none"
     stroke="currentColor"
   
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeLinecap="round"
+    strokeLinejoin="round"
     className={className}
    
  
@@ -1014,7 +1014,7 @@ const BagIcon = ({ className }: any) => (
     stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
-    stroke-linejoin="round"
+    strokeLinejoin="round"
     className={className}
   >
     <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
@@ -1030,8 +1030,8 @@ const CircleIcon = ({className}:any) => (
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeLinecap="round"
+    strokeLinejoin="round"
   
    
   >
@@ -1049,8 +1049,8 @@ const EfficiencyIcon = ({className}:any) => (
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeLinecap="round"
+    strokeLinejoin="round"
   
   >
     <path d="M3 3v16a2 2 0 0 0 2 2h16"></path>
@@ -1068,8 +1068,8 @@ const LightIcon = () => (
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeLinecap="round"
+    strokeLinejoin="round"
    
   >
     <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path>
@@ -1085,8 +1085,8 @@ const TeamIcon = ({className}:any) => (
     fill="none"
     stroke="currentColor"
   
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeLinecap="round"
+    strokeLinejoin="round"
     className={className}
   >
     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>

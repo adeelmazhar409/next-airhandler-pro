@@ -216,10 +216,10 @@ const Section2 = () => {
         <div className="container mx-auto max-w-7xl px-4 py-16 md:py-24">
           <div className="grid gap-10 md:grid-cols-2 md:items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-charcoal">
+              <h2 className="text-3xl md:text-4xl font-semibold text-white">
                 More than a CRM. Your HVAC sales engine.
               </h2>
-              <p className="mt-4 text-charcoal">
+              <p className="mt-4 text-white">
                 AirHandler Pro optimizes your sales pipeline end-to-end — from
                 lead capture to proposal approval. Automate handoffs,
                 standardize pricing, and keep every opportunity moving.
@@ -227,7 +227,7 @@ const Section2 = () => {
               <div className="mt-6 grid gap-4">
                 <div className="flex items-start gap-3">
                   <svg
-                    className="h-5 w-5   mt-0.5"
+                    className="h-5 w-5 text-white  mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -240,17 +240,17 @@ const Section2 = () => {
                     />
                   </svg>
                   <div>
-                    <div className="font-medium text-charcoal">
+                    <div className="font-medium text-white">
                       Pipeline visibility
                     </div>
-                    <div className="text-sm text-charcoal">
+                    <div className="text-sm text-white">
                       Track every opportunity and stage with clarity.
                     </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <svg
-                    className="h-5 w-5  mt-0.5"
+                    className="h-5 w-5 text-white  mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -263,17 +263,17 @@ const Section2 = () => {
                     />
                   </svg>
                   <div>
-                    <div className="font-medium text-charcoal">
+                    <div className="font-medium text-white">
                       Standardized proposals
                     </div>
-                    <div className="text-sm text-slate">
+                    <div className="text-sm text-white">
                       Professional, consistent proposals your clients trust.
                     </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <svg
-                    className="h-5 w-5  mt-0.5"
+                    className="h-5 w-5 text-white mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -286,10 +286,10 @@ const Section2 = () => {
                     />
                   </svg>
                   <div>
-                    <div className="font-medium text-charcoal">
+                    <div className="font-medium text-white">
                       Margin protection
                     </div>
-                    <div className="text-sm text-slate">
+                    <div className="text-sm text-white">
                       Smart guardrails ensure profitable pricing.
                     </div>
                   </div>
@@ -333,22 +333,22 @@ const Section2 = () => {
       </section>
 
       {/* Maintenance Agreements */}
-      <section id="agreements" className="bg-cerulean/70">
+      <section id="agreements" className="bg-cerulean">
         <div className="container mx-auto max-w-7xl px-4 py-16 md:py-24">
           <div className="grid gap-10 md:grid-cols-2 md:items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-charcoal">
+              <h2 className="text-3xl md:text-4xl font-semibold text-white">
                 Maintenance agreement estimating and proposals
               </h2>
-              <p className="mt-4 text-slate">
+              <p className="mt-4 text-white">
                 Build multi-site agreements with task libraries, scheduled
                 visits, and transparent pricing. Generate polished proposals
                 your clients can approve on the spot.
               </p>
-              <ul className="mt-6 grid gap-3 text-sm text-slate">
+              <ul className="mt-6 grid gap-3 text-sm text-white">
                 <li className="flex items-start gap-2">
                   <svg
-                    className="h-4 w-4 text-cerulean mt-0.5"
+                    className="h-4 w-4 text-white mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -364,7 +364,7 @@ const Section2 = () => {
                 </li>
                 <li className="flex items-start gap-2">
                   <svg
-                    className="h-4 w-4 text-cerulean mt-0.5"
+                    className="h-4 w-4 text-white mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -380,7 +380,7 @@ const Section2 = () => {
                 </li>
                 <li className="flex items-start gap-2">
                   <svg
-                    className="h-4 w-4 text-cerulean mt-0.5"
+                    className="h-4 w-4 text-white mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -422,7 +422,7 @@ const Section2 = () => {
       </section>
 
       {/* CTA Section */}
-      <section id="cta" className="bg-cerulean/50">
+      <section id="cta" className="bg-cerulean/70">
         <div className="container mx-auto max-w-7xl px-4 py-16 md:py-24">
           <Mainbox {...ready} />
     

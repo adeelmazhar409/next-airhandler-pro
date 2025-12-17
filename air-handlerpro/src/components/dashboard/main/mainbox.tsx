@@ -44,7 +44,7 @@ export default function Mainbox({
     <div
       className={`${center} bg-white border-2 border-charcoal flex flex-col justify-between rounded-small-block 
         transition-all duration-300
-        shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(76,92,104,1)]
+        shadow-[2px_2px_0_0_rgba(76,92,104,1),4px_4px_0_0_rgba(70,73,76,1),6px_6px_0_0_rgba(25,133,161,1)]
         hover:shadow-[0_0_0_2px_rgba(25,133,161,1),8px_8px_0_0_rgba(76,92,104,1)]
         hover:-translate-y-1`}
     >
