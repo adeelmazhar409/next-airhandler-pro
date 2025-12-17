@@ -7,7 +7,7 @@ import { ForgotPasswordForm } from "@/components/auth/forgotpassword";
 import { supabase } from "@/lib/supabase";
 
 // ============================================================================
-// MAIN AUTH COMPONENT
+// MAIN AUTH COMPONENT - FIXED VERSION
 // ============================================================================
 export default function Auth() {
   // State Management
@@ -19,6 +19,7 @@ export default function Auth() {
   const [resetEmail, setResetEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   // Form Handlers
   const handleSignIn = async (e: React.FormEvent) => {
@@ -40,6 +41,17 @@ export default function Auth() {
 
       if (data.user) {
         console.log("Sign in successful:", data.user);
+
+        // FIX: Check if email is verified before allowing access
+        if (!data.user.email_confirmed_at) {
+          setError(
+            "Please verify your email before signing in. Check your inbox for the verification link."
+          );
+          await supabase.auth.signOut(); // Sign them out
+          return;
+        }
+
+        // Only redirect if email is verified
         window.location.assign("/system");
       }
     } catch (err) {
@@ -54,6 +66,7 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccessMessage("");
 
     // Validate passwords match
     if (password !== confirmPassword) {
@@ -76,12 +89,22 @@ export default function Auth() {
 
       if (data.user) {
         console.log("Sign up successful:", data.user);
-        // You can customize this message based on your email confirmation settings
-        setError("Check your email to confirm your account!");
-        // Optionally redirect after a delay
+
+        // FIX: Don't redirect, show success message instead
+        setSuccessMessage(
+          "Account created! Please check your email to verify your account before signing in."
+        );
+
+        // Clear the form
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+
+        // Switch to sign in tab after 3 seconds
         setTimeout(() => {
-          window.location.assign("/system");
-        }, 2000);
+          setActiveTab("signin");
+          setSuccessMessage("");
+        }, 5000);
       }
     } catch (err) {
       setError("An unexpected error occurred");
@@ -143,9 +166,22 @@ export default function Auth() {
           </p>
         </div>
 
+        {/* Success Message */}
+        {successMessage && (
+          <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded">
+            <p className="text-sm">{successMessage}</p>
+          </div>
+        )}
+
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+          <div
+            className={`${
+              error.includes("Check your email")
+                ? "bg-green-50 border-green-200 text-green-800"
+                : "bg-red-50 border-red-200 text-red-800"
+            } border px-4 py-3 rounded`}
+          >
             <p className="text-sm">{error}</p>
           </div>
         )}
@@ -204,6 +240,7 @@ export default function Auth() {
                 setConfirmPassword(e.target.value)
               }
               onSubmit={handleSignUp}
+              loading={loading}
             />
           )}
         </div>
