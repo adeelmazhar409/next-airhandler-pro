@@ -719,7 +719,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
               {field.label}
             </label>
             <div className="space-y-3">
-              {field.option?.map((option: any, idx: number) => {
+              {field.box?.map((option: any, idx: number) => {
                 const isChecked = selectedValues.includes(option.value);
                 return (
                   <label

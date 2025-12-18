@@ -65,6 +65,7 @@ interface FieldConfig {
   hourplaceholder?: string;
   minuteplaceholder?: string;
   option?: string[];
+  box?: object[];
   optionDescription?: string[];
   buttonName?: string;
   message?: string;

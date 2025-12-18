@@ -149,7 +149,7 @@ export const CreateNewContactFormProps = [
         nature: "full",
         type: "checkbox-group",
         label: "Communication Preferences",
-        option: [
+        box: [
           { label: "Email opt-out", value: "email-opt-out" },
           { label: "SMS opt-out", value: "sms-opt-out" },
           { label: "Do not call", value: "do-not-call" },
