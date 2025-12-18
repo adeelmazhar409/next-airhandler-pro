@@ -1,7 +1,9 @@
 import React from "react";
 import Button from "./button";
+import ActivityFeed from "./activityfeed";
 
 interface ActboxProps {
+  data?: boolean;
   header?: boolean; // Optional: whether to show the header
   value: string; // e.g., "activities", "contacts", "deals"
   headerIcon?: React.ReactNode; // Icon next to header title
@@ -11,13 +13,14 @@ interface ActboxProps {
 }
 
 export default function Actbox({
+  data,
   header = true,
   value,
   headerIcon,
   icon,
   description,
   formOpen
-}: ActboxProps) {
+}: ActboxProps,) {
   return (
     <div className="mx-auto my-3 px-4">
       {/* Main Card */}
@@ -32,8 +35,15 @@ export default function Actbox({
           </div>
         )}
 
+
+        {data && (
+          
+<ActivityFeed/>
+)}
+        
+
         {/* Empty State Content */}
-        <div className="p-12 text-center">
+        <div className={`p-12 text-center ${!data ? "m-1" : "hidden"}`}>
           <div className="mx-auto w-14 h-14 mb-4 text-silver flex justify-center items-center">
             {icon}
           </div>

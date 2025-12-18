@@ -31,17 +31,17 @@ export default function CRMDashboard() {
   const topStats = [
     {
       title: "Total Companies",
-      value: "0",
+      value: "2",
       icon: <CRMIcon color="text-gray-400" />,
     },
     {
       title: "Service Sites",
-      value: "0",
+      value: "6",
       icon: <ServiceSitesIcon />,
     },
     {
       title: "Active Customers",
-      value: "0",
+      value: "2",
       icon: <ActiveCustomersIcon />,
     },
     {

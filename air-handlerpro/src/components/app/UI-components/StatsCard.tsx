@@ -7,6 +7,7 @@ interface StatsCardProps {
   icon?: React.ReactNode;
   alert?: boolean;
   hoverable?: boolean;
+  bar?: boolean;
 }
 
 export default function StatsCard({
@@ -14,8 +15,9 @@ export default function StatsCard({
   value,
   subtitle,
   icon,
-  alert = false,
+  alert,
   hoverable = true,
+  bar,
 }: StatsCardProps) {
   return (
     <div
@@ -37,6 +39,14 @@ export default function StatsCard({
         {value}
       </p>
       {subtitle && <p className="text-sm text-slate">{subtitle}</p>}
+
+      <div
+        className={`${
+          bar ? "flex" : "hidden"
+        }  h-3 bg-gray-200 rounded-full my-3 overflow-hidden`}
+      >
+        <div className="w-1/2 bg-cerulean h-full rounded-full"></div>
+      </div>
     </div>
   );
 }

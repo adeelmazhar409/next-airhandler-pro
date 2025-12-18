@@ -8,6 +8,10 @@ export interface Deal {
   stage: string;
   closingDate: string;
   serviceSite: string;
+  createdBy: string;
+  createdTime: string;
+  barPercentage: number;
+  owner?: boolean;
 }
 
 interface DealsTableProps {
@@ -35,7 +39,7 @@ export default function DealsTable({
 
   return (
     <>
-      <div className="bg-white rounded-lg border-2 border-silver overflow-hidden">
+      <div className="bg-white rounded-lg border-2 border-silver w-full">
         {/* Search Bar */}
         <div className="p-3 border-b border-silver">
           <input
@@ -59,6 +63,8 @@ export default function DealsTable({
                   "Stage",
                   "Closing Date",
                   "Service Site",
+                  "Created By",
+                  "Create time"
                 ].map((header) => (
                   <th
                     key={header}
@@ -122,6 +128,12 @@ export default function DealsTable({
                     </td>
                     <td className="px-4 py-3 text-sm text-slate">
                       {deal.serviceSite}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-slate">
+                      {deal.createdBy}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-slate">
+                      {deal.createdTime}
                     </td>
                   </tr>
                 ))

@@ -4,6 +4,7 @@ import Heading from "../Heading";
 import Button from "../UI-components/button";
 import SearchAndFilters from "../UI-components/SearchAndFilter";
 import Actbox from "../UI-components/Actbox";
+import ContactsExample from "../UI-components/ContactPageDataFormed";
 import {
   ActiveCustomersIcon,
   ContactsIcon,
@@ -20,13 +21,13 @@ export default function ContactsPage() {
   const topStats = [
     {
       title: "Total Companies",
-      value: "0",
+      value: "2",
       icon: <CRMIcon />,
       hoverable: false,
     },
     {
       title: "Service Sites",
-      value: "0",
+      value: "1",
       icon: <ServiceSitesIcon />,
     },
     {
@@ -36,7 +37,7 @@ export default function ContactsPage() {
     },
     {
       title: "Prospects",
-      value: "0",
+      value: "1",
       icon: <ContactsIcon />,
     },
   ];
@@ -85,6 +86,7 @@ export default function ContactsPage() {
     },
   ];
 
+  const data = true;
   const value = {
     header: false,
     value: "Contacts",
@@ -112,12 +114,20 @@ export default function ContactsPage() {
       />
 
       {/* Results Count */}
-      <div className="mb-6">
+    
+      {/* Empty State */}
+     {
+           data ? (
+             <ContactsExample/>
+        ) : (
+            <>
+            <div className="mb-6">
         <p className="text-sm text-slate">Showing 0 of 0 contacts</p>
       </div>
 
-      {/* Empty State */}
-      <Actbox {...value} />
+            <Actbox {...value} /></>)
+           }
+        
     </div>
   );
 }

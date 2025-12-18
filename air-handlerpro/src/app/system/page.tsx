@@ -9,7 +9,9 @@ import ServiceEstimateProPage from "@/components/app/service-estimate-pro/Servic
 import MaintenanceEstimateProPage from "@/components/app/maintenance-astimate-pro/MaintenanceEstimateProPage";
 import ServiceReportsPage from "@/components/app/service-reports/ServiceReportsPage";
 import JobWalksPage from "@/components/app/job-walks/JobWalksPage";
-
+import ScheduledVisitsGrid from "@/components/app/UI-components/workOrderDataFormed";
+import Administration from "@/components/app/company-administration/admistration";
+import SystemAdministration from "@/components/app/system-administration/system-admistration";
 export default function MainApplication() {
   const [activePage, setActivePage] = useState("CRM");
 
@@ -22,6 +24,9 @@ export default function MainApplication() {
       "Maintenance Estimate Pro": <MaintenanceEstimateProPage />,
       "Service Reports": <ServiceReportsPage />,
       "Job Walks": <JobWalksPage />,
+      "System Administration": <Administration/>,
+      "Company Administration":<SystemAdministration/>,
+
     };
 
     return pages[activePage] || <CRMDashboard />;

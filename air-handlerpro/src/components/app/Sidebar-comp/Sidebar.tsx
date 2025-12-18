@@ -10,10 +10,28 @@ import {
   MenuIcon,
 } from "@/components/icons/icons";
 
+import { Shield,ChartLine,Building2,Menu } from "lucide-react";
 interface SidebarProps {
   activePage: string;
   onPageChange: (page: string) => void;
 }
+
+const AdminNavigationItems = [
+  {
+    HeaderName: "System Admin",
+    HeaderIcon: <Shield className="h-4" />,
+    TitleName: "Admin Panel",
+    TitleIcon: <ChartLine className="h-4" />,
+    value: "System Administration",
+  },
+  {
+    HeaderName: "Company Admin",
+    HeaderIcon: <Building2 className="h-4" />,
+    TitleName: "Company Dashboard",
+    TitleIcon: <ChartLine className="h-4" />,
+    value: "Company Administration",
+  },
+];
 
 const navigationItems = [
   {
@@ -59,9 +77,35 @@ export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
       {/* Sidebar Header */}
       <div className="p-3  border-silver">
         <button className="p-2 hover:bg-platinum rounded">
-          <MenuIcon />
+          <Menu className="h-5 text-black"/>
         </button>
       </div>
+      <nav>
+        {AdminNavigationItems.map((item, index) => (
+          <div className="flex  flex-col  px-4" key={index}>
+            <div className="flex m-1 my-1">
+              {" "}
+              <div className="text-charcoal ">{item.HeaderIcon}</div>
+              <p className="text-charcoal text-xs px-2" key={index}>
+                {item.HeaderName}
+              </p>
+            </div>
+
+            <button
+              key={index}
+              onClick={() => onPageChange(item.value)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg transition-colors cursor-pointer ${
+                activePage === item.value
+                  ? " bg-white text-charcoal  font-medium"
+                  : " hover:bg-platinum hover:text-charcoal"
+              }`}
+            >
+              {item.TitleIcon}
+              <span className="text-[13px]">{item.TitleName}</span>
+            </button>
+          </div>
+        ))}
+      </nav>
 
       {/* Main Application Section */}
       <div className="flex-1 overflow-y-auto">

@@ -7,7 +7,7 @@ import { ForgotPasswordForm } from "@/components/auth/forgotpassword";
 import { supabase } from "@/lib/supabase";
 
 // ============================================================================
-// MAIN AUTH COMPONENT - FIXED VERSION
+// MAIN AUTH COMPONENT - IMPROVED ERROR HANDLING VERSION
 // ============================================================================
 export default function Auth() {
   // State Management
@@ -27,6 +27,21 @@ export default function Auth() {
     setLoading(true);
     setError("");
 
+    // Client-side validation
+    if (!email || !email.includes("@")) {
+      setError("Your email address is incorrect or invalid");
+      setLoading(false);
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      setError(
+        "Your password is incorrect or too short (minimum 6 characters)"
+      );
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -34,7 +49,25 @@ export default function Auth() {
       });
 
       if (error) {
-        setError(error.message);
+        // Parse Supabase error to provide specific feedback
+        if (error.message.toLowerCase().includes("invalid login credentials")) {
+          // This error means either email or password (or both) are wrong
+          setError(
+            "Your email or password is incorrect. Please check both fields and try again"
+          );
+        } else if (
+          error.message.toLowerCase().includes("email not confirmed")
+        ) {
+          setError(
+            "Please verify your email before signing in. Check your inbox for the verification link."
+          );
+        } else if (error.message.toLowerCase().includes("email")) {
+          setError("Your email address is incorrect or not registered");
+        } else if (error.message.toLowerCase().includes("password")) {
+          setError("Your password is incorrect");
+        } else {
+          setError(error.message);
+        }
         console.error("Sign in error:", error);
         return;
       }
@@ -68,9 +101,32 @@ export default function Auth() {
     setError("");
     setSuccessMessage("");
 
+    // Enhanced client-side validation for sign-up
+    if (!email || !email.includes("@") || !email.includes(".")) {
+      setError("Your email address is invalid. Please enter a valid email");
+      setLoading(false);
+      return;
+    }
+
+    if (!password) {
+      setError("Your password is required");
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError(
+        "Your password is too short. It must be at least 6 characters long"
+      );
+      setLoading(false);
+      return;
+    }
+
     // Validate passwords match
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(
+        "Your passwords do not match. Please make sure both password fields are identical"
+      );
       setLoading(false);
       return;
     }
@@ -82,7 +138,16 @@ export default function Auth() {
       });
 
       if (error) {
-        setError(error.message);
+        // Parse Supabase error to provide specific feedback
+        if (error.message.toLowerCase().includes("email")) {
+          setError("Your email address is invalid or already registered");
+        } else if (error.message.toLowerCase().includes("password")) {
+          setError(
+            "Your password does not meet the requirements. Please use a stronger password"
+          );
+        } else {
+          setError(error.message);
+        }
         console.error("Sign up error:", error);
         return;
       }
@@ -92,7 +157,7 @@ export default function Auth() {
 
         // FIX: Don't redirect, show success message instead
         setSuccessMessage(
-          "Account created! Please check your email to verify your account before signing in."
+          "Account created successfully! Please check your email to verify your account before signing in."
         );
 
         // Clear the form
@@ -100,7 +165,7 @@ export default function Auth() {
         setPassword("");
         setConfirmPassword("");
 
-        // Switch to sign in tab after 3 seconds
+        // Switch to sign in tab after 5 seconds
         setTimeout(() => {
           setActiveTab("signin");
           setSuccessMessage("");
@@ -119,19 +184,40 @@ export default function Auth() {
     setLoading(true);
     setError("");
 
+    // Validate email before sending reset
+    if (!resetEmail || !resetEmail.includes("@")) {
+      setError("Your email address is invalid. Please enter a valid email");
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       });
 
       if (error) {
-        setError(error.message);
+        if (error.message.toLowerCase().includes("email")) {
+          setError(
+            "Your email address was not found. Please check and try again"
+          );
+        } else {
+          setError(error.message);
+        }
         console.error("Reset password error:", error);
         return;
       }
 
-      setError("Check your email for the password reset link!");
+      setSuccessMessage("Password reset link sent! Check your email inbox");
+      setError(""); // Clear any previous errors
       console.log("Reset password email sent to:", resetEmail);
+
+      // Clear form and go back after 3 seconds
+      setTimeout(() => {
+        setResetEmail("");
+        setShowForgotPassword(false);
+        setSuccessMessage("");
+      }, 3000);
     } catch (err) {
       setError("An unexpected error occurred");
       console.error("Reset password error:", err);
@@ -147,7 +233,11 @@ export default function Auth() {
         email={resetEmail}
         onEmailChange={(e) => setResetEmail(e.target.value)}
         onSubmit={handleForgotPassword}
-        onBack={() => setShowForgotPassword(false)}
+        onBack={() => {
+          setShowForgotPassword(false);
+          setError("");
+          setSuccessMessage("");
+        }}
       />
     );
   }
@@ -175,13 +265,7 @@ export default function Auth() {
 
         {/* Error Message */}
         {error && (
-          <div
-            className={`${
-              error.includes("Check your email")
-                ? "bg-green-50 border-green-200 text-green-800"
-                : "bg-red-50 border-red-200 text-red-800"
-            } border px-4 py-3 rounded`}
-          >
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
             <p className="text-sm">{error}</p>
           </div>
         )}
@@ -192,7 +276,11 @@ export default function Auth() {
           <div className="p-6 pb-0">
             <div className="inline-flex h-10 items-center justify-center bg-platinum p-1 text-slate w-full">
               <button
-                onClick={() => setActiveTab("signin")}
+                onClick={() => {
+                  setActiveTab("signin");
+                  setError("");
+                  setSuccessMessage("");
+                }}
                 disabled={loading}
                 className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all flex-1 ${
                   activeTab === "signin"
@@ -203,7 +291,11 @@ export default function Auth() {
                 Sign In
               </button>
               <button
-                onClick={() => setActiveTab("signup")}
+                onClick={() => {
+                  setActiveTab("signup");
+                  setError("");
+                  setSuccessMessage("");
+                }}
                 disabled={loading}
                 className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all flex-1 ${
                   activeTab === "signup"
@@ -224,7 +316,11 @@ export default function Auth() {
               onEmailChange={(e) => setEmail(e.target.value)}
               onPasswordChange={(e) => setPassword(e.target.value)}
               onSubmit={handleSignIn}
-              onForgotPassword={() => setShowForgotPassword(true)}
+              onForgotPassword={() => {
+                setShowForgotPassword(true);
+                setError("");
+                setSuccessMessage("");
+              }}
               loading={loading}
             />
           )}

@@ -5,6 +5,7 @@ import { ClockIcon } from "../../../icons/icons";
 
 export default function ActivitiesContent() {
   const value = {
+    data:true,
     header: true,
     value: "Activity",
     headerIcon: <ActitivtyIcon />,

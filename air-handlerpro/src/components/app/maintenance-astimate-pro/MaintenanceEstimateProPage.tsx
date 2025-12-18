@@ -5,6 +5,7 @@ import Actbox from "../UI-components/Actbox";
 import Heading from "../Heading";
 import { ClockIcon } from "@/components/icons/icons";
 import { useState } from "react";
+import EstimatesGrid from "../UI-components/MaintaineceDataFormed";
 import { MaintenanceEstimateForm } from "./MaintenanceEstimateForm";
 
 export default function MaintenanceEstimatePro() {
@@ -44,6 +45,8 @@ export default function MaintenanceEstimatePro() {
     );
   }
 
+  const MantainaceData = true;
+
   return (
     <div className="p-8">
       {/* Header */}
@@ -57,7 +60,9 @@ export default function MaintenanceEstimatePro() {
       </div>
 
       {/* Empty State Card */}
-      <Actbox {...data} />
+      {MantainaceData ? <EstimatesGrid/> :   <Actbox {...data} /> }
+   
+
     </div>
   );
 }

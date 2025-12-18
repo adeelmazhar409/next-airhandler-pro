@@ -2,7 +2,7 @@ import React from "react";
 import StatsCard from "../../UI-components/StatsCard";
 import { ContactsIcon, NocontactIcon } from "../../../icons/icons";
 import Actbox from "../../UI-components/Actbox";
-
+import ContactsExample from "../../UI-components/ContactPageDataFormed";
 export default function ContactsContent() {
   const value = {
     header: false,
@@ -14,13 +14,13 @@ export default function ContactsContent() {
   const cards = [
     {
       title: "total contacts",
-      value: 0,
+      value: 2,
       icon: <ContactsIcon />,
       hoverable: false,
     },
     {
       title: "Active Contacts",
-      value: 0,
+      value: 1,
       icon: <ContactsIcon />,
       hoverable: false,
     },
@@ -32,11 +32,13 @@ export default function ContactsContent() {
     },
     {
       title: "Customers",
-      value: 0,
+      value: 1,
       icon: <ContactsIcon />,
       hoverable: false,
     },
   ];
+
+  const data = true;
 
   return (
     <div className="min-h-screen bg-platinum/10">
@@ -66,13 +68,13 @@ export default function ContactsContent() {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-charcoal">0</div>
+              <div className="text-2xl font-bold text-charcoal">2</div>
               <div className="text-[11px] text-slate mt-0.5">
                 Total Contacts
               </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-charcoal">0</div>
+              <div className="text-2xl font-bold text-charcoal">1</div>
               <div className="text-[11px] text-slate mt-0.5">Active</div>
             </div>
             <div className="text-center">
@@ -80,41 +82,47 @@ export default function ContactsContent() {
               <div className="text-[11px] text-slate mt-0.5">Prospects</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-charcoal">0</div>
+              <div className="text-2xl font-bold text-charcoal">1</div>
               <div className="text-[11px] text-slate mt-0.5">Customers</div>
             </div>
           </div>
 
           {/* Empty State */}
-          <div className="text-center py-8">
-            <div className="mx-auto w-16 h-16 mb-4 text-silver">
-              <NocontactIcon />
-            </div>
-            <h3 className="text-sm font-semibold text-charcoal mb-1">
-              No contacts yet
-            </h3>
-            <p className="text-xs text-slate mb-4">
-              Get started by adding your first contact
-            </p>
 
-            {/* Centered New Contact Button */}
-            <button className="bg-cerulean text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 mx-auto hover:bg-slate transition-all shadow-md">
-              <svg
-                className="w-3.5 h-3.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              New Contact
-            </button>
-          </div>
+          {data ? (
+<ContactsExample/>
+           
+          ) : (  <div className="text-center py-8">
+              <div className="mx-auto w-16 h-16 mb-4 text-silver">
+                <NocontactIcon />
+              </div>
+              <h3 className="text-sm font-semibold text-charcoal mb-1">
+                No contacts yet
+              </h3>
+              <p className="text-xs text-slate mb-4">
+                Get started by adding your first contact
+              </p>
+
+              {/* Centered New Contact Button */}
+              <button className="bg-cerulean text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 mx-auto hover:bg-slate transition-all shadow-md">
+                <svg
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                New Contact
+              </button>
+            </div>)}
+
+          
         </div>
 
         {/* Section Title Below */}
@@ -150,8 +158,16 @@ export default function ContactsContent() {
         {cards.map((card, index) => (
           <StatsCard key={index} {...card} />
         ))}
+
+      
       </div>
-      <Actbox {...value} />
+
+        {
+        data ? (
+          <ContactsExample/>
+          ):( <Actbox {...value} />)
+        }
+     
     </div>
   );
 }
