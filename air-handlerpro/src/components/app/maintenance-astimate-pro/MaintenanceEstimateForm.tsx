@@ -3,7 +3,7 @@
 import React from 'react';
 import { Users } from 'lucide-react';
 import DynamicFormBuilder from '@/components/forms/DynamicFormBuilder';
-import { MaintenanceEstimateFormProps } from '@/components/forms/forms-instructions/MaintenanceEstimate';
+import { MaintenanceEstimateFormProps } from '@/components/forms/forms-instructions/MaintenanceEstimateProp';
 
 interface MaintenanceEstimateFormProps {
   onCancel: () => void;

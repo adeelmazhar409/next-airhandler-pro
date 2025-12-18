@@ -20,7 +20,14 @@ interface StatsCardsRowProps {
   stats: StatData[];
 }
 
-type InputFieldType = "search" | "dropdownButton" | "filterButton" | "sortButton" | "gridButton" | "listButton";
+type InputFieldType =
+  | "search"
+  | "dropdownButton"
+  | "filterButton"
+  | "sortButton"
+  | "gridButton"
+  | "listButton";
+
 interface InputField {
   type: InputFieldType;
   placeholder?: string;
@@ -39,29 +46,31 @@ interface Message {
   time: string;
 }
 
-interface ModalFieldConfig {
+interface FieldConfig {
   label: string;
-  nature?: string;
+  nature: string;
   type: string;
   placeholder?: string;
   option?: string[];
   buttonName?: string;
   message?: string;
+  sectionName?: string;
+  button?: string[];
+  rows?: number;
+  multiple?: boolean;
+  accept?: string;
+  modal?: ModalConfig;
 }
 
 interface ModalConfig {
   modalHeading: string;
-  modalFields: ModalFieldConfig[];
+  modalFields: (FieldConfig | ModalSection)[];
 }
 
-interface FieldConfig {
-  nature: string;
-  type: string;
-  label: string;
-  placeholder: string;
-  buttonName?: string;
-  option?: string[];
-  modal?: ModalConfig;
+interface ModalSection {
+  sectionName: string;
+  fields?: FieldConfig[];
+  button?: string[];
 }
 
 interface SectionConfig {
@@ -73,9 +82,28 @@ interface SectionConfig {
 }
 
 interface DynamicFormBuilderProps {
-  config: SectionConfig[];
+  config: (SectionConfig | FieldConfig)[];
   onSubmit?: (formData: any) => void;
   onCancel?: () => void;
 }
 
-export type { PasswordStrength, StatsCardsRowProps, InputField, Message, ModalFieldConfig, ModalConfig ,FieldConfig, SectionConfig, DynamicFormBuilderProps};
+interface DynamicModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: Record<string, any>) => void;
+  config: ModalConfig;
+  backgroundColor?: string;
+}
+
+export type {
+  PasswordStrength,
+  StatsCardsRowProps,
+  InputField,
+  Message,
+  DynamicModalProps,
+  ModalConfig,
+  FieldConfig,
+  SectionConfig,
+  DynamicFormBuilderProps,
+  ModalSection
+};

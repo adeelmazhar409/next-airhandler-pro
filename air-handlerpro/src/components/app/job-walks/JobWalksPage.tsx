@@ -14,7 +14,7 @@ export default function JobWalksAndTasks() {
         <div className="flex px-6">
           <button
             onClick={() => setActiveTab("jobWalks")}
-            className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
               activeTab === "jobWalks"
                 ? "border-cerulean text-charcoal"
                 : "border-transparent text-slate hover:text-charcoal"
@@ -24,7 +24,7 @@ export default function JobWalksAndTasks() {
           </button>
           <button
             onClick={() => setActiveTab("myTasks")}
-            className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
               activeTab === "myTasks"
                 ? "border-cerulean text-charcoal"
                 : "border-transparent text-slate hover:text-charcoal"
