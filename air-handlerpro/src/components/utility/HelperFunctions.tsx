@@ -23,4 +23,16 @@ const getStrengthLabel = (score: number): string => {
   return "Weak";
 };
 
-export { getPasswordInfo, getStrengthLabel };
+const getFieldWidth = (nature: string) => {
+  switch (nature) {
+    case "full":
+      return "w-full";
+    case "half":
+      return "w-full lg:w-[calc(50%-8px)]";
+    case "third":
+      return "w-full lg:w-[calc(33.333%-11px)]";
+    default:
+      return "w-full";
+  }
+};
+export { getPasswordInfo, getStrengthLabel, getFieldWidth };
