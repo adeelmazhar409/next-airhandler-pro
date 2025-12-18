@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import Heading from "../Heading";
 import Button from "../UI-components/button";
 import StatsCard from "../UI-components/StatsCard";
@@ -6,6 +6,12 @@ import Actbox from "../UI-components/Actbox";
 import { ServiceEstimateIcon } from "../../icons/icons";
 
 export default function ServiceEstimates() {
+  const [formToggle, setFormToggle] = useState(false);
+
+  const handleCreateServiceEstimate = () => {
+    setFormToggle(true);
+  };
+
   const data = [
     {
       title: "Pre-Built Estimates",
@@ -29,8 +35,16 @@ export default function ServiceEstimates() {
     value: "Estimates",
     icon: <ServiceEstimateIcon />,
     headerIcon: <ServiceEstimateIcon />,
+    formOpen: handleCreateServiceEstimate,
     description: "No estimates yet. Create your first estimate to get started.",
   };
+
+  if (formToggle) {
+    return (
+      // Create the component here
+      <></>
+    );
+  }
 
   return (
     <div className=" bg-gray-50 p-8">
@@ -42,7 +56,7 @@ export default function ServiceEstimates() {
             coil cleanings, and more"
         />
 
-        <Button value=" Create New Estimate" />
+        <Button value="New Estimate" />
       </div>
 
       {/* Cards Grid */}

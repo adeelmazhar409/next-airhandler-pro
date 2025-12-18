@@ -26,7 +26,7 @@ export default function MaintenanceEstimatePro() {
     // setFormToggle(false);
   };
   
-  const data = {
+  const ActboxData = {
     header: false,
     value: "Estimate",
     icon: <ClockIcon />,
@@ -56,11 +56,11 @@ export default function MaintenanceEstimatePro() {
           description="Create and manage professional maintenance estimates with advanced features."
         />
 
-        <Button onClick={handleCreateEstimate} value="Estimate" />
+        <Button onClick={handleCreateEstimate} value="New Estimate" />
       </div>
 
       {/* Empty State Card */}
-      {MantainaceData ? <EstimatesGrid/> :   <Actbox {...data} /> }
+      {MantainaceData ? <EstimatesGrid/> :   <Actbox {...ActboxData} /> }
    
 
     </div>

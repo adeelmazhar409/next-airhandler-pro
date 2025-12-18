@@ -1,14 +1,14 @@
 "use client";
 
 import DynamicFormBuilder from '@/components/forms/DynamicFormBuilder';
-import { MaintenanceEstimateFormProps } from '@/components/forms/forms-instructions/MaintenanceEstimateProp';
+import { ServiceReportFormProps } from '@/components/forms/forms-instructions/ServiceReportProp';
 
-interface MaintenanceEstimateFormProps {
+interface ServiceReportFormProps {
   onCancel: () => void;
   onSubmit: (formData: any) => void;
 }
 
-export function MaintenanceEstimateForm({ onCancel, onSubmit }: MaintenanceEstimateFormProps) {
+export function ServiceReportForm({ onCancel, onSubmit }: ServiceReportFormProps) {
   return (
     <div className="p-8">
       {/* Header */}
@@ -18,20 +18,17 @@ export function MaintenanceEstimateForm({ onCancel, onSubmit }: MaintenanceEstim
           className="flex items-center gap-2 text-charcoal hover:text-slate transition-colors mb-4 cursor-pointer"
         >
           <span>←</span>
-          <span>Back to Estimates</span>
+          <span>Back to Reports</span>
         </button>
         <h1 className="text-3xl font-bold text-charcoal">
-          New Maintenance Estimate Pro
+        Create Work Order
         </h1>
-        <p className="text-slate mt-1">
-          Create a comprehensive maintenance estimate
-        </p>
       </div>
 
       {/* Dynamic Form */}
       <div className="bg-white rounded-lg shadow-sm p-8">
         <DynamicFormBuilder
-          config={MaintenanceEstimateFormProps}
+          config={ServiceReportFormProps}
           onSubmit={onSubmit}
           onCancel={onCancel}
         />

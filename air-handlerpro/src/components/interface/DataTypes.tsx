@@ -46,22 +46,6 @@ interface Message {
   time: string;
 }
 
-interface FieldConfig {
-  label: string;
-  nature: string;
-  type: string;
-  placeholder?: string;
-  option?: string[];
-  buttonName?: string;
-  message?: string;
-  sectionName?: string;
-  button?: string[];
-  rows?: number;
-  multiple?: boolean;
-  accept?: string;
-  modal?: ModalConfig;
-}
-
 interface ModalConfig {
   modalHeading: string;
   modalFields: (FieldConfig | ModalSection)[];
@@ -71,6 +55,24 @@ interface ModalSection {
   sectionName: string;
   fields?: FieldConfig[];
   button?: string[];
+}
+
+interface FieldConfig {
+  label: string;
+  nature: string;
+  type: string;
+  placeholder?: string;
+  hourplaceholder?: string;
+  minuteplaceholder?: string;
+  option?: string[];
+  optionDescription?: string[];
+  buttonName?: string;
+  message?: string;
+  button?: string[];
+  rows?: number;
+  multiple?: boolean;
+  accept?: string;
+  modal?: ModalConfig;
 }
 
 interface SectionConfig {
@@ -85,6 +87,19 @@ interface DynamicFormBuilderProps {
   config: (SectionConfig | FieldConfig)[];
   onSubmit?: (formData: any) => void;
   onCancel?: () => void;
+}
+
+// Type guard functions to help TypeScript distinguish between types
+export function isSectionConfig(
+  item: SectionConfig | FieldConfig
+): item is SectionConfig {
+  return "fields" in item || ("sectionName" in item && "button" in item);
+}
+
+export function isFieldConfig(
+  item: SectionConfig | FieldConfig
+): item is FieldConfig {
+  return "label" in item && "nature" in item && "type" in item;
 }
 
 interface DynamicModalProps {
@@ -105,5 +120,5 @@ export type {
   FieldConfig,
   SectionConfig,
   DynamicFormBuilderProps,
-  ModalSection
+  ModalSection,
 };

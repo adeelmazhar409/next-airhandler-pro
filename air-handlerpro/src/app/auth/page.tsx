@@ -4,7 +4,7 @@ import { useState } from "react";
 import { SignInForm } from "@/components/auth/signin";
 import { SignUpForm } from "@/components/auth/signup";
 import { ForgotPasswordForm } from "@/components/auth/forgotpassword";
-import { supabase } from "@/lib/supabase";
+// import { supabase } from "@/lib/supabase";
 
 // ============================================================================
 // MAIN AUTH COMPONENT - IMPROVED ERROR HANDLING VERSION
@@ -21,7 +21,7 @@ export default function Auth() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Form Handlers
+  // // Form Handlers
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -42,57 +42,57 @@ export default function Auth() {
       return;
     }
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    // try {
+    //   const { data, error } = await supabase.auth.signInWithPassword({
+    //     email,
+    //     password,
+    //   });
 
-      if (error) {
-        // Parse Supabase error to provide specific feedback
-        if (error.message.toLowerCase().includes("invalid login credentials")) {
-          // This error means either email or password (or both) are wrong
-          setError(
-            "Your email or password is incorrect. Please check both fields and try again"
-          );
-        } else if (
-          error.message.toLowerCase().includes("email not confirmed")
-        ) {
-          setError(
-            "Please verify your email before signing in. Check your inbox for the verification link."
-          );
-        } else if (error.message.toLowerCase().includes("email")) {
-          setError("Your email address is incorrect or not registered");
-        } else if (error.message.toLowerCase().includes("password")) {
-          setError("Your password is incorrect");
-        } else {
-          setError(error.message);
-        }
-        console.error("Sign in error:", error);
-        return;
-      }
+    //   if (error) {
+    //     // Parse Supabase error to provide specific feedback
+    //     if (error.message.toLowerCase().includes("invalid login credentials")) {
+    //       // This error means either email or password (or both) are wrong
+    //       setError(
+    //         "Your email or password is incorrect. Please check both fields and try again"
+    //       );
+    //     } else if (
+    //       error.message.toLowerCase().includes("email not confirmed")
+    //     ) {
+    //       setError(
+    //         "Please verify your email before signing in. Check your inbox for the verification link."
+    //       );
+    //     } else if (error.message.toLowerCase().includes("email")) {
+    //       setError("Your email address is incorrect or not registered");
+    //     } else if (error.message.toLowerCase().includes("password")) {
+    //       setError("Your password is incorrect");
+    //     } else {
+    //       setError(error.message);
+    //     }
+    //     console.error("Sign in error:", error);
+    //     return;
+    //   }
 
-      if (data.user) {
-        console.log("Sign in successful:", data.user);
+    //   if (data.user) {
+    //     console.log("Sign in successful:", data.user);
 
-        // FIX: Check if email is verified before allowing access
-        if (!data.user.email_confirmed_at) {
-          setError(
-            "Please verify your email before signing in. Check your inbox for the verification link."
-          );
-          await supabase.auth.signOut(); // Sign them out
-          return;
-        }
+    //     // FIX: Check if email is verified before allowing access
+    //     if (!data.user.email_confirmed_at) {
+    //       setError(
+    //         "Please verify your email before signing in. Check your inbox for the verification link."
+    //       );
+    //       await supabase.auth.signOut(); // Sign them out
+    //       return;
+    //     }
 
-        // Only redirect if email is verified
-        window.location.assign("/system");
-      }
-    } catch (err) {
-      setError("An unexpected error occurred");
-      console.error("Sign in error:", err);
-    } finally {
-      setLoading(false);
-    }
+    //     // Only redirect if email is verified
+    //     window.location.assign("/system");
+    //   }
+    // } catch (err) {
+    //   setError("An unexpected error occurred");
+    //   console.error("Sign in error:", err);
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -131,52 +131,52 @@ export default function Auth() {
       return;
     }
 
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+    // try {
+    //   const { data, error } = await supabase.auth.signUp({
+    //     email,
+    //     password,
+    //   });
 
-      if (error) {
-        // Parse Supabase error to provide specific feedback
-        if (error.message.toLowerCase().includes("email")) {
-          setError("Your email address is invalid or already registered");
-        } else if (error.message.toLowerCase().includes("password")) {
-          setError(
-            "Your password does not meet the requirements. Please use a stronger password"
-          );
-        } else {
-          setError(error.message);
-        }
-        console.error("Sign up error:", error);
-        return;
-      }
+    //   if (error) {
+    //     // Parse Supabase error to provide specific feedback
+    //     if (error.message.toLowerCase().includes("email")) {
+    //       setError("Your email address is invalid or already registered");
+    //     } else if (error.message.toLowerCase().includes("password")) {
+    //       setError(
+    //         "Your password does not meet the requirements. Please use a stronger password"
+    //       );
+    //     } else {
+    //       setError(error.message);
+    //     }
+    //     console.error("Sign up error:", error);
+    //     return;
+    //   }
 
-      if (data.user) {
-        console.log("Sign up successful:", data.user);
+    //   if (data.user) {
+    //     console.log("Sign up successful:", data.user);
 
-        // FIX: Don't redirect, show success message instead
-        setSuccessMessage(
-          "Account created successfully! Please check your email to verify your account before signing in."
-        );
+    //     // FIX: Don't redirect, show success message instead
+    //     setSuccessMessage(
+    //       "Account created successfully! Please check your email to verify your account before signing in."
+    //     );
 
-        // Clear the form
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
+    //     // Clear the form
+    //     setEmail("");
+    //     setPassword("");
+    //     setConfirmPassword("");
 
-        // Switch to sign in tab after 5 seconds
-        setTimeout(() => {
-          setActiveTab("signin");
-          setSuccessMessage("");
-        }, 5000);
-      }
-    } catch (err) {
-      setError("An unexpected error occurred");
-      console.error("Sign up error:", err);
-    } finally {
-      setLoading(false);
-    }
+    //     // Switch to sign in tab after 5 seconds
+    //     setTimeout(() => {
+    //       setActiveTab("signin");
+    //       setSuccessMessage("");
+    //     }, 5000);
+    //   }
+    // } catch (err) {
+    //   setError("An unexpected error occurred");
+    //   console.error("Sign up error:", err);
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -191,39 +191,39 @@ export default function Auth() {
       return;
     }
 
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
-      });
+    // try {
+    //   const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+    //     redirectTo: `${window.location.origin}/auth/reset-password`,
+    //   });
 
-      if (error) {
-        if (error.message.toLowerCase().includes("email")) {
-          setError(
-            "Your email address was not found. Please check and try again"
-          );
-        } else {
-          setError(error.message);
-        }
-        console.error("Reset password error:", error);
-        return;
-      }
+    //   if (error) {
+    //     if (error.message.toLowerCase().includes("email")) {
+    //       setError(
+    //         "Your email address was not found. Please check and try again"
+    //       );
+    //     } else {
+    //       setError(error.message);
+    //     }
+    //     console.error("Reset password error:", error);
+    //     return;
+    //   }
 
-      setSuccessMessage("Password reset link sent! Check your email inbox");
-      setError(""); // Clear any previous errors
-      console.log("Reset password email sent to:", resetEmail);
+    //   setSuccessMessage("Password reset link sent! Check your email inbox");
+    //   setError(""); // Clear any previous errors
+    //   console.log("Reset password email sent to:", resetEmail);
 
-      // Clear form and go back after 3 seconds
-      setTimeout(() => {
-        setResetEmail("");
-        setShowForgotPassword(false);
-        setSuccessMessage("");
-      }, 3000);
-    } catch (err) {
-      setError("An unexpected error occurred");
-      console.error("Reset password error:", err);
-    } finally {
-      setLoading(false);
-    }
+    //   // Clear form and go back after 3 seconds
+    //   setTimeout(() => {
+    //     setResetEmail("");
+    //     setShowForgotPassword(false);
+    //     setSuccessMessage("");
+    //   }, 3000);
+    // } catch (err) {
+    //   setError("An unexpected error occurred");
+    //   console.error("Reset password error:", err);
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   // Show Forgot Password Screen

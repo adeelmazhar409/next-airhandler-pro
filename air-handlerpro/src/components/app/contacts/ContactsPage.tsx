@@ -13,10 +13,33 @@ import {
   NocontactIcon,
 } from "@/components/icons/icons";
 import { InputField } from "@/components/interface/DataTypes";
+import { CreateContactForm } from "./CreateContactForm";
 
 export default function ContactsPage() {
   const [searchValue, setSearchValue] = useState("");
   const [selectedType, setSelectedType] = useState("");
+  const [formToggle, setFormToggle] = useState(false);
+
+  const handleCreateContact = () => {
+    setFormToggle(true);
+  };
+
+  const handleCancel = () => {
+    setFormToggle(false);
+  };
+
+  const handleSubmit = (formData: any) => {
+    console.log("Form submitted:", formData);
+    // Handle form submission logic
+    // After successful submission, you might want to close the form:
+    // setFormToggle(false);
+  };
+
+  if (formToggle) {
+    return (
+      <CreateContactForm onCancel={handleCancel} onSubmit={handleSubmit} />
+    );
+  }
 
   const topStats = [
     {
@@ -101,7 +124,7 @@ export default function ContactsPage() {
           title="Contact"
           description="Manage your customer and prospect relationships"
         />
-        <Button value="Contact" />
+        <Button onClick={handleCreateContact} value="New Contact" />
       </div>
       {/* Stats Cards Row */}
       <StatsCardsRow stats={topStats} />
@@ -113,21 +136,18 @@ export default function ContactsPage() {
         onSearchChange={setSearchValue}
       />
 
-      {/* Results Count */}
-    
       {/* Empty State */}
-     {
-           data ? (
-             <ContactsExample/>
-        ) : (
-            <>
-            <div className="mb-6">
-        <p className="text-sm text-slate">Showing 0 of 0 contacts</p>
-      </div>
+      {data ? (
+        <ContactsExample />
+      ) : (
+        <>
+          <div className="mb-6">
+            <p className="text-sm text-slate">Showing 0 of 0 contacts</p>
+          </div>
 
-            <Actbox {...value} /></>)
-           }
-        
+          <Actbox {...value} />
+        </>
+      )}
     </div>
   );
 }

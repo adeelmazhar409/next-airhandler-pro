@@ -1,4 +1,3 @@
-
 // ============================================================================
 // UTILITY FUNCTIONS
 
@@ -35,4 +34,32 @@ const getFieldWidth = (nature: string) => {
       return "w-full";
   }
 };
-export { getPasswordInfo, getStrengthLabel, getFieldWidth };
+
+// Generate hour options (12-hour format)
+const generateHourOptions = () => {
+  const hours = [];
+  for (let i = 1; i <= 12; i++) {
+    hours.push(`${i.toString().padStart(2, "0")} AM`);
+  }
+  for (let i = 1; i <= 12; i++) {
+    hours.push(`${i.toString().padStart(2, "0")} PM`);
+  }
+  return hours;
+};
+
+// Generate minute options
+const generateMinuteOptions = () => {
+  const minutes = [];
+  for (let i = 0; i < 60; i += 5) {
+    minutes.push(i.toString().padStart(2, "0"));
+  }
+  return minutes;
+};
+
+export {
+  getPasswordInfo,
+  getStrengthLabel,
+  getFieldWidth,
+  generateHourOptions,
+  generateMinuteOptions,
+};

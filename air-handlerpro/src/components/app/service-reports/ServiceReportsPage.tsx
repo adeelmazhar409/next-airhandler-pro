@@ -4,11 +4,38 @@ import { WorkerOrderIcon } from "@/components/icons/icons";
 import Button from "../UI-components/button";
 import ScheduledVisitsGrid from "../UI-components/workOrderDataFormed";
 import TechnicianReportsGrid from "../UI-components/recentServiceDataFormed";
+import { useState } from "react";
+import { ServiceReportForm } from "./ServiceReportForm";
 
 export default function ServiceReports() {
+  const [formToggle, setFormToggle] = useState(false);
   // Define data availability flags
   const hasWorkOrders = true; // Change to false to show empty state
   const hasServiceReports = true; // Change to false to show empty state
+
+  const handleCreateWorkOrder = () => {
+    setFormToggle(true);
+  };
+
+  const handleCancel = () => {
+    setFormToggle(false);
+  };
+
+  const handleSubmit = (formData: any) => {
+    console.log("Form submitted:", formData);
+    // Handle form submission logic
+    // After successful submission, you might want to close the form:
+    // setFormToggle(false);
+  };
+
+  if (formToggle) {
+    return (
+      <ServiceReportForm
+        onCancel={handleCancel}
+        onSubmit={handleSubmit}
+      />
+    );
+  }
 
   // Define all sections in an array
   const sections = [
@@ -47,7 +74,7 @@ export default function ServiceReports() {
           title="Service Reports"
           description="Manage work orders and service reports"
         />
-        <Button value="Work Order" />
+        <Button onClick={handleCreateWorkOrder} value="Create Work Order" />
       </div>
 
       {/* Map through sections */}
