@@ -778,6 +778,91 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             </div>
           </div>
         );
+
+      case "stage-dropdown":
+        const stageColors: Record<string, string> = {
+          "Lead (10%)": "bg-slate",
+          "Qualified (35%)": "bg-cerulean",
+          "Proposal (50%)": "bg-yellow-500",
+          "Negotiation (85%)": "bg-orange-500",
+          "Closed Won (100%)": "bg-green-500",
+          "Closed Lost (0%)": "bg-red-500",
+          "Closed Other (0%)": "bg-slate",
+        };
+
+        return (
+          <div key={fieldKey} className={getFieldWidth(field.nature)}>
+            <label className="block text-sm font-medium text-charcoal mb-2">
+              {field.label}
+            </label>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => toggleDropdown(fieldKey)}
+                className="w-full px-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  {formData[field.label] && (
+                    <span
+                      className={`w-3 h-3 rounded-full ${
+                        stageColors[formData[field.label]] || "bg-slate"
+                      }`}
+                    ></span>
+                  )}
+                  <span
+                    className={
+                      formData[field.label] ? "text-charcoal" : "text-slate"
+                    }
+                  >
+                    {formData[field.label] || field.placeholder}
+                  </span>
+                </div>
+                <ChevronDown
+                  className={`w-5 h-5 text-slate transition-transform ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {isDropdownOpen && field.option && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg overflow-hidden">
+                  {field.option.map((opt, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => selectOption(fieldKey, field.label, opt)}
+                      className="w-full px-4 py-2.5 text-left hover:bg-platinum transition-colors cursor-pointer flex items-center justify-between group"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`w-3 h-3 rounded-full ${
+                            stageColors[opt] || "bg-slate"
+                          }`}
+                        ></span>
+                        <span className="text-charcoal text-sm">{opt}</span>
+                      </div>
+                      {formData[field.label] === opt && (
+                        <svg
+                          className="w-4 h-4 text-cerulean"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }

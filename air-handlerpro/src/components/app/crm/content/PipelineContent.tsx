@@ -4,6 +4,8 @@ import { Deal } from "../../UI-components/table";
 import { Calendar, Contact, ContactIcon } from "lucide-react";
 import { BadgeMinusIcon } from "lucide-react";
 import { ActitivtyIcon } from "@/components/icons/icons";
+import Button from "../../UI-components/button";
+import { DealForm } from "./forms/DealForm";
 
 const stages = [
   { name: "Lead", color: "bg-orange-300", textColor: "text-orange-300" },
@@ -17,6 +19,26 @@ const stages = [
 export default function PipelineContent() {
   const [view, setView] = useState<"cards" | "table">("cards");
   const [searchQuery, setSearchQuery] = useState("");
+  const [formToggle, setFormToggle] = useState(false);
+
+  const handleCreateEstimate = () => {
+    setFormToggle(true);
+  };
+
+  const handleCancel = () => {
+    setFormToggle(false);
+  };
+
+  const handleSubmit = (formData: any) => {
+    console.log("Form submitted:", formData);
+    // Handle form submission logic
+    // After successful submission, you might want to close the form:
+    // setFormToggle(false);
+  };
+
+  if (formToggle) {
+    return <DealForm onCancel={handleCancel} onSubmit={handleSubmit} />;
+  }
 
   // Sample data - replace with real data later
   const deals: Deal[] = [
@@ -108,54 +130,57 @@ export default function PipelineContent() {
     <div className="max-h-screen bg-platinum/10">
       <div className="max-w-full mx-auto">
         {/* View Toggle Buttons */}
-        <div className="flex gap-2 mb-4">
-          <button
-            onClick={() => setView("cards")}
-            className={`flex items-center gap-1 px-3 py-1.5 border font-medium transition-colors rounded-md ${
-              view === "cards"
-                ? "bg-cerulean text-white border-cerulean"
-                : "bg-white text-charcoal border-silver hover:bg-platinum"
-            }`}
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        <div className="flex gap-2 mb-4 justify-between items-center">
+          <div className="flex flex-row gap-2">
+            <button
+              onClick={() => setView("cards")}
+              className={`flex items-center gap-1 px-3 py-1.5 border font-medium transition-colors rounded-md ${
+                view === "cards"
+                  ? "bg-cerulean text-white border-cerulean"
+                  : "bg-white text-charcoal border-silver hover:bg-platinum"
+              }`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-              />
-            </svg>
-            Cards
-          </button>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                />
+              </svg>
+              Cards
+            </button>
 
-          <button
-            onClick={() => setView("table")}
-            className={`flex items-center gap-1 px-3 py-1.5 border font-medium transition-colors rounded-md ${
-              view === "table"
-                ? "bg-cerulean text-white border-cerulean"
-                : "bg-white text-charcoal border-silver hover:bg-platinum"
-            }`}
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            <button
+              onClick={() => setView("table")}
+              className={`flex items-center gap-1 px-3 py-1.5 border font-medium transition-colors rounded-md ${
+                view === "table"
+                  ? "bg-cerulean text-white border-cerulean"
+                  : "bg-white text-charcoal border-silver hover:bg-platinum"
+              }`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-              />
-            </svg>
-            Table
-          </button>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
+              </svg>
+              Table
+            </button>
+          </div>
+          <Button onClick={handleCreateEstimate} value="New Deal" />
         </div>
 
         {/* Cards View (Kanban) */}
@@ -201,7 +226,9 @@ export default function PipelineContent() {
                           <h4 className="font-semibold text-charcoal mb-1 text-sm">
                             {deal.dealName}
                           </h4>
-                          <p className={`text-base font-bold ${stage.textColor}`}>
+                          <p
+                            className={`text-base font-bold ${stage.textColor}`}
+                          >
                             ${deal.amount.toLocaleString()}
                           </p>
                           <div className="flex justify-between mt-2">
@@ -223,11 +250,13 @@ export default function PipelineContent() {
                             </p>
                           </div>
 
-                          <div className={`flex items-center gap-1 ${deal.owner ? "block" : "hidden" }`}>
+                          <div
+                            className={`flex items-center gap-1 ${
+                              deal.owner ? "block" : "hidden"
+                            }`}
+                          >
                             <ContactIcon className="text-slate h-4" />
-                            <p className="text-slate text-sm">
-                              Owner
-                            </p>
+                            <p className="text-slate text-sm">Owner</p>
                           </div>
                         </div>
                       ))
