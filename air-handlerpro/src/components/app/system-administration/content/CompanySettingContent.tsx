@@ -223,7 +223,7 @@ export default function CompanySettings() {
           </div>
 
           {/* Save Button */}
-          <button className="w-full max-w-xs px-4 py-3 bg-charcoal text-white rounded-lg font-medium hover:bg-charcoal/90 transition-colors">
+          <button className="w-full   mx-auto   px-4 py-3 bg-cerulean text-white rounded-lg font-medium hover:bg-cerulean/90 transition-colors">
             Save Settings
           </button>
         </div>
@@ -236,7 +236,7 @@ export default function CompanySettings() {
             <MapPin className="w-6 h-6" />
             Company Locations (Home Bases)
           </h2>
-          <button className="px-4 py-2.5 bg-charcoal text-white rounded-lg text-sm font-medium hover:bg-charcoal/90 transition-colors flex items-center gap-2">
+          <button className="px-4 py-2.5 bg-cerulean text-white rounded-lg text-sm font-medium hover:bg-cerulean/90 transition-colors flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Add Location
           </button>
