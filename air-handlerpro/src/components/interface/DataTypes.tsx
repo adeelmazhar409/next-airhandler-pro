@@ -26,7 +26,10 @@ type InputFieldType =
   | "filterButton"
   | "sortButton"
   | "gridButton"
-  | "listButton";
+  | "listButton"
+  | "dropdownbutton2"
+  |"Checkbox"
+  ;
 
 interface InputField {
   type: InputFieldType;

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import Heading from "../Heading";
 import Button from "../UI-components/button";
@@ -5,13 +7,13 @@ import StatsCard from "../UI-components/StatsCard";
 import Actbox from "../UI-components/Actbox";
 import { ServiceEstimateIcon } from "../../icons/icons";
 
-export default function ServiceEstimates() {
-  const [formToggle, setFormToggle] = useState(false);
+interface ServiceEstimatesProps {
+  onNewEstimate: () => void; // Add this prop
+}
 
-  const handleCreateServiceEstimate = () => {
-    setFormToggle(true);
-  };
-
+export default function ServiceEstimates({
+  onNewEstimate,
+}: ServiceEstimatesProps) {
   const data = [
     {
       title: "Pre-Built Estimates",
@@ -35,37 +37,30 @@ export default function ServiceEstimates() {
     value: "Estimates",
     icon: <ServiceEstimateIcon />,
     headerIcon: <ServiceEstimateIcon />,
-    formOpen: handleCreateServiceEstimate,
+    formOpen: onNewEstimate, // Use the prop
     description: "No estimates yet. Create your first estimate to get started.",
   };
 
-  if (formToggle) {
-    return (
-      // Create the component here
-      <></>
-    );
-  }
-
   return (
-    <div className=" bg-gray-50 p-8">
+    <div className="bg-gray-50 p-8">
       {/* Header */}
-      <div className="flex  items-center justify-between ">
+      <div className="flex items-center justify-between">
         <Heading
           title="Service Estimates"
-          description=" Build accurate estimates for compressor replacements, motor repairs,
+          description="Build accurate estimates for compressor replacements, motor repairs,
             coil cleanings, and more"
         />
 
-        <Button value="New Estimate" />
+        <Button onClick={onNewEstimate} value="New Estimate" />
       </div>
 
       {/* Cards Grid */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        {/* Pre-Built Estimates Card */}
         {data.map((data, index) => (
           <StatsCard key={index} {...data} />
         ))}
       </div>
+
       {/* Recent Estimates Section */}
       <Actbox {...ActboxData} />
     </div>

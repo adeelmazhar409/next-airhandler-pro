@@ -115,6 +115,42 @@ export default function SearchAndFilters({
             <ListIcon />
           </button>
         );
+      case "dropdownbutton2":
+        return (
+          <div key={index} className="relative">
+            <select
+              disabled={field.disable}
+              onChange={(e) => field.onChange?.(e.target.value)}
+              className="appearance-none rounded-lg pl-4 pr-10 py-2 border border-silver text-[15px] text-charcoal font-medium hover:cursor-pointer bg-white min-w-[140px] disabled:bg-platinum disabled:cursor-not-allowed transition-colors hover:border-cerulean"
+            >
+              <option value="">{field.name || "Select"}</option>
+              {field.options?.map((option, idx) => (
+                <option key={idx} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <DropdownIcon />
+            </div>
+          </div>
+        );
+
+      case "Checkbox":
+        return (
+          <label
+            key={index}
+            className="flex items-center gap-2 text-sm text-slate cursor-pointer"
+          >
+            <input
+              type="checkbox"
+              className="rounded border-silver"
+              onChange={(e) => field.onChange?.(e.target.checked.toString())}
+              disabled={field.disable}
+            />
+            {field.name || "Checkbox"}
+          </label>
+        );
 
       default:
         return null;

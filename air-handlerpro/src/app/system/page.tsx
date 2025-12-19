@@ -9,24 +9,45 @@ import ServiceEstimateProPage from "@/components/app/service-estimate-pro/Servic
 import MaintenanceEstimateProPage from "@/components/app/maintenance-astimate-pro/MaintenanceEstimateProPage";
 import ServiceReportsPage from "@/components/app/service-reports/ServiceReportsPage";
 import JobWalksPage from "@/components/app/job-walks/JobWalksPage";
-import ScheduledVisitsGrid from "@/components/app/UI-components/workOrderDataFormed";
 import Administration from "@/components/app/company-administration/admistration";
 import SystemAdministration from "@/components/app/system-administration/system-admistration";
+import ServiceEstimateBuilder from "@/components/app/createestimate/createestimate";
+
 export default function MainApplication() {
   const [activePage, setActivePage] = useState("CRM");
+  const [showServiceEstimateBuilder, setShowServiceEstimateBuilder] =
+    useState(false);
+
+  // Fixed: Reset builder state when changing pages
+  const handlePageChange = (page: string) => {
+    setShowServiceEstimateBuilder(false); // Close the builder
+    setActivePage(page); // Change the page
+  };
 
   const renderPage = () => {
+    // If building a service estimate, show the builder
+    if (showServiceEstimateBuilder) {
+      return (
+        <ServiceEstimateBuilder
+          onBack={() => setShowServiceEstimateBuilder(false)}
+        />
+      );
+    }
+
     const pages: Record<string, React.ReactElement> = {
       CRM: <CRMDashboard />,
       Contacts: <ContactsPage />,
       "AI Estimate Builder": <AIEstimateBuilderPage />,
-      "Service Estimate Pro": <ServiceEstimateProPage />,
+      "Service Estimate Pro": (
+        <ServiceEstimateProPage
+          onNewEstimate={() => setShowServiceEstimateBuilder(true)}
+        />
+      ),
       "Maintenance Estimate Pro": <MaintenanceEstimateProPage />,
       "Service Reports": <ServiceReportsPage />,
       "Job Walks": <JobWalksPage />,
-      "System Administration": <Administration/>,
-      "Company Administration":<SystemAdministration/>,
-
+      "System Administration": <Administration />,
+      "Company Administration": <SystemAdministration />,
     };
 
     return pages[activePage] || <CRMDashboard />;
@@ -34,10 +55,14 @@ export default function MainApplication() {
 
   return (
     <div className="flex h-screen bg-white">
-      <Sidebar activePage={activePage} onPageChange={setActivePage} />
+      <Sidebar activePage={activePage} onPageChange={handlePageChange} />
       <main className="flex-1 overflow-y-auto">
-        <Header value={activePage} />
-        <div className="">{renderPage()}</div>
+        <Header
+          value={
+            showServiceEstimateBuilder ? "New Service Estimate" : activePage
+          }
+        />
+        <div>{renderPage()}</div>
       </main>
     </div>
   );

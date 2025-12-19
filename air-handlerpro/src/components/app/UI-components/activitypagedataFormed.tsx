@@ -1,5 +1,5 @@
 "use client";
-import ActivityItem from "@/components/app/UI-components/Activityitem";
+import ActivityItem from "@/components/app/UI-components/activitypagedata";
 
 const activityItems = [
   {

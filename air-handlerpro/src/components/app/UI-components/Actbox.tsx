@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "./button";
-import ActivityFeed from "./activityfeed";
+import ActivityFeed from "./activitypagedataFormed";
 
 interface ActboxProps {
   data?: boolean;

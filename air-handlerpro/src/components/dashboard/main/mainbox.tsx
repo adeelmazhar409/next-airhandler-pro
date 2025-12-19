@@ -10,7 +10,7 @@ interface MainboxProps {
   descriptionSize?: string;
   list?: {
     value: string;
-    icon: React.ReactNode;
+    icon?: React.ReactNode;
   }[];
   button?: boolean;
   buttonText?: string;
@@ -49,12 +49,12 @@ export default function Mainbox({
         hover:-translate-y-1`}
     >
       <div className="p-6">
-        <h3
+        <p
           className={`${titleSize} font-semibold flex items-center gap-2 text-charcoal`}
         >
           {titleIcon}
           {title}
-        </h3>
+        </p>
       </div>
       <div className="px-4 pb-4">
         <p className={`text-slate mb-6 ${descriptionSize}`}>{description}</p>
