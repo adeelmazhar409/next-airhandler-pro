@@ -28,7 +28,7 @@ export default function Actbox({
         {/* Optional Header */}
         {header && (
           <div className="px-4 py-3 border-b border-silver bg-cerulean">
-            <h2 className="text-sm font-bold text-black flex items-center gap-2">
+            <h2 className="text-sm font-bold text-white flex items-center gap-2">
               {headerIcon}
               {value}
             </h2>

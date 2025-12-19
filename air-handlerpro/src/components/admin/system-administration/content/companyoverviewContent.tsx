@@ -1,4 +1,4 @@
-import StatsCardsRow from "../../UI-components/StatCardRow";
+import StatsCardsRow from "../../../app/UI-components/StatCardRow";
 import { Building2,PersonStanding,CircleStar,DollarSign,AlertTriangle } from "lucide-react";
 import RecentItemsCard from "../../company-administration/UI-components/recentEstimate";
 

@@ -1,4 +1,4 @@
-import Actbox from "../../UI-components/Actbox";
+import Actbox from "@/components/app/UI-components/Actbox";
 import { Check } from "lucide-react";
 export default function ErrorLogs() {
 

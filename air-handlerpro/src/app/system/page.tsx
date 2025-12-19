@@ -9,8 +9,8 @@ import ServiceEstimateProPage from "@/components/app/service-estimate-pro/Servic
 import MaintenanceEstimateProPage from "@/components/app/maintenance-astimate-pro/MaintenanceEstimateProPage";
 import ServiceReportsPage from "@/components/app/service-reports/ServiceReportsPage";
 import JobWalksPage from "@/components/app/job-walks/JobWalksPage";
-import Administration from "@/components/app/company-administration/admistration";
-import SystemAdministration from "@/components/app/system-administration/system-admistration";
+import Administration from "@/components/admin/company-administration/admistration";
+import SystemAdministration from "@/components/admin/system-administration/system-admistration";
 import ServiceEstimateBuilder from "@/components/app/createestimate/createestimate";
 
 export default function MainApplication() {
