@@ -1,4 +1,4 @@
-import StatsCardsRow from "../../UI-components/StatCardRow";
+import StatsCardsRow from "@/components/app/UI-components/StatCardRow";
 import { Building2,PersonStanding,CircleStar,DollarSign,AlertTriangle } from "lucide-react";
 import RecentItemsCard from "../UI-components/recentEstimate";
 export default function Overview() {
@@ -56,7 +56,7 @@ const recentEstimates = [
     return (
       <div>
         <StatsCardsRow stats={OverviewStats} />
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className=" mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
           <RecentItemsCard title="Recent Customers" items={recentCustomers} />
           <RecentItemsCard title="Recent Estimates" items={recentEstimates} />
         </div>

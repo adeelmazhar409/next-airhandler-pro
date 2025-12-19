@@ -1,5 +1,5 @@
-import Button from "../../UI-components/button";
-import SearchAndFilters from "../../UI-components/SearchAndFilter";
+import Button from "@/components/app/UI-components/button";
+import SearchAndFilters from "@/components/app/UI-components/SearchAndFilter";
 import { InputField } from "@/components/interface/DataTypes";
 import { useState } from "react";
 export default function Tasks() {

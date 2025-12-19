@@ -1,5 +1,5 @@
 import { useState } from "react";
-import TabNavigation from "../UI-components/systemHorizanltBar";
+import TabNavigation from "../../app/UI-components/systemHorizanltBar";
 import CompanyOverview from "./content/companyoverviewContent";
 import UserManegement from "./content/userManementContent";
 import LaborRates from "./content/laborRatesContent";

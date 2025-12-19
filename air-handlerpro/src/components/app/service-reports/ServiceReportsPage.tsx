@@ -67,7 +67,7 @@ export default function ServiceReports() {
   ];
 
   return (
-    <div className="bg-gray-50 p-8">
+    <div className=" p-8">
       {/* Header */}
       <div className="flex justify-between items-center">
         <Heading

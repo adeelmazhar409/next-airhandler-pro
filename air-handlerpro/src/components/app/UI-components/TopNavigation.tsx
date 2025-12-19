@@ -38,10 +38,13 @@ export default function TabNavigation({
   });
 
   return (
+    <div className="">
     <HorizontalBar
       tabs={tabsWithIcons}
       activeTab={activeTab}
       onTabChange={onTabChange}
+
     />
+    </div>
   );
 }

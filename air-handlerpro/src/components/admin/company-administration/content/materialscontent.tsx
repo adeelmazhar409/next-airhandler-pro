@@ -1,20 +1,18 @@
-import Button from "../../UI-components/button";
+import Button from "@/components/app/UI-components/button";
 import { InputField } from "@/components/interface/DataTypes";
-import SearchAndFilters from "../../UI-components/SearchAndFilter";
+import SearchAndFilters from "@/components/app/UI-components/SearchAndFilter";
 import { useState } from "react";
-
-export default function MaterialContent() {
+export default function Materials() {
 
   const materials = [
     {
-      id: 1,
+      id: 1, 
       description: "Ice Machine Annual Service Kit",
       equipmentType: "Ice Machine",
       size: "400 lb",
       bundle: "Annual",
       quantity: 1,
       cost: "$107.82",
-      type: "Default",
     },
     {
       id: 2,
@@ -24,7 +22,6 @@ export default function MaterialContent() {
       bundle: "Annual",
       quantity: 1,
       cost: "$107.82",
-      type: "Default",
     },
     {
       id: 3,
@@ -34,7 +31,6 @@ export default function MaterialContent() {
       bundle: "Annual",
       quantity: 1,
       cost: "$107.82",
-      type: "Default",
     },
     {
       id: 4,
@@ -44,7 +40,6 @@ export default function MaterialContent() {
       bundle: "Annual",
       quantity: 1,
       cost: "$107.82",
-      type: "Default",
     },
     {
       id: 5,
@@ -54,31 +49,31 @@ export default function MaterialContent() {
       bundle: "Annual",
       quantity: 1,
       cost: "$107.82",
-      type: "Default",
     },
   ];
 
-  const [searchValue, setSearchValue] = useState("");
-  const [selectedType, setSelectedType] = useState("");
 
-  const inputFields: InputField[] = [
-    {
-      type: "dropdownButton",
-      name: "All Bundles",
-      options: ["Type 1", "Type 2", "Type 3", "Type 4"],
-      disable: false,
-      show: true,
-      onChange: (value) => setSelectedType(value),
-    },
-    {
-      type: "dropdownButton",
-      name: "All Equipment Types",
-      options: ["Type 1", "Type 2", "Type 3", "Type 4"],
-      disable: false,
-      show: true,
-      onChange: (value) => setSelectedType(value),
-    },
-  ];
+   const [searchValue, setSearchValue] = useState("");
+   const [selectedType, setSelectedType] = useState("");
+
+   const inputFields: InputField[] = [
+     {
+       type: "dropdownButton",
+       name: "All Bundles",
+       options: ["Type 1", "Type 2", "Type 3", "Type 4"],
+       disable: false,
+       show: true,
+       onChange: (value) => setSelectedType(value),
+     },
+     {
+       type: "dropdownButton",
+       name: "All Eqipment Types",
+       options: ["Type 1", "Type 2", "Type 3", "Type 4"],
+       disable: false,
+       show: true,
+       onChange: (value) => setSelectedType(value),
+     },
+   ];
   return (
     <div className="p-8 border border-slate/30 rounded-lg">
       {/* Header */}
@@ -98,20 +93,43 @@ export default function MaterialContent() {
                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
               />
             </svg>
-            Company Materials Management
+            Default Materials Management
           </h1>
           <p className="text-sm text-slate mt-1">
-            Manage materials for your company. Default materials are provided by
-            system admin.
+            Manage default materials that will be available to all companies
           </p>
         </div>
 
-        <Button value="Add Custom Material"  />
+        <div className="flex items-center gap-3">
+          <button className="flex items-center gap-2 px-4 py-2 border border-silver rounded-lg text-sm font-medium text-charcoal hover:bg-platinum transition-colors">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+            Bulk Edit
+          </button>
+
+          <Button value="Add Material" />
+        </div>
       </div>
 
       {/* Filters */}
-  
-
+      <div className="">
+        <SearchAndFilters
+          fields={inputFields}
+          searchValue={searchValue}
+          onSearchChange={setSearchValue}
+        />
+      </div>
       {/* Materials Table */}
       <div className="bg-white border border-silver rounded-lg overflow-hidden">
         {/* Table Header */}
@@ -120,10 +138,9 @@ export default function MaterialContent() {
             <div className="col-span-4">Description</div>
             <div className="col-span-2">Equipment Type</div>
             <div className="col-span-1">Size</div>
-            <div className="col-span-1">Task Bundle</div>
+            <div className="col-span-2">Task Bundle</div>
             <div className="col-span-1">Quantity</div>
             <div className="col-span-1">Cost</div>
-            <div className="col-span-1">Type</div>
             <div className="col-span-1 text-right">Actions</div>
           </div>
         </div>
@@ -135,9 +152,8 @@ export default function MaterialContent() {
               key={material.id}
               className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-platinum/20 transition-colors items-center"
             >
-              {/* Description with Star */}
-              <div className="col-span-4 flex items-center gap-2">
-                <span className="text-yellow-500 text-lg">⭐</span>
+              {/* Description */}
+              <div className="col-span-4">
                 <p className="text-sm font-medium text-charcoal">
                   {material.description}
                 </p>
@@ -158,7 +174,7 @@ export default function MaterialContent() {
               </div>
 
               {/* Task Bundle */}
-              <div className="col-span-1">
+              <div className="col-span-2">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                   {material.bundle}
                 </span>
@@ -172,13 +188,6 @@ export default function MaterialContent() {
               {/* Cost */}
               <div className="col-span-1 text-sm font-medium text-charcoal">
                 {material.cost}
-              </div>
-
-              {/* Type - New Column */}
-              <div className="col-span-1">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                  {material.type}
-                </span>
               </div>
 
               {/* Actions */}

@@ -1,4 +1,4 @@
-import Button from "../../UI-components/button";
+import Button from "../../../app/UI-components/button";
 const users = [
   {
     id: 1,

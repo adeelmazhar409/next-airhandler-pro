@@ -32,7 +32,7 @@ export default function JobWalksAndTasks() {
   }
 
   return (
-    <div className="bg-platinum/10">
+    <div className="">
       {/* Tabs Navigation */}
       <div className="bg-white border-b border-silver">
         <div className="flex px-6">

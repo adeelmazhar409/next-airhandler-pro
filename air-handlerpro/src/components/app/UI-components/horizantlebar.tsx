@@ -21,7 +21,6 @@ export default function HorizontalBar({
   const tabRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
   const [mounted, setMounted] = useState(false);
 
-  // Force re-render after mount to calculate underline position
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -34,7 +33,7 @@ export default function HorizontalBar({
     let left = 0;
     for (let i = 0; i < activeIndex; i++) {
       if (tabRefs.current[i]) {
-        left += tabRefs.current[i]!.offsetWidth + 24; // 24px is gap-6
+        left += tabRefs.current[i]!.offsetWidth + 24;
       }
     }
 
@@ -47,7 +46,13 @@ export default function HorizontalBar({
   return (
     <div className="mb-6">
       <div className="border-b border-charcoal relative">
-        <nav className="flex gap-6">
+        {/* Animated Background */}
+        <div
+          className="absolute top-0 h-full bg-cerulean rounded-t-lg transition-all duration-300 ease-in-out"
+          style={getUnderlineStyle()}
+        />
+
+        <nav className="flex gap-6 relative">
           {tabs.map((tab, index) => (
             <button
               key={index}
@@ -55,11 +60,11 @@ export default function HorizontalBar({
                 tabRefs.current[index] = el;
               }}
               onClick={() => onTabChange(tab.value)}
-              className={`pb-4 px-1 text-[15px] font-medium flex items-center gap-2 relative transition-colors ${
+              className={`px-4 py-2 text-[15px] font-medium flex items-center gap-2 relative transition-colors ${
                 activeTab === tab.value
-                  ? "text-charcoal/70 font-semibold"
+                  ? "text-white font-semibold"
                   : "text-charcoal hover:text-charcoal/80"
-              }`}
+              } cursor-pointer`}
             >
               {tab.icon}
               {tab.name}

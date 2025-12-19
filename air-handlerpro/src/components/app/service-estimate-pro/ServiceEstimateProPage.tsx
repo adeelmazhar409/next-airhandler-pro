@@ -42,7 +42,7 @@ export default function ServiceEstimates({
   };
 
   return (
-    <div className="bg-gray-50 p-8">
+    <div className=" p-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <Heading
