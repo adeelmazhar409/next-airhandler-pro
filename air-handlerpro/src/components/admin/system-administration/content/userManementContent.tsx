@@ -1,7 +1,7 @@
-// pages/users.tsx
+// pages/users.tsx - MINIMAL VERSION (Only Reset Password)
 import Button from "@/components/app/UI-components/button";
-import DataTable, { Column } from "../../company-administration/UI-components/table";
-import { Users as UsersIcon, Edit } from "lucide-react";
+import DataTable, { Column, ActionOption } from "../../company-administration/UI-components/table";
+import { Users as UsersIcon, KeyRound } from "lucide-react";
 
 interface User {
   id: number;
@@ -13,8 +13,7 @@ interface User {
 }
 
 export default function UserManegement() {
-
-   const users: User[] = [
+  const users: User[] = [
     {
       id: 1,
       name: "kagok71099@roratu.com",
@@ -40,7 +39,8 @@ export default function UserManegement() {
       joined: "13/12/2025",
     },
   ];
-// Helper function to get role badge color
+
+  // Helper function to get role badge color
   const getRoleBadge = (role: string) => {
     const isAdmin = role.toLowerCase().includes("admin");
     return (
@@ -56,11 +56,33 @@ export default function UserManegement() {
     );
   };
 
+  // Reset password handler
+  const handleResetPassword = (user: User) => {
+    console.log("Reset password for:", user);
+    // TODO: Show confirmation modal and send reset password email
+    const confirmed = confirm(
+      `Send password reset email to ${user.email}?`
+    );
+    if (confirmed) {
+      // API call to send reset password email
+      alert(`Password reset email sent to ${user.email}`);
+    }
+  };
+
+  // Define actions - only Reset Password
+  const actions: ActionOption<User>[] = [
+    {
+      label: "Reset Password",
+      icon: <KeyRound className="w-4 h-4" />,
+      onClick: handleResetPassword,
+    },
+  ];
+
   const userColumns: Column<User>[] = [
     {
       key: "name",
       header: "Name",
-      span: 2, // Takes 2 units of space
+      span: 2,
       render: (user) => (
         <p className="text-sm font-medium text-charcoal">{user.name}</p>
       ),
@@ -68,42 +90,29 @@ export default function UserManegement() {
     {
       key: "email",
       header: "Email",
-      span: 2, // Takes 2 units of space
+      span: 2,
       render: (user) => <p className="text-sm text-slate">{user.email}</p>,
     },
     {
       key: "role",
       header: "Role",
-      span: 1, // Takes 1 unit of space
+      span: 1,
       render: (user) => getRoleBadge(user.role),
     },
     {
       key: "company",
       header: "Company",
-      span: 2, // Takes 2 units of space
+      span: 2,
       render: (user) => (
-        <span className="text-sm text-charcoal">
-          {user.company || "-"}
-        </span>
+        <span className="text-sm text-charcoal">{user.company || "-"}</span>
       ),
     },
     {
       key: "joined",
       header: "Joined",
-      span: 1, // Takes 1 unit of space
+      span: 1,
       render: (user) => (
         <span className="text-sm text-charcoal">{user.joined}</span>
-      ),
-    },
-    {
-      key: "actions",
-      header: "Actions",
-      span: 1, // Takes 1 unit of space
-      align: "right",
-      render: () => (
-        <button className="p-2 text-slate hover:text-cerulean hover:bg-platinum rounded transition-colors">
-          <Edit className="w-4 h-4" />
-        </button>
       ),
     },
   ];
@@ -127,6 +136,7 @@ export default function UserManegement() {
         data={users}
         onRowClick={handleRowClick}
         emptyMessage="No users found"
+        actions={actions} // Add only Reset Password action
       />
     </div>
   );

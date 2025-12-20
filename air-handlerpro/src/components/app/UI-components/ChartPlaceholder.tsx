@@ -50,10 +50,7 @@ export default function ChartPlaceholder({
   // If no data, show placeholder
   if (!data || data.length === 0) {
     return (
-      <div
-        className="bg-white rounded-normal p-6 transition-transform duration-300 hover:scale-101 ease-in-out
-          shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_4px_8px_rgba(76,92,104,0.3),0_1px_2px_rgba(0,0,0,0.2)]"
-      >
+      <div className="bg-white rounded-normal p-6 transition-transform duration-300 hover:scale-101 ease-in-out shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_4px_8px_rgba(76,92,104,0.3),0_1px_2px_rgba(0,0,0,0.2)]">
         <div className="text-lg font-semibold text-charcoal mb-6">{title}</div>
         <div className="flex items-center justify-center h-[320px]">
           <div className="text-center text-silver">
@@ -74,10 +71,7 @@ export default function ChartPlaceholder({
   const chartOptions = type === "bar" ? getBarOptions() : getPieOptions();
 
   return (
-    <div
-      className="bg-white rounded-normal p-6 transition-transform duration-300 hover:scale-101 ease-in-out
-        shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_4px_8px_rgba(76,92,104,0.3),0_1px_2px_rgba(0,0,0,0.2)]"
-    >
+    <div className="bg-white rounded-normal p-6 transition-transform duration-300 hover:scale-101 ease-in-out shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_4px_8px_rgba(76,92,104,0.3),0_1px_2px_rgba(0,0,0,0.2)]">
       <div className="text-lg font-semibold text-charcoal mb-6">{title}</div>
       <div className="h-[320px] flex items-center justify-center">
         {type === "bar" ? (
@@ -183,10 +177,10 @@ function getPieOptions() {
         display: false,
       },
       tooltip: {
-        backgroundColor: "",
+        backgroundColor: "#36454F",
         padding: 12,
         titleColor: "#ffffff",
-        bodyColor: "",
+        bodyColor: "#ffffff",
         borderColor: "#C0C0C0",
         borderWidth: 1,
         callbacks: {

@@ -20,11 +20,7 @@ export default function StatsCard({
   bar,
 }: StatsCardProps) {
   return (
-    <div
-      className="bg-white rounded-small-block px-5 py-3 
-        transition-transform duration-300 hover:scale-102 ease-in-out
-        shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_4px_8px_rgba(76,92,104,0.3),0_1px_2px_rgba(0,0,0,0.2)]"
-    >
+    <div className="bg-white rounded-small-block px-5 py-3 transition-transform duration-300 hover:scale-102 ease-in-out shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_4px_8px_rgba(76,92,104,0.3),0_1px_2px_rgba(0,0,0,0.2)]">
       <div className="flex items-center justify-between mb-3">
         <div className="text-[13px] font-semibold text-charcoal flex items-center gap-2">
           {title}
@@ -43,7 +39,7 @@ export default function StatsCard({
       <div
         className={`${
           bar ? "flex" : "hidden"
-        }  h-3 bg-gray-200 rounded-full my-3 overflow-hidden`}
+        } h-3 bg-gray-200 rounded-full my-3 overflow-hidden`}
       >
         <div className="w-1/2 bg-cerulean h-full rounded-full"></div>
       </div>

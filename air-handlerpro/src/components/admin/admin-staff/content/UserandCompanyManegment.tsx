@@ -131,7 +131,7 @@ export default function UserandCompanyManagement() {
              <div className="flex items-center justify-between mb-8">
                <h1 className="text-2xl font-bold text-charcoal flex items-center gap-3">
                  <UsersIcon />
-                 User and Company Management
+                 User Management
                </h1>
                <Button value="Add User" />
              </div>

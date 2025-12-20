@@ -19,21 +19,21 @@ interface SidebarProps {
 const AdminNavigationItems = [
   {
     HeaderName: "System Admin",
-    HeaderIcon: <Shield className="h-6" />,
+    HeaderIcon: <Shield className="h-4" />,
     TitleName: "Admin Panel",
     TitleIcon: <ChartLine className="h-4" />,
     value: "System Administration",
   },
   {
     HeaderName: "Staff System",
-    HeaderIcon: <UserCog2 className="h-6" />,
+    HeaderIcon: <UserCog2 className="h-4" />,
     TitleName: "Staff Panel",
     TitleIcon: <ChartLine className="h-4" />,
     value: "Staff Panel",
   },
   {
     HeaderName: "Company Admin",
-    HeaderIcon: <Building2 className="h-6" />,
+    HeaderIcon: <Building2 className="h-4" />,
     TitleName: "Company Dashboard",
     TitleIcon: <ChartLine className="h-4" />,
     value: "Company Administration",
@@ -92,8 +92,8 @@ export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
           <div className="flex  flex-col  px-4" key={index}>
             <div className="flex m-1 my-1">
               {" "}
-              <div className="text-charcoal  ">{item.HeaderIcon}</div>
-              <p className="text-charcoal text-md px-2 font-bold" key={index}>
+              <div className="text-white  ">{item.HeaderIcon}</div>
+              <p className="text-white text-sm px-2 font-bold" key={index}>
                 {item.HeaderName}
               </p>
             </div>
