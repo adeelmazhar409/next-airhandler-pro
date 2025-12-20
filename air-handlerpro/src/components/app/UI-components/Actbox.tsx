@@ -19,10 +19,13 @@ export default function Actbox({
   headerIcon,
   icon,
   description,
-  formOpen
-}: ActboxProps,) {
+  formOpen,
+}: ActboxProps) {
   return (
     <div className="mx-auto my-3 px-4">
+      <div className="w-full flex justify-end py-2">
+        <Button onClick={formOpen} value="New Activity" />
+      </div>
       {/* Main Card */}
       <div className="bg-white rounded-lg border border-silver shadow-sm overflow-hidden">
         {/* Optional Header */}
@@ -35,12 +38,7 @@ export default function Actbox({
           </div>
         )}
 
-
-        {data && (
-          
-<ActivityFeed/>
-)}
-        
+        {data && <ActivityFeed />}
 
         {/* Empty State Content */}
         <div className={`p-12 text-center ${!data ? "m-1" : "hidden"}`}>
