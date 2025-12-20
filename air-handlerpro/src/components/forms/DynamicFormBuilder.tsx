@@ -160,6 +160,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
               onChange={(e) => handleInputChange(field.label, e.target.value)}
               className="w-full px-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate"
             />
+            <p className="text-gray-500 text-[12px] mt-2">{field.message}</p>
           </div>
         );
 
@@ -191,6 +192,24 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                 value={formData[field.label] || ""}
                 onChange={(e) => handleInputChange(field.label, e.target.value)}
                 className="w-full px-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal cursor-pointer"
+              />
+            </div>
+          </div>
+        );
+
+      case "time":
+        return (
+          <div key={fieldKey} className={getFieldWidth(field.nature)}>
+            <label className="block text-sm font-medium text-charcoal mb-2">
+              {field.label}
+            </label>
+            <div className="relative">
+              <input
+                type="time"
+                value={formData[field.label] || ""}
+                onChange={(e) => handleInputChange(field.label, e.target.value)}
+                placeholder={field.placeholder}
+                className="w-full pl-10 pr-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal cursor-pointer"
               />
             </div>
           </div>
@@ -315,45 +334,68 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
 
         return (
           <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
-            <div className="relative">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate" />
-                <input
-                  type="text"
-                  placeholder={field.placeholder}
-                  value={searchTerm || formData[field.label] || ""}
-                  onChange={(e) => {
-                    setSearchTerms((prev) => ({
-                      ...prev,
-                      [fieldKey]: e.target.value,
-                    }));
-                    setDropdownStates((prev) => ({
-                      ...prev,
-                      [fieldKey]: true,
-                    }));
-                  }}
-                  onFocus={() =>
-                    setDropdownStates((prev) => ({ ...prev, [fieldKey]: true }))
-                  }
-                  className="w-full pl-10 pr-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate"
-                />
-              </div>
-              {isDropdownOpen && filteredOptions.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-auto">
-                  {filteredOptions.map((opt, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => selectOption(fieldKey, field.label, opt)}
-                      className="w-full px-4 py-3 text-left hover:bg-platinum text-charcoal transition-colors cursor-pointer"
-                    >
-                      {opt}
-                    </button>
-                  ))}
+            <div className="flex items-center gap-2 w-full">
+              <div className="flex flex-col w-full gap-2">
+                <label className="block text-sm font-medium text-charcoal">
+                  {field.label}
+                </label>
+                <div className="relative">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate" />
+                    <input
+                      type="text"
+                      placeholder={field.placeholder}
+                      value={searchTerm || formData[field.label] || ""}
+                      onChange={(e) => {
+                        setSearchTerms((prev) => ({
+                          ...prev,
+                          [fieldKey]: e.target.value,
+                        }));
+                        setDropdownStates((prev) => ({
+                          ...prev,
+                          [fieldKey]: true,
+                        }));
+                      }}
+                      onFocus={() =>
+                        setDropdownStates((prev) => ({
+                          ...prev,
+                          [fieldKey]: true,
+                        }))
+                      }
+                      className="w-full pl-10 pr-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate"
+                    />
+                  </div>
+                  {isDropdownOpen && filteredOptions.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-auto">
+                      {filteredOptions.map((opt, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() =>
+                            selectOption(fieldKey, field.label, opt)
+                          }
+                          className="w-full px-4 py-3 text-left hover:bg-platinum text-charcoal transition-colors cursor-pointer"
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
+                <p className="text-gray-500 text-[12px]">{field.message}</p>
+              </div>
+              {field.buttonName && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (field.modal) {
+                      openModal(field.modal, field.label);
+                    }
+                  }}
+                  className="px-4 py-3 h-fit border border-silver rounded-lg hover:bg-platinum transition-colors flex items-center gap-2 text-charcoal font-medium whitespace-nowrap cursor-pointer"
+                >
+                  {field.buttonName}
+                </button>
               )}
             </div>
           </div>
@@ -422,11 +464,11 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                   }}
                   className="px-4 py-3 border border-silver rounded-lg hover:bg-platinum transition-colors flex items-center gap-2 text-charcoal font-medium whitespace-nowrap cursor-pointer"
                 >
-                  <Plus className="w-5 h-5" />
                   {field.buttonName}
                 </button>
               )}
             </div>
+            <p className="text-gray-500 text-[12px] mt-2">{field.message}</p>
           </div>
         );
 
@@ -560,9 +602,12 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             className="flex items-center justify-between py-2 w-full"
           >
-            <label className="text-sm font-medium text-charcoal">
-              {field.label}
-            </label>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-charcoal">
+                {field.label}
+              </label>
+              <p className="text-gray-500 text-[12px]">{field.message}</p>
+            </div>
             <button
               type="button"
               onClick={() =>
@@ -778,6 +823,165 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             </div>
           </div>
         );
+
+      case "list-with-add":
+        const listItems = formData[field.label] || [];
+
+        return (
+          <div key={fieldKey} className={getFieldWidth(field.nature)}>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-charcoal">
+                {field.label}
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  if (field.modal) {
+                    openModal(field.modal, field.label);
+                  }
+                }}
+                className="px-3 py-1.5 border border-silver rounded-md hover:bg-platinum transition-colors flex items-center gap-1 text-charcoal text-sm font-medium cursor-pointer"
+              >
+                {field.buttonName || "Add"}
+              </button>
+            </div>
+
+            {listItems.length === 0 ? (
+              <div className="w-full px-4 py-6 border border-silver rounded-lg bg-platinum/20 text-center">
+                <p className="text-slate text-sm">
+                  {field.message || field.placeholder}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {listItems.map((item: any, idx: number) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between px-4 py-3 border border-silver rounded-lg bg-white hover:bg-platinum/30 transition-colors group"
+                  >
+                    <div className="flex-1">
+                      <p className="text-charcoal font-medium text-sm">
+                        {typeof item === "string"
+                          ? item
+                          : item.name || item.label}
+                      </p>
+                      {typeof item === "object" && item.description && (
+                        <p className="text-slate text-xs mt-1">
+                          {item.description}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newItems = listItems.filter(
+                          (_: any, i: number) => i !== idx
+                        );
+                        handleInputChange(field.label, newItems);
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity ml-3 text-slate hover:text-red-500 cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      case "stage-dropdown":
+        // Use custom colors if provided, otherwise use default stage colors
+        const defaultStageColors: Record<string, string> = {
+          "Lead (10%)": "bg-slate",
+          "Qualified (35%)": "bg-cerulean",
+          "Proposal (50%)": "bg-yellow-500",
+          "Negotiation (85%)": "bg-orange-500",
+          "Closed Won (100%)": "bg-green-500",
+          "Closed Lost (0%)": "bg-red-500",
+          "Closed Other (0%)": "bg-slate",
+          // Priority colors
+          Low: "bg-slate",
+          Medium: "bg-cerulean",
+          High: "bg-orange-500",
+          Urgent: "bg-red-500",
+        };
+
+        const colorMap = field.optionColors || defaultStageColors;
+
+        return (
+          <div key={fieldKey} className={getFieldWidth(field.nature)}>
+            <label className="block text-sm font-medium text-charcoal mb-2">
+              {field.label}
+            </label>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => toggleDropdown(fieldKey)}
+                className="w-full px-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  {formData[field.label] && (
+                    <span
+                      className={`w-3 h-3 rounded-full ${
+                        colorMap[formData[field.label]] || "bg-slate"
+                      }`}
+                    ></span>
+                  )}
+                  <span
+                    className={
+                      formData[field.label] ? "text-charcoal" : "text-slate"
+                    }
+                  >
+                    {formData[field.label] || field.placeholder}
+                  </span>
+                </div>
+                <ChevronDown
+                  className={`w-5 h-5 text-slate transition-transform ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {isDropdownOpen && field.option && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg overflow-hidden">
+                  {field.option.map((opt, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => selectOption(fieldKey, field.label, opt)}
+                      className="w-full px-4 py-2.5 text-left hover:bg-platinum transition-colors cursor-pointer flex items-center justify-between group"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`w-3 h-3 rounded-full ${
+                            colorMap[opt] || "bg-slate"
+                          }`}
+                        ></span>
+                        <span className="text-charcoal text-sm">{opt}</span>
+                      </div>
+                      {formData[field.label] === opt && (
+                        <svg
+                          className="w-4 h-4 text-cerulean"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -845,15 +1049,28 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             )}
           </>
         ) : (
-          // SECTIONED LAYOUT - Render with section headers
-          config.map((section, sectionIndex) => {
-            if (!isSectionConfig(section)) return null;
+          // MIXED/SECTIONED LAYOUT - Render both sections and flat fields
+          config.map((item, itemIndex) => {
+            // Handle flat fields (non-section items)
+            if (isFieldConfig(item)) {
+              return (
+                <div
+                  key={`field-${itemIndex}`}
+                  className="flex flex-wrap gap-4"
+                >
+                  {renderField(item, itemIndex, 0)}
+                </div>
+              );
+            }
+
+            // Handle section items
+            if (!isSectionConfig(item)) return null;
 
             // Handle button section
-            if (section.sectionName === "button" && section.button) {
+            if (item.sectionName === "button" && item.button) {
               return (
-                <div key={sectionIndex} className="flex justify-end gap-3 pt-4">
-                  {section.button.map((btnText, btnIdx) => (
+                <div key={itemIndex} className="flex justify-end gap-3 pt-4">
+                  {item.button.map((btnText, btnIdx) => (
                     <button
                       key={btnIdx}
                       type="button"
@@ -874,28 +1091,28 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             // Handle regular form sections
             return (
               <div
-                key={sectionIndex}
+                key={itemIndex}
                 className={`${
-                  section.sectionBorder
+                  item.sectionBorder
                     ? "border-2 border-charcoal rounded-lg p-6"
                     : "space-y-4"
                 }`}
               >
                 {/* Only show header if section has a name and it's not just "button" */}
-                {section.sectionName && section.sectionName !== "button" && (
+                {item.sectionName && item.sectionName !== "button" && (
                   <div className="flex items-center gap-3 mb-4">
-                    {section.Icon && (
-                      <div className="text-charcoal">{section.Icon}</div>
+                    {item.Icon && (
+                      <div className="text-charcoal">{item.Icon}</div>
                     )}
                     <h2 className="text-xl font-semibold text-charcoal">
-                      {section.sectionName}
+                      {item.sectionName}
                     </h2>
                   </div>
                 )}
-                {section.fields && (
+                {item.fields && (
                   <div className="flex flex-wrap gap-4">
-                    {section.fields.map((field, fieldIndex) =>
-                      renderField(field, sectionIndex, fieldIndex)
+                    {item.fields.map((field, fieldIndex) =>
+                      renderField(field, itemIndex, fieldIndex)
                     )}
                   </div>
                 )}

@@ -5,9 +5,41 @@ import { SiteIcon } from "../../../icons/icons";
 import Button from "../../UI-components/button";
 import ServiceSitesGrid from "../../UI-components/serviceSideDataFormed";
 import CustomerAccountsGrid from "../../UI-components/companySideDataFormed";
+import { CompanyForm } from "./forms/CompanyForm";
+import { SiteForm } from "./forms/SiteForm";
 
 export default function CompaniesContent() {
   const [view, setView] = useState<"Companies" | "sites">("Companies");
+  const [companyFormToggle, setCompanyFormToggle] = useState(false);
+  const [siteFormToggle, setSiteFormToggle] = useState(false);
+
+  const handleCreateCompany = () => {
+    setCompanyFormToggle(true);
+  };
+
+  const handleCreateSite = () => {
+    setSiteFormToggle(true);
+  };
+
+  const handleCancel = () => {
+    setCompanyFormToggle(false);
+    setSiteFormToggle(false);
+  };
+
+  const handleSubmit = (formData: any) => {
+    console.log("Form submitted:", formData);
+    // Handle form submission logic
+    // After successful submission, you might want to close the form:
+    // setFormToggle(false);
+  };
+
+  if (companyFormToggle) {
+    return <CompanyForm onCancel={handleCancel} onSubmit={handleSubmit} />;
+  }
+
+  if (siteFormToggle) {
+    return <SiteForm onCancel={handleCancel} onSubmit={handleSubmit} />;
+  }
 
   const companyValue = {
     header: false,
@@ -80,12 +112,13 @@ export default function CompaniesContent() {
           </button>
         </div>
         <div className="flex gap-2">
-          <Button value="Companies" />
-          <Button value="Sites" />
+          <Button onClick={handleCreateCompany} value="Add Companies" />
+          <Button onClick={handleCreateSite} value="Add Sites" />
         </div>
       </div>
 
-      {view === "Companies" && (companydata ? <CustomerAccountsGrid/> :<Actbox {...companyValue} />)}
+      {view === "Companies" &&
+        (companydata ? <CustomerAccountsGrid /> : <Actbox {...companyValue} />)}
 
       {view === "sites" &&
         (ServiceData ? <ServiceSitesGrid /> : <Actbox {...siteValue} />)}

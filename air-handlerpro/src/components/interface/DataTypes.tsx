@@ -28,8 +28,7 @@ type InputFieldType =
   | "gridButton"
   | "listButton"
   | "dropdownbutton2"
-  |"Checkbox"
-  ;
+  | "Checkbox";
 
 interface InputField {
   type: InputFieldType;
@@ -65,11 +64,13 @@ interface FieldConfig {
   nature: string;
   type: string;
   placeholder?: string;
+  required?: boolean;
   hourplaceholder?: string;
   minuteplaceholder?: string;
   option?: string[];
   box?: object[];
   optionDescription?: string[];
+  optionColors?: Record<string, string>;
   buttonName?: string;
   message?: string;
   button?: string[];
