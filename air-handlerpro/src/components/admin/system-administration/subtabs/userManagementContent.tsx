@@ -1,7 +1,7 @@
-// pages/users.tsx - MINIMAL VERSION (Only Reset Password)
+// pages/users.tsx
 import Button from "@/components/app/UI-components/button";
-import DataTable, { Column, ActionOption } from "../../company-administration/UI-components/table";
-import { Users as UsersIcon, KeyRound } from "lucide-react";
+import DataTable, { Column } from "../../company-administration/UI-components/table";
+import { Users as UsersIcon, Edit } from "lucide-react";
 
 interface User {
   id: number;
@@ -13,7 +13,8 @@ interface User {
 }
 
 export default function UserManegement() {
-  const users: User[] = [
+
+   const users: User[] = [
     {
       id: 1,
       name: "kagok71099@roratu.com",
@@ -39,8 +40,7 @@ export default function UserManegement() {
       joined: "13/12/2025",
     },
   ];
-
-  // Helper function to get role badge color
+// Helper function to get role badge color
   const getRoleBadge = (role: string) => {
     const isAdmin = role.toLowerCase().includes("admin");
     return (
@@ -128,7 +128,7 @@ export default function UserManegement() {
           <UsersIcon />
           User Management
         </h1>
-        <Button value="Add User" />
+        <Button onClick={handleCreateUser} value="Add User" />
       </div>
 
       <DataTable
