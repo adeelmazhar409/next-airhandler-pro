@@ -7,11 +7,7 @@ import MaterialContent from "./content/materialsConetent";
 import CompanySettings from "./content/CompanySettingContent";
 import ErrorLogs from "./content/errorLogsContent";
 
-const tabs = [
-  { name: "Overview", value: "overview" },
-  { name: "Details", value: "details" },
-  { name: "Settings", value: "settings" },
-];
+
 
 export default function SystemAdministration() {
      

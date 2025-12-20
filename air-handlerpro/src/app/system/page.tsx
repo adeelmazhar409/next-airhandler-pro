@@ -12,6 +12,7 @@ import JobWalksPage from "@/components/app/job-walks/JobWalksPage";
 import Administration from "@/components/admin/company-administration/admistration";
 import SystemAdministration from "@/components/admin/system-administration/system-admistration";
 import ServiceEstimateBuilder from "@/components/app/createestimate/createestimate";
+import AdminStaff from "@/components/admin/admin-staff/adminStaff";
 
 export default function MainApplication() {
   const [activePage, setActivePage] = useState("CRM");
@@ -47,6 +48,7 @@ export default function MainApplication() {
       "Service Reports": <ServiceReportsPage />,
       "Job Walks": <JobWalksPage />,
       "System Administration": <Administration />,
+      "Staff Panel": <AdminStaff />,
       "Company Administration": <SystemAdministration />,
     };
 
