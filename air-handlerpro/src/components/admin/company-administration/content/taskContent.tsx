@@ -1,9 +1,28 @@
+// pages/users.tsx
 import Button from "@/components/app/UI-components/button";
+import DataTable, { Column } from "../UI-components/table";
+import { Users as UsersIcon, Edit } from "lucide-react";
+
 import SearchAndFilters from "@/components/app/UI-components/SearchAndFilter";
 import { InputField } from "@/components/interface/DataTypes";
 import { useState } from "react";
+
+
+interface Task { 
+  equipmentType: string;
+  description: string;
+  hours: string;
+  laborType: string;
+  frequency: string;
+  size: string;
+  bundle: string;
+  advanced: string;
+  heating: string;
+  status: string;
+  id: number;
+}
 export default function Tasks() {
-  const tasks = [
+  const tasks: Task[] = [
     {
       id: 1,
       equipmentType: "Air Compressor",
@@ -70,6 +89,125 @@ export default function Tasks() {
       status: "Active",
     },
   ];
+
+
+
+
+
+
+    const taskColumns: Column<Task>[] = [
+      {
+        key: "equipmentType",
+        header: "Equipment Type",
+        span: 2, // Takes 2 units of space
+        render: (task) => (
+          <p className="text-sm font-medium text-charcoal">{task.equipmentType}</p>
+        ),
+      },
+      {
+        key: "description",
+        header: "Description",
+        span: 2, // Takes 2 units of space
+        render: (task) => <p className="text-sm text-slate">{task.description}</p>,
+      },
+      {
+        key: "hours",
+        header: "Hours",
+        span: 1, // Takes 1 unit of space
+        render: (task) => <p className="text-sm text-slate">{task.hours}</p>,
+      },
+      {
+        key: "laborType",
+        header: "Labor Type",
+        span: 1, // Takes 2 units of space
+        render: (task) => (
+          <span className="text-sm text-charcoal ml-3  p-1 rounded-2xl border border-charcoal/20">
+            {task.laborType || "-"}
+          </span>
+        ),
+      },
+      {
+        key: "frequency",
+        header: "Frequency",
+        span: 1, // Takes 1 unit of space
+        render: (task) => (
+          <span className="text-xs  bg-slate/10 rounded-2xl p-1.5 text-black">{task.frequency || "-"}</span>
+        ),
+      },
+      {
+        key: "size",
+        header: "Size",
+        span: 1, // Takes 1 unit of space
+        align: "right",
+        render: (task) => (
+          <button className=" text-slate  hover:text-cerulean hover:bg-platinum rounded transition-colors">
+            <span>{task.size || "-"}</span>
+          </button>
+        ),
+      },
+
+      {
+        key: "bundle",
+        header: "Bundle",
+        span: 1, // Takes 1 unit of space
+        align: "right",
+        render: (task) => (
+          <button className="p-1 text-white bg-black px-3  text-xs rounded-3xl transition-colors">
+         <span>{task.bundle || "-"}</span>
+          </button>
+        ),
+      },
+      
+      {
+        key: "advanced ",
+        header: "Advanced",
+        span: 1, // Takes 1 unit of space
+        align: "right",
+        render: (task) => (
+        <button className="p-1 text-black bg-slate/20 px-3 mr-2  text-xs rounded-3xl transition-colors">
+         <span>{task.advanced || "-"}</span>
+          </button>
+        ),
+      },
+       {
+        key: "heating",
+        header: "Heating",
+        span: 1, // Takes 1 unit of space
+        align: "right",
+        render: (task) => (
+           <button className="p-1 text-black bg-slate/20 px-3 mr-2  text-xs rounded-3xl transition-colors">
+         <span>{task.heating || "-"}</span>
+          </button>
+        ),
+      },
+       {
+        key: "status",
+        header: "Status",
+        span: 1, // Takes 1 unit of space
+        align: "right",
+        render: (task) => (
+            <button className="p-1 text-white bg-black px-3  text-xs rounded-3xl transition-colors">
+         <span>{task.status || "-"}</span>
+          </button>
+        ),
+      },
+       {
+      key: "actions",
+      header: "Actions",
+      span: 1, // Takes 1 unit of space
+      align: "right",
+      render: () => (
+        <button className="p-2 text-slate hover:text-cerulean hover:bg-platinum rounded transition-colors">
+          <Edit className="w-4 h-4" />
+        </button>
+      ),
+    },
+    ];
+
+    const handleRowClick = (task: Task) => {
+      console.log("Clicked task:", task);
+    };
+  
   const [searchValue, setSearchValue] = useState("");
     const [selectedType, setSelectedType] = useState("");
   
@@ -106,19 +244,22 @@ const inputFields: InputField[] = [
   },
 ];
   return (
-    <div className="p-8 border border-slate/30 rounded-lg">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-charcoal mb-2">
-          Task Library Management
-        </h1>
-        <p className="text-sm text-slate">
-          Manage HVAC maintenance tasks with frequencies and equipment details
-        </p>
-      </div>
 
-      {/* Filters and Actions */}
-      <div className=" flex justify-between">
+
+
+     <div className="p-8 border border-slate/30 rounded-lg">
+          <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-charcoal flex items-center gap-3">
+              
+              Task Library Management
+            </h1>
+            <p className="text-charcoal text-sm m-2">Manage HVAC maintenance tasks with frequencies and equipment details</p>
+            </div>
+          
+          </div>
+
+           <div className=" flex justify-between">
         <SearchAndFilters
           fields={inputFields}
           searchValue={searchValue}
@@ -127,125 +268,14 @@ const inputFields: InputField[] = [
         />
         <Button value="Add new Task"/>
       </div>
-      {/* Task Table */}
-      <div className="bg-white border border-silver rounded-lg overflow-hidden">
-        {/* Table Header */}
-        <div className="bg-platinum/30 border-b border-silver">
-          <div className="grid grid-cols-12 gap-4 px-6 py-3 text-xs font-medium text-slate uppercase tracking-wider">
-            <div className="col-span-1">Equipment Type</div>
-            <div className="col-span-2">Task Description</div>
-            <div className="col-span-1">Hours</div>
-            <div className="col-span-1">Labor Type</div>
-            <div className="col-span-1">Frequency</div>
-            <div className="col-span-1">Size</div>
-            <div className="col-span-1">Bundle</div>
-            <div className="col-span-1">Advanced</div>
-            <div className="col-span-1">Heating</div>
-            <div className="col-span-1">Status</div>
-            <div className="col-span-1 text-right">Actions</div>
-          </div>
+    
+          <DataTable
+            columns={taskColumns}
+            data={tasks}
+            onRowClick={handleRowClick}
+            emptyMessage="No tasks found"
+          />
         </div>
-
-        {/* Table Body */}
-        <div className="divide-y divide-silver">
-          {tasks.map((task) => (
-            <div
-              key={task.id}
-              className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-platinum/20 transition-colors items-center"
-            >
-              {/* Equipment Type */}
-              <div className="col-span-1 text-sm text-charcoal font-medium">
-                {task.equipmentType}
-              </div>
-
-              {/* Task Description */}
-              <div className="col-span-2 text-sm text-charcoal">
-                {task.description}
-              </div>
-
-              {/* Hours */}
-              <div className="col-span-1 text-sm text-charcoal">
-                {task.hours}
-              </div>
-
-              {/* Labor Type */}
-              <div className="col-span-1">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-800">
-                  {task.laborType}
-                </span>
-              </div>
-
-              {/* Frequency */}
-              <div className="col-span-1 text-sm text-charcoal">
-                {task.frequency}
-              </div>
-
-              {/* Size */}
-              <div className="col-span-1 text-sm text-charcoal">
-                {task.size}
-              </div>
-
-              {/* Bundle */}
-              <div className="col-span-1">
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold text-white bg-black">
-                  {task.bundle}
-                </span>
-              </div>
-
-              {/* Advanced */}
-              <div className="col-span-1 text-sm text-charcoal">
-                {task.advanced}
-              </div>
-
-              {/* Heating */}
-              <div className="col-span-1 text-sm text-charcoal">
-                {task.heating}
-              </div>
-
-              {/* Status */}
-              <div className="col-span-1">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  {task.status}
-                </span>
-              </div>
-
-              {/* Actions */}
-              <div className="col-span-1 flex justify-end gap-2">
-                <button className="p-2 text-slate hover:text-cerulean hover:bg-platinum rounded transition-colors">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                </button>
-                <button className="p-2 text-slate hover:text-red-600 hover:bg-platinum rounded transition-colors">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    
   );
 }

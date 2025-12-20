@@ -1,8 +1,22 @@
-import Button from "../../UI-components/button";
+// pages/users.tsx
+import Button from "@/components/app/UI-components/button";
+import DataTable, { Column } from "../../../admin/company-administration/UI-components/table";
+import { Users as UsersIcon, Edit, Edit2, Star } from "lucide-react";
+export function  JobWalksContent({ onClick }: { onClick: () => void }) {
 
-export function JobWalksContent({ onClick }: { onClick: () => void }) {
-  const jobWalks = [
+  interface Material {
+
+  id: number;
+  date: string;
+  jobName: string;
+  type: string;
+  user: string;
+  nextStep: string;
+  photos: number;
+}
+  const jobWalks: Material[] = [
     {
+
       id: 1,
       date: "2024-12-10",
       jobName: "HVAC System Inspection - Building A",
@@ -49,6 +63,83 @@ export function JobWalksContent({ onClick }: { onClick: () => void }) {
     },
   ];
 
+
+  
+       const materialColumns: Column<Material>[] = [
+         {
+          top: true,
+           key: "date",
+           header: "Date",
+           span: 1, // Takes 2 units of space
+           render: (material) => (
+           <div className="flex items-center gap-2">
+          
+             <p className="text-sm font-medium text-charcoal">{material.date}</p>
+           </div>
+           ),
+         },
+         {
+           key: "jobName",
+           header: "Job Name",
+           span: 2, // Takes 2 units of space
+           render: (material) => <p className="text-sm text-charcoal w-fit p-1 px-2">{material.jobName}</p>,
+         },
+         {
+           key: "type",
+           header: "Type",
+           span: 1, // Takes 1 unit of space
+           render: (material) => <p className="text-sm text-slate">{material.type}</p>,
+         },
+         {
+           key: "user",
+           header: "User",
+           span: 1, // Takes 2 units of space
+           render: (material) => (
+             <span className="text-xs text-black ml-3  p-1 rounded-2xl  bg-charcoal/10">
+               {material.user || "-"}
+             </span>
+           ),
+         },
+         {
+           key: "nextStep",
+           header: "Next Step",
+           span: 1, // Takes 1 unit of space
+           render: (material) => (
+             <span className="text-xs  bg-cerulean text-white rounded-2xl p-1.5 text-black">{material.nextStep || "-"}</span>
+           ),
+         },
+         {
+           key: "photos",
+           header: "Photos",
+           span: 1, // Takes 1 unit of space
+           align: "right",
+           render: (material) => (
+             <button className=" text-slate  hover:text-cerulean hover:bg-platinum rounded transition-colors">
+               <span>{material.photos || "-"}</span>
+             </button>
+           ),
+         },
+   
+   
+       
+          {
+         key: "actions",
+         header: "Actions",
+         span: 1, // Takes 1 unit of space
+         align: "right",
+         render: () => (
+           <button className="p-2 text-slate hover:text-cerulean hover:bg-platinum rounded transition-colors">
+             View
+           </button>
+         ),
+       },
+       ];
+
+           const handleRowClick = (material: Material) => {
+      console.log("Clicked material:", material);
+    };
+
+
   return (
     <>
       {/* Search and Action Bar */}
@@ -93,103 +184,17 @@ export function JobWalksContent({ onClick }: { onClick: () => void }) {
       </div>
 
       {/* Recent Job Walks Table */}
-      <div className="bg-white border border-silver rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-silver">
-          <h2 className="text-base font-semibold text-charcoal">
-            Recent Job Walks
-          </h2>
-        </div>
+    
 
         {/* Table Header */}
-        <div className="bg-platinum/30 border-b border-silver">
-          <div className="grid grid-cols-12 gap-3 px-6 py-3">
-            <div className="col-span-2 text-xs font-medium text-slate uppercase tracking-wider">
-              Date
-            </div>
-            <div className="col-span-2 text-xs font-medium text-slate uppercase tracking-wider">
-              Job Name
-            </div>
-            <div className="col-span-2 text-xs font-medium text-slate uppercase tracking-wider">
-              Type
-            </div>
-            <div className="col-span-2 text-xs font-medium text-slate uppercase tracking-wider">
-              User
-            </div>
-            <div className="col-span-2 text-xs font-medium text-slate uppercase tracking-wider">
-              Next Step
-            </div>
-            <div className=" text-xs font-medium text-slate uppercase tracking-wider">
-              Photos
-            </div>
-            <div className="col-span-1 text-xs font-medium text-slate uppercase tracking-wider text-right">
-              Actions
-            </div>
-          </div>
-        </div>
-
-        {/* Table Body */}
-        <div className="divide-y divide-silver">
-          {jobWalks.map((job) => (
-            <div
-              key={job.id}
-              className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-platinum/20 transition-colors"
-            >
-              <div className="col-span-2 text-sm text-charcoal">{job.date}</div>
-              <div className="col-span-2 text-sm font-medium text-charcoal">
-                {job.jobName}
-              </div>
-              <div className="col-span-2">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cerulean/20 text-cerulean">
-                  {job.type}
-                </span>
-              </div>
-              <div className="col-span-2 text-sm text-slate">{job.user}</div>
-              <div className="col-span-2 text-sm text-slate">
-                {job.nextStep}
-              </div>
-              <div className=" text-sm text-slate">{job.photos}</div>
-              <div className="col-span-1 flex items-center justify-end gap-2">
-                <button className="text-slate hover:text-cerulean transition-colors">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                </button>
-                <button className="text-slate hover:text-cerulean transition-colors">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      
+                       <DataTable
+                         columns={materialColumns}
+                         data={jobWalks}
+                         onRowClick={handleRowClick}
+                         emptyMessage="No materials found"
+                       />
+ 
     </>
   );
 }

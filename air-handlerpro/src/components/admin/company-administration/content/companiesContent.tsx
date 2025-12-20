@@ -1,9 +1,18 @@
 // pages/Companies.tsx
 import Button from "@/components/app/UI-components/button";
-import DataTable, { Column,Company } from "../UI-components/table";
+import DataTable, { Column } from "../UI-components/table";
 import { Building2, Users, Building, FileText, Edit } from "lucide-react";
 
-
+interface Company {
+  id: number;
+  name: string;
+  domain: string;
+  users: number;
+  customers: number;
+  estimates: number;
+  status: string;
+  created: string;
+}
 
 export default function Companies() {
   const companies: Company[] = [
@@ -43,6 +52,7 @@ export default function Companies() {
     {
       key: "name",
       header: "Company",
+      span: 3, // Larger span for company name
       render: (company) => (
         <p className="text-sm font-medium text-charcoal">{company.name}</p>
       ),
@@ -50,6 +60,7 @@ export default function Companies() {
     {
       key: "domain",
       header: "Domain",
+      span: 2,
       render: (company) => (
         <p className="text-sm text-slate">{company.domain}</p>
       ),
@@ -57,6 +68,7 @@ export default function Companies() {
     {
       key: "users",
       header: "Users",
+      span: 1,
       render: (company) => (
         <div className="flex items-center gap-1">
           <Users className="w-4 h-4 text-slate" />
@@ -67,6 +79,7 @@ export default function Companies() {
     {
       key: "customers",
       header: "Customers",
+      span: 1,
       render: (company) => (
         <div className="flex items-center gap-1">
           <Building className="w-4 h-4 text-slate" />
@@ -77,6 +90,7 @@ export default function Companies() {
     {
       key: "estimates",
       header: "Estimates",
+      span: 1,
       render: (company) => (
         <div className="flex items-center gap-1">
           <FileText className="w-4 h-4 text-slate" />
@@ -87,6 +101,7 @@ export default function Companies() {
     {
       key: "status",
       header: "Status",
+      span: 1,
       render: (company) => (
         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
           {company.status}
@@ -96,6 +111,7 @@ export default function Companies() {
     {
       key: "created",
       header: "Created",
+      span: 2,
       render: (company) => (
         <span className="text-sm text-slate">{company.created}</span>
       ),
@@ -103,6 +119,7 @@ export default function Companies() {
     {
       key: "actions",
       header: "Actions",
+      span: 1,
       align: "right",
       render: () => (
         <button className="p-2 text-slate hover:text-cerulean hover:bg-platinum rounded transition-colors">
@@ -111,6 +128,10 @@ export default function Companies() {
       ),
     },
   ];
+
+  const handleRowClick = (company: Company) => {
+    console.log("Clicked company:", company);
+  };
 
   return (
     <div className="p-8 border border-slate/30 rounded-lg">
@@ -125,6 +146,7 @@ export default function Companies() {
       <DataTable
         columns={columns}
         data={companies}
+        onRowClick={handleRowClick}
         emptyMessage="No companies found"
       />
     </div>

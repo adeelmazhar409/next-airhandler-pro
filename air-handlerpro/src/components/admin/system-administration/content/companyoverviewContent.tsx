@@ -44,7 +44,7 @@ export default function CompanyOverview() {
     return (
           <div>
             <StatsCardsRow stats={OverviewStats} />
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className=" mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
               <RecentItemsCard title="Recent Customers" items={recentCustomers} />
               <RecentItemsCard title="Recent Estimates" items={recentEstimates} />
             </div>
