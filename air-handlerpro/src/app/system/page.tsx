@@ -13,19 +13,44 @@ import Administration from "@/components/admin/company-administration/admistrati
 import SystemAdministration from "@/components/admin/system-administration/system-admistration";
 import ServiceEstimateBuilder from "@/components/app/createestimate/createestimate";
 import AdminStaff from "@/components/admin/admin-staff/adminStaff";
+import DealDetailPage from "@/components/app/crm/content/DealDetailPage";
+import { Deal } from "@/components/app/UI-components/table";
 
 export default function MainApplication() {
   const [activePage, setActivePage] = useState("CRM");
   const [showServiceEstimateBuilder, setShowServiceEstimateBuilder] =
     useState(false);
+  const [showDealDetail, setShowDealDetail] = useState(false);
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
 
-  // Fixed: Reset builder state when changing pages
+  // Handle page changes - reset all special views
   const handlePageChange = (page: string) => {
-    setShowServiceEstimateBuilder(false); // Close the builder
-    setActivePage(page); // Change the page
+    setShowServiceEstimateBuilder(false);
+    setShowDealDetail(false);
+    setSelectedDeal(null);
+    setActivePage(page);
+  };
+
+  // Handle showing deal detail
+  const handleShowDealDetail = (deal: Deal) => {
+    setSelectedDeal(deal);
+    setShowDealDetail(true);
+  };
+
+  // Handle closing deal detail
+  const handleCloseDealDetail = () => {
+    setShowDealDetail(false);
+    setSelectedDeal(null);
   };
 
   const renderPage = () => {
+    // If viewing deal detail, show the deal detail page
+    if (showDealDetail && selectedDeal) {
+      return (
+        <DealDetailPage deal={selectedDeal} onBack={handleCloseDealDetail} />
+      );
+    }
+
     // If building a service estimate, show the builder
     if (showServiceEstimateBuilder) {
       return (
@@ -36,7 +61,7 @@ export default function MainApplication() {
     }
 
     const pages: Record<string, React.ReactElement> = {
-      CRM: <CRMDashboard />,
+      CRM: <CRMDashboard onShowDealDetail={handleShowDealDetail} />,
       Contacts: <ContactsPage />,
       "AI Estimate Builder": <AIEstimateBuilderPage />,
       "Service Estimate Pro": (
@@ -52,18 +77,25 @@ export default function MainApplication() {
       "Company Administration": <SystemAdministration />,
     };
 
-    return pages[activePage] || <CRMDashboard />;
+    return pages[activePage] || <CRMDashboard onShowDealDetail={handleShowDealDetail} />;
+  };
+
+  // Determine header title
+  const getHeaderTitle = () => {
+    if (showDealDetail && selectedDeal) {
+      return `${selectedDeal.dealName} - ${selectedDeal.id}`;
+    }
+    if (showServiceEstimateBuilder) {
+      return "New Service Estimate";
+    }
+    return activePage;
   };
 
   return (
     <div className="flex h-screen bg-white">
       <Sidebar activePage={activePage} onPageChange={handlePageChange} />
       <main className="flex-1 overflow-y-auto">
-        <Header
-          value={
-            showServiceEstimateBuilder ? "New Service Estimate" : activePage
-          }
-        />
+        <Header value={getHeaderTitle()} />
         <div>{renderPage()}</div>
       </main>
     </div>

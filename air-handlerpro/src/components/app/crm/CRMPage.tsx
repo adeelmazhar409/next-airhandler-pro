@@ -14,8 +14,13 @@ import ActivitiesContent from "./content/ActivitiesContent";
 import ContactsContent from "./content/ContactsContent";
 import CompaniesContent from "./content/CompaniesContent";
 import { InputField } from "@/components/interface/DataTypes";
+import { Deal } from "@/components/app/UI-components/table";
 
-export default function CRMDashboard() {
+interface CRMDashboardProps {
+  onShowDealDetail?: (deal: Deal) => void;
+}
+
+export default function CRMDashboard({ onShowDealDetail }: CRMDashboardProps) {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [searchValue, setSearchValue] = useState("");
   const [selectedType, setSelectedType] = useState("");
@@ -47,7 +52,7 @@ export default function CRMDashboard() {
     {
       title: "Prospects",
       value: "0",
-      icon: <ContactsIcon color="text-gray-400"/>,
+      icon: <ContactsIcon color="text-gray-400" />,
     },
   ];
 
@@ -83,12 +88,12 @@ export default function CRMDashboard() {
     },
   ];
 
-  const renderTabContent = () => {
+  const renderContent = () => {
     switch (activeTab) {
       case "Dashboard":
         return <DashboardContent />;
       case "pipeline":
-        return <PipelineContent />;
+        return <PipelineContent onDealClick={onShowDealDetail} />;
       case "activities":
         return <ActivitiesContent />;
       case "contacts":
@@ -101,19 +106,19 @@ export default function CRMDashboard() {
   };
 
   return (
-    <div className="p-8 bg-platinum/10">
-      <SearchAndFilters
-        fields={inputFields}
-        searchValue={searchValue}
-        onSearchChange={setSearchValue}
-      />
+    <div className="flex flex-col p-8">
       <StatsCardsRow stats={topStats} />
       <TabNavigation
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-      {renderTabContent()}
+      {/* <SearchAndFilters
+        fields={inputFields}
+        searchValue={searchValue}
+        onSearchChange={setSearchValue}
+      /> */}
+      <div className="mt-4">{renderContent()}</div>
     </div>
   );
 }
