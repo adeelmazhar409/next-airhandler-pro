@@ -1,22 +1,21 @@
 // pages/users.tsx
 import Button from "@/components/app/UI-components/button";
-import DataTable, { Column } from "../../../admin/company-administration/UI-components/table";
+import DataTable, {
+  Column,
+} from "../../../admin/admin-administration/UI-components/table";
 import { Users as UsersIcon, Edit, Edit2, Star } from "lucide-react";
-export function  JobWalksContent({ onClick }: { onClick: () => void }) {
-
+export function JobWalksContent({ onClick }: { onClick: () => void }) {
   interface Material {
-
-  id: number;
-  date: string;
-  jobName: string;
-  type: string;
-  user: string;
-  nextStep: string;
-  photos: number;
-}
+    id: number;
+    date: string;
+    jobName: string;
+    type: string;
+    user: string;
+    nextStep: string;
+    photos: number;
+  }
   const jobWalks: Material[] = [
     {
-
       id: 1,
       date: "2024-12-10",
       jobName: "HVAC System Inspection - Building A",
@@ -63,82 +62,84 @@ export function  JobWalksContent({ onClick }: { onClick: () => void }) {
     },
   ];
 
+  const materialColumns: Column<Material>[] = [
+    {
+      top: true,
+      key: "date",
+      header: "Date",
+      span: 1, // Takes 2 units of space
+      render: (material) => (
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-medium text-charcoal">{material.date}</p>
+        </div>
+      ),
+    },
+    {
+      key: "jobName",
+      header: "Job Name",
+      span: 2, // Takes 2 units of space
+      render: (material) => (
+        <p className="text-sm text-charcoal w-fit p-1 px-2">
+          {material.jobName}
+        </p>
+      ),
+    },
+    {
+      key: "type",
+      header: "Type",
+      span: 1, // Takes 1 unit of space
+      render: (material) => (
+        <p className="text-sm text-slate">{material.type}</p>
+      ),
+    },
+    {
+      key: "user",
+      header: "User",
+      span: 1, // Takes 2 units of space
+      render: (material) => (
+        <span className="text-xs text-black ml-3  p-1 rounded-2xl  bg-charcoal/10">
+          {material.user || "-"}
+        </span>
+      ),
+    },
+    {
+      key: "nextStep",
+      header: "Next Step",
+      span: 1, // Takes 1 unit of space
+      render: (material) => (
+        <span className="text-xs  bg-cerulean text-white rounded-2xl p-1.5 text-black">
+          {material.nextStep || "-"}
+        </span>
+      ),
+    },
+    {
+      key: "photos",
+      header: "Photos",
+      span: 1, // Takes 1 unit of space
+      align: "right",
+      render: (material) => (
+        <button className=" text-slate  hover:text-cerulean hover:bg-platinum rounded transition-colors">
+          <span>{material.photos || "-"}</span>
+        </button>
+      ),
+    },
 
-  
-       const materialColumns: Column<Material>[] = [
-         {
-          top: true,
-           key: "date",
-           header: "Date",
-           span: 1, // Takes 2 units of space
-           render: (material) => (
-           <div className="flex items-center gap-2">
-          
-             <p className="text-sm font-medium text-charcoal">{material.date}</p>
-           </div>
-           ),
-         },
-         {
-           key: "jobName",
-           header: "Job Name",
-           span: 2, // Takes 2 units of space
-           render: (material) => <p className="text-sm text-charcoal w-fit p-1 px-2">{material.jobName}</p>,
-         },
-         {
-           key: "type",
-           header: "Type",
-           span: 1, // Takes 1 unit of space
-           render: (material) => <p className="text-sm text-slate">{material.type}</p>,
-         },
-         {
-           key: "user",
-           header: "User",
-           span: 1, // Takes 2 units of space
-           render: (material) => (
-             <span className="text-xs text-black ml-3  p-1 rounded-2xl  bg-charcoal/10">
-               {material.user || "-"}
-             </span>
-           ),
-         },
-         {
-           key: "nextStep",
-           header: "Next Step",
-           span: 1, // Takes 1 unit of space
-           render: (material) => (
-             <span className="text-xs  bg-cerulean text-white rounded-2xl p-1.5 text-black">{material.nextStep || "-"}</span>
-           ),
-         },
-         {
-           key: "photos",
-           header: "Photos",
-           span: 1, // Takes 1 unit of space
-           align: "right",
-           render: (material) => (
-             <button className=" text-slate  hover:text-cerulean hover:bg-platinum rounded transition-colors">
-               <span>{material.photos || "-"}</span>
-             </button>
-           ),
-         },
-   
-   
-       
-          {
-         key: "actions",
-         header: "Actions",
-         span: 1, // Takes 1 unit of space
-         align: "right",
-         render: () => (
-           <button className="p-2 text-slate hover:text-cerulean hover:bg-platinum rounded transition-colors">
-             View
-           </button>
-         ),
-       },
-       ];
+    {
+      key: "actions",
+      header: "Actions",
+      span: 1, // Takes 1 unit of space
+      align: "right",
+      render: () => (
+        <button className="p-2 text-slate hover:text-cerulean hover:bg-platinum rounded transition-colors">
+          View
+        </button>
+      ),
+    },
+  ];
 
-           const handleRowClick = (material: Material) => {
-      console.log("Clicked material:", material);
-    };
-
+  const handleRowClick = (material: Material) => {
+    console.log("Clicked material:", material);
+  };
 
   return (
     <>
@@ -184,17 +185,15 @@ export function  JobWalksContent({ onClick }: { onClick: () => void }) {
       </div>
 
       {/* Recent Job Walks Table */}
-    
 
-        {/* Table Header */}
-      
-                       <DataTable
-                         columns={materialColumns}
-                         data={jobWalks}
-                         onRowClick={handleRowClick}
-                         emptyMessage="No materials found"
-                       />
- 
+      {/* Table Header */}
+
+      <DataTable
+        columns={materialColumns}
+        data={jobWalks}
+        onRowClick={handleRowClick}
+        emptyMessage="No materials found"
+      />
     </>
   );
 }
