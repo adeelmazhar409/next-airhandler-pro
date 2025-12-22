@@ -2,15 +2,19 @@
 
 import { useState } from "react";
 import { JobWalksForm } from "./JobWalksForm";
-import { JobWalksContent } from "./subtabs/JobWalksContent";
+import { JobWalksContent, jobWalksData } from "./subtabs/JobWalksContent";
 import { MyTasksContent } from "./subtabs/MyTaskContent";
 import { Admin } from "./subtabs/Admin";
+import JobWalkDetailPage from "./JobWalkDetailPage";
 
 export default function JobWalksAndTasks() {
   const [activeTab, setActiveTab] = useState<"jobWalks" | "myTasks" | "admin">(
     "jobWalks"
   );
   const [formToggle, setFormToggle] = useState(false);
+  const [selectedJobWalkId, setSelectedJobWalkId] = useState<number | null>(
+    null
+  );
 
   const handleCreateJob = () => {
     setFormToggle(true);
@@ -27,6 +31,23 @@ export default function JobWalksAndTasks() {
     // setFormToggle(false);
   };
 
+  const handleViewJobWalkDetails = (jobWalkId: number) => {
+    setSelectedJobWalkId(jobWalkId);
+  };
+
+  const handleBackToList = () => {
+    setSelectedJobWalkId(null);
+  };
+
+  // Show Job Walk Detail Page
+  if (selectedJobWalkId !== null) {
+    const jobWalkData = jobWalksData.find((jw) => jw.id === selectedJobWalkId);
+    if (jobWalkData) {
+      return <JobWalkDetailPage data={jobWalkData} onBack={handleBackToList} />;
+    }
+  }
+
+  // Show Create Job Walk Form
   if (formToggle) {
     return <JobWalksForm onCancel={handleCancel} onSubmit={handleSubmit} />;
   }
@@ -73,7 +94,10 @@ export default function JobWalksAndTasks() {
       {/* Content Area */}
       <div className="p-6">
         {activeTab === "jobWalks" && (
-          <JobWalksContent onClick={handleCreateJob} />
+          <JobWalksContent
+            onClick={handleCreateJob}
+            onViewDetails={handleViewJobWalkDetails}
+          />
         )}
         {activeTab === "myTasks" && <MyTasksContent />}
         {activeTab === "admin" && <Admin />}
@@ -81,4 +105,3 @@ export default function JobWalksAndTasks() {
     </div>
   );
 }
-

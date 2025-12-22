@@ -6,21 +6,31 @@ import { User, Clock } from "lucide-react";
 type ReportStatus = "draft" | "signed";
 
 interface TechnicianReportCardProps {
+  id: string;
   siteName: string;
   status: ReportStatus;
   hours: number; // e.g., 0 or 6
   date: string; // e.g., "Sep 16, 2025"
+  onViewReport?: (reportId: string) => void;
 }
 
 const TechnicianReportCard: React.FC<TechnicianReportCardProps> = ({
+  id,
   siteName,
   status,
   hours,
   date,
+  onViewReport,
 }) => {
   const statusStyles = {
     draft: "bg-gray-200 text-gray-700",
     signed: "bg-green-100 text-green-800",
+  };
+
+  const handleViewReport = () => {
+    if (onViewReport) {
+      onViewReport(id);
+    }
   };
 
   return (
@@ -51,7 +61,10 @@ const TechnicianReportCard: React.FC<TechnicianReportCardProps> = ({
       {/* Date & Button */}
       <div className="flex justify-between items-center">
         <span className="text-sm text-gray-600">{date}</span>
-        <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition">
+        <button
+          onClick={handleViewReport}
+          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+        >
           View Report
         </button>
       </div>

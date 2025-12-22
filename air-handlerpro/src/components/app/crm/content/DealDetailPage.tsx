@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Deal } from "@/components/app/UI-components/table";
-import { ArrowLeft, Edit, Trash2, Plus } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Plus,FileText } from "lucide-react";
 
 interface Activity {
   id: string;
@@ -13,6 +13,15 @@ interface Activity {
   completedDate?: string;
   dueDate?: string;
 }
+
+
+interface Note {
+  id: string;
+  content: string;
+  timestamp: string;
+}
+
+
 
 interface DealDetailPageProps {
   deal: Deal;
@@ -30,6 +39,23 @@ export default function DealDetailPage({ deal, onBack }: DealDetailPageProps) {
       completedDate: deal.createdTime,
     },
   ]);
+
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [showAddNote, setShowAddNote] = useState(false);
+  const [newNoteContent, setNewNoteContent] = useState("");
+
+  const handleAddNote = () => {
+    if (newNoteContent.trim()) {
+      const note: Note = {
+        id: Date.now().toString(),
+        content: newNoteContent,
+        timestamp: new Date().toLocaleString(),
+      };
+      setNotes([note, ...notes]);
+      setNewNoteContent("");
+      setShowAddNote(false);
+    }
+  };
 
   // Get stage color based on deal stage
   const getStageColor = (stage: string) => {
@@ -324,6 +350,87 @@ export default function DealDetailPage({ deal, onBack }: DealDetailPageProps) {
             </div>
           </div>
         </div>
+      </div>
+      <div className="p-8">
+        <h1 className="text-3xl font-bold text-charcoal mb-6">Notes</h1>
+
+        {/* Notes Section */}
+        <div className="bg-white border-2 border-black rounded-lg p-6 mb-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-charcoal" />
+              <h2 className="text-xl font-bold text-charcoal">
+                Notes ({notes.length})
+              </h2>
+            </div>
+            <button
+              onClick={() => setShowAddNote(!showAddNote)}
+              className="flex items-center gap-2 px-4 py-2 border border-charcoal rounded-lg text-charcoal hover:bg-platinum transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Add Note
+            </button>
+          </div>
+
+          {/* Add Note Form */}
+          {showAddNote && (
+            <div className="mb-6 p-4 border border-silver rounded-lg bg-platinum/20">
+              <textarea
+                value={newNoteContent}
+                onChange={(e) => setNewNoteContent(e.target.value)}
+                placeholder="Write your note here..."
+                className="w-full px-4 py-3 border border-silver rounded-lg text-sm text-charcoal placeholder:text-slate/60 focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-cerulean transition-colors resize-none mb-3"
+                rows={4}
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => {
+                    setShowAddNote(false);
+                    setNewNoteContent("");
+                  }}
+                  className="px-4 py-2 border border-silver rounded-lg text-charcoal hover:bg-platinum transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddNote}
+                  className="px-4 py-2 bg-charcoal text-white rounded-lg hover:bg-charcoal/90 transition-colors"
+                >
+                  Save Note
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Notes List or Empty State */}
+          {notes.length === 0 ? (
+            <div className="text-center py-12">
+              <FileText className="w-16 h-16 text-slate/40 mx-auto mb-4" />
+              <p className="text-slate">
+                No notes yet. Add the first note to get started.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {notes.map((note) => (
+                <div
+                  key={note.id}
+                  className="p-4 border border-silver rounded-lg hover:bg-platinum/20 transition-colors"
+                >
+                  <p className="text-sm text-charcoal mb-2">{note.content}</p>
+                  <p className="text-xs text-slate">{note.timestamp}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* New Activity Button */}
+        <button className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-lg hover:bg-charcoal transition-colors">
+          <Plus className="w-4 h-4" />
+          New Activity
+        </button>
       </div>
     </div>
   );

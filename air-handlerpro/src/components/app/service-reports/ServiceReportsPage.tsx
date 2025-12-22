@@ -1,14 +1,27 @@
+"use client";
+
 import Heading from "../Heading";
 import Actbox from "../UI-components/Actbox";
 import { WorkerOrderIcon } from "@/components/icons/icons";
 import Button from "../UI-components/button";
-import ScheduledVisitsGrid from "../UI-components/workOrderDataFormed";
-import TechnicianReportsGrid from "../UI-components/recentServiceDataFormed";
+import ScheduledVisitsGrid, {
+  scheduledVisitsData,
+} from "../UI-components/workOrderDataFormed";
+import TechnicianReportsGrid, {
+  technicianReportsData,
+} from "../UI-components/recentServiceDataFormed";
 import { useState } from "react";
 import { ServiceReportForm } from "./ServiceReportForm";
+import WorkOrderDetailPage from "./WorkOrderDetailPage";
+import ServiceReportDetailPage from "./ServiceReportDetailPage";
 
 export default function ServiceReports() {
   const [formToggle, setFormToggle] = useState(false);
+  const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string | null>(
+    null
+  );
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
+
   // Define data availability flags
   const hasWorkOrders = true; // Change to false to show empty state
   const hasServiceReports = true; // Change to false to show empty state
@@ -28,12 +41,53 @@ export default function ServiceReports() {
     // setFormToggle(false);
   };
 
+  const handleViewWorkOrderDetails = (workOrderId: string) => {
+    setSelectedWorkOrderId(workOrderId);
+    setSelectedReportId(null);
+  };
+
+  const handleViewServiceReport = (reportId: string) => {
+    setSelectedReportId(reportId);
+    setSelectedWorkOrderId(null);
+  };
+
+  const handleBackToList = () => {
+    setSelectedWorkOrderId(null);
+    setSelectedReportId(null);
+  };
+
+  // Show Work Order Detail Page
+  if (selectedWorkOrderId) {
+    const workOrderData = scheduledVisitsData.find(
+      (wo) => wo.id === selectedWorkOrderId
+    );
+    if (workOrderData) {
+      return (
+        <WorkOrderDetailPage
+          data={workOrderData}
+          onBack={handleBackToList}
+          onViewReport={handleViewServiceReport}
+        />
+      );
+    }
+  }
+
+  // Show Service Report Detail Page
+  if (selectedReportId) {
+    const reportData = technicianReportsData.find(
+      (report) => report.id === selectedReportId
+    );
+    if (reportData) {
+      return (
+        <ServiceReportDetailPage data={reportData} onBack={handleBackToList} />
+      );
+    }
+  }
+
+  // Show Create Work Order Form
   if (formToggle) {
     return (
-      <ServiceReportForm
-        onCancel={handleCancel}
-        onSubmit={handleSubmit}
-      />
+      <ServiceReportForm onCancel={handleCancel} onSubmit={handleSubmit} />
     );
   }
 
@@ -43,7 +97,9 @@ export default function ServiceReports() {
       id: 1,
       title: "Work Orders",
       hasData: hasWorkOrders,
-      component: <ScheduledVisitsGrid />,
+      component: (
+        <ScheduledVisitsGrid onViewDetails={handleViewWorkOrderDetails} />
+      ),
       boxData: {
         header: false,
         value: "No work orders yet",
@@ -55,7 +111,9 @@ export default function ServiceReports() {
       id: 2,
       title: "Recent Service Reports",
       hasData: hasServiceReports,
-      component: <TechnicianReportsGrid />,
+      component: (
+        <TechnicianReportsGrid onViewReport={handleViewServiceReport} />
+      ),
       boxData: {
         header: false,
         value: "No service reports yet",

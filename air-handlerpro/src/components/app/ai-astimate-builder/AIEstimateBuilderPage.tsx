@@ -51,7 +51,7 @@ export default function AIEstimateBuilder() {
       <div className="flex-1 flex flex-col ">
         <HeaderAndChatTab />
 
-        <div className="flex-1 border-r border-black/30 border-l overflow-y-auto px-4 py-4 space-y-4">
+        <div className="flex-1 border-r h-screen border-black/30 border-l overflow-y-auto px-4 py-4 space-y-4">
           {messages.map((message, index) => (
             <MessageBubble key={index} message={message} />
           ))}

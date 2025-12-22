@@ -1,40 +1,52 @@
 // components/ScheduledVisitCard.tsx
 
-import React from 'react';
-import { Calendar, FileText } from 'lucide-react';
+import React from "react";
+import { Calendar, FileText } from "lucide-react";
 
 interface ScheduledVisitCardProps {
+  id: string;
   siteName: string;
   contactName: string;
-  dateTime: string;               // e.g., "Aug 26, 2025 4:00 PM"
-  description: string;            // Main note/description
-  reportCount: number;            // Number of reports
-  status?: 'scheduled' | 'completed' | 'cancelled'; // Optional status badge
+  dateTime: string; // e.g., "Aug 26, 2025 4:00 PM"
+  description: string; // Main note/description
+  reportCount: number; // Number of reports
+  status?: "scheduled" | "in-progress" | "completed"; // Optional status badge
+  onViewDetails?: (workOrderId: string) => void;
 }
 
 const ScheduledVisitCard: React.FC<ScheduledVisitCardProps> = ({
+  id,
   siteName,
   contactName,
   dateTime,
   description,
   reportCount,
-  status = 'scheduled',
+  status = "scheduled",
+  onViewDetails,
 }) => {
   const statusStyles = {
-    scheduled: 'bg-gray-200 text-gray-700',
-    completed: 'bg-green-100 text-green-800',
-    cancelled: 'bg-red-100 text-red-800',
+    scheduled: "bg-gray-200 text-gray-700",
+    "in-progress": "bg-blue-100 text-blue-800",
+    completed: "bg-green-100 text-green-800",
+  };
+
+  const handleViewDetails = () => {
+    if (onViewDetails) {
+      onViewDetails(id);
+    }
   };
 
   return (
-   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 w-full max-w-sm hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 w-full max-w-sm hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">{siteName}</h3>
           <p className="text-sm text-gray-600 mt-1">{contactName}</p>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[status]}`}>
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[status]}`}
+        >
           {status}
         </span>
       </div>
@@ -55,10 +67,13 @@ const ScheduledVisitCard: React.FC<ScheduledVisitCardProps> = ({
         <div className="flex items-center gap-2 text-gray-600">
           <FileText className="w-4 h-4" />
           <span className="text-sm">
-            {reportCount} report{reportCount !== 1 ? 's' : ''}
+            {reportCount} report{reportCount !== 1 ? "s" : ""}
           </span>
         </div>
-        <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition">
+        <button
+          onClick={handleViewDetails}
+          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+        >
           View Details
         </button>
       </div>
