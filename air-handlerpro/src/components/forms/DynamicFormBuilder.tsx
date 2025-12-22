@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ChevronDown, Calendar, Plus, Search, X, Clock } from "lucide-react";
+import { z } from "zod";
 import DynamicModal from "./DynamicModal";
 import {
   DynamicFormBuilderProps,
@@ -20,6 +21,9 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
   onCancel,
 }) => {
   const [formData, setFormData] = useState<Record<string, any>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
   const [dropdownStates, setDropdownStates] = useState<Record<string, boolean>>(
     {}
   );
@@ -38,25 +42,143 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     parentFieldLabel: null,
   });
 
-  // Add this useEffect to clean up object URLs
-  useEffect(() => {
-    return () => {
-      // Clean up all object URLs when component unmounts
-      Object.values(selectedFiles).forEach((files) => {
-        files?.forEach((file) => {
-          if (file instanceof File) {
-            URL.revokeObjectURL(URL.createObjectURL(file));
+  // Create dynamic Zod schema based on field configuration
+  const createValidationSchema = () => {
+    const schemaFields: Record<string, z.ZodTypeAny> = {};
+
+    const processFields = (items: (FieldConfig | any)[]) => {
+      items.forEach((item) => {
+        if (isSectionConfig(item) && item.fields) {
+          processFields(item.fields);
+        } else if (isFieldConfig(item)) {
+          const field = item as FieldConfig;
+
+          // Skip validation for certain field types
+          if (field.type === "toggle" || field.type === "checkbox-group") {
+            return;
           }
-        });
+
+          // Only add validation if field is required
+          if (field.required) {
+            let fieldSchema: z.ZodTypeAny;
+
+            // Create schema based on field type with custom error messages
+            switch (field.type) {
+              case "text":
+                fieldSchema = z
+                  .string()
+                  .min(1, `${field.label} is required`)
+                  .refine(
+                    (val) => val === "" || /^[a-zA-Z ]+$/.test(val),
+                    "Please enter only text"
+                  );
+                break;
+
+              case "url":
+                fieldSchema = z
+                  .string()
+                  .min(1, `${field.label} is required`)
+                  .refine(
+                    (val) =>
+                      val === "" ||
+                      /^(?!-)(?:[a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$/.test(val),
+                    "Please enter correct format Domain name"
+                  );
+                break;
+
+              case "email":
+                fieldSchema = z
+                  .string()
+                  .min(1, `${field.label} is required`)
+                  .refine(
+                    (val) =>
+                      val === "" ||
+                      /^(?!\.)(?!.*\.\.)([a-z0-9_'+\-\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\-]*\.)+[a-z]{2,}$/i.test(
+                        val
+                      ),
+                    `Please enter a valid email address`
+                  );
+                break;
+
+              case "number":
+                fieldSchema = z
+                  .string()
+                  .min(1, `${field.label} is required`)
+                  .regex(
+                    /^\d+(\.\d+)?$/,
+                    `${field.label} must be a valid number`
+                  );
+                break;
+
+              case "date":
+                fieldSchema = z.string().min(1, `${field.label} is required`);
+                break;
+
+              case "time":
+                fieldSchema = z.string().min(1, `${field.label} is required`);
+                break;
+
+              case "date&time":
+                fieldSchema = z.object({
+                  date: z.string().min(1, "Date is required"),
+                  hour: z.string().min(1, "Hour is required"),
+                  minute: z.string().min(1, "Minute is required"),
+                });
+                break;
+
+              case "file":
+                fieldSchema = z
+                  .array(z.any())
+                  .min(1, `${field.label} is required`);
+                break;
+
+              case "tag-input":
+                fieldSchema = z
+                  .array(z.string())
+                  .min(
+                    1,
+                    `At least one ${field.label.toLowerCase()} is required`
+                  );
+                break;
+
+              case "dropdown":
+              case "search-dropdown":
+              case "radio-dropdown":
+              case "stage-dropdown":
+                fieldSchema = z.string().min(1, `${field.label} is required`);
+                break;
+
+              case "textarea":
+                fieldSchema = z.string().min(1, `${field.label} is required`);
+                break;
+
+              default:
+                fieldSchema = z.string().min(1, `${field.label} is required`);
+            }
+
+            schemaFields[field.label] = fieldSchema;
+          }
+        }
       });
     };
-  }, [selectedFiles]);
+
+    processFields(config);
+    return z.object(schemaFields);
+  };
 
   const handleInputChange = (label: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
       [label]: value,
     }));
+    // Clear validation error when user starts typing
+    if (validationErrors[label]) {
+      setValidationErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[label];
+        return newErrors;
+      });
+    }
   };
 
   const handleDateTimeChange = (
@@ -74,6 +196,14 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         },
       };
     });
+    // Clear validation error
+    if (validationErrors[label]) {
+      setValidationErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[label];
+        return newErrors;
+      });
+    }
   };
 
   const toggleDropdown = (label: string) => {
@@ -108,9 +238,80 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     });
   };
 
+  useEffect(() => {
+    return () => {
+      Object.values(selectedFiles).forEach((files) => {
+        files?.forEach((file) => {
+          if (file instanceof File) {
+            URL.revokeObjectURL(URL.createObjectURL(file));
+          }
+        });
+      });
+    };
+  }, [selectedFiles]);
+
   const handleSubmit = () => {
-    if (onSubmit) {
-      onSubmit(formData);
+    try {
+      // Create and validate schema
+      const schema = createValidationSchema();
+
+      // Prepare data for validation - handle undefined values
+      const dataToValidate: Record<string, any> = {};
+
+      // Collect all required fields from config
+      const collectRequiredFields = (items: (FieldConfig | any)[]) => {
+        items.forEach((item) => {
+          if (isSectionConfig(item) && item.fields) {
+            collectRequiredFields(item.fields);
+          } else if (isFieldConfig(item) && item.required) {
+            const field = item as FieldConfig;
+            // Set the value from formData, or empty string/array if undefined
+            if (field.type === "file" || field.type === "tag-input") {
+              dataToValidate[field.label] = formData[field.label] || [];
+            } else if (field.type === "date&time") {
+              dataToValidate[field.label] = formData[field.label] || {
+                date: "",
+                hour: "",
+                minute: "",
+              };
+            } else {
+              dataToValidate[field.label] = formData[field.label] || "";
+            }
+          }
+        });
+      };
+
+      collectRequiredFields(config);
+
+      // Validate
+      schema.parse(dataToValidate);
+
+      // Clear any existing errors
+      setValidationErrors({});
+
+      // Submit if validation passes
+      if (onSubmit) {
+        onSubmit(formData);
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Convert Zod errors to a more usable format
+        const errors: Record<string, string> = {};
+        (error as z.ZodError<any>).issues.forEach((err) => {
+          const path = (err.path ?? []).join(".");
+          errors[path] = err.message;
+        });
+        setValidationErrors(errors);
+
+        // Scroll to first error
+        const firstErrorField = Object.keys(errors)[0];
+        const element = document.querySelector(
+          `[data-field="${firstErrorField}"]`
+        );
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
     }
   };
 
@@ -135,6 +336,28 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     closeModal();
   };
 
+  const renderLabel = (field: FieldConfig) => {
+    return (
+      <label className="block text-sm font-medium text-charcoal mb-2">
+        {field.label}
+        {field.required && (
+          <span className="text-red-500 ml-1 text-base align-super">*</span>
+        )}
+      </label>
+    );
+  };
+
+  const renderError = (fieldLabel: string) => {
+    if (validationErrors[fieldLabel]) {
+      return (
+        <p className="text-red-500 text-sm mt-1">
+          {validationErrors[fieldLabel]}
+        </p>
+      );
+    }
+    return null;
+  };
+
   const renderField = (
     field: FieldConfig,
     sectionIndex: number,
@@ -143,456 +366,426 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     const fieldKey = `${sectionIndex}-${fieldIndex}-${field.label}`;
     const isDropdownOpen = dropdownStates[fieldKey] || false;
     const searchTerm = searchTerms[fieldKey] || "";
+    const hasError = !!validationErrors[field.label];
+
+    const errorBorderClass = hasError ? "border-red-500" : "border-silver";
 
     switch (field.type) {
       case "text":
       case "number":
       case "email":
+      case "url":
         return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
+            {renderLabel(field)}
             <input
               type={field.type}
               placeholder={field.placeholder}
               value={formData[field.label] || ""}
               onChange={(e) => handleInputChange(field.label, e.target.value)}
-              className="w-full px-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate"
+              className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate`}
             />
-            <p className="text-gray-500 text-[12px] mt-2">{field.message}</p>
+            {renderError(field.label)}
+            {field.message && !hasError && (
+              <p className="text-gray-500 text-[12px] mt-2">{field.message}</p>
+            )}
           </div>
         );
 
       case "textarea":
         return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
+            {renderLabel(field)}
             <textarea
               placeholder={field.placeholder}
               value={formData[field.label] || ""}
               onChange={(e) => handleInputChange(field.label, e.target.value)}
               rows={field.rows || 4}
-              className="w-full px-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate resize-y"
+              className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate resize-y`}
             />
+            {renderError(field.label)}
           </div>
         );
 
       case "date":
         return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
+            {renderLabel(field)}
             <div className="relative">
               <input
                 type="date"
                 value={formData[field.label] || ""}
                 onChange={(e) => handleInputChange(field.label, e.target.value)}
-                className="w-full px-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal cursor-pointer"
+                className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal cursor-pointer`}
               />
             </div>
+            {renderError(field.label)}
           </div>
         );
 
       case "time":
         return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
+            {renderLabel(field)}
             <div className="relative">
               <input
                 type="time"
                 value={formData[field.label] || ""}
                 onChange={(e) => handleInputChange(field.label, e.target.value)}
-                placeholder={field.placeholder}
-                className="w-full pl-10 pr-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal cursor-pointer"
+                className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal cursor-pointer`}
               />
             </div>
+            {renderError(field.label)}
           </div>
         );
 
       case "date&time":
-        const dateTimeData = formData[field.label] || {
-          date: "",
-          hour: "",
-          minute: "",
-        };
-        const hourDropdownKey = `${fieldKey}-hour`;
-        const minuteDropdownKey = `${fieldKey}-minute`;
-        const isHourDropdownOpen = dropdownStates[hourDropdownKey] || false;
-        const isMinuteDropdownOpen = dropdownStates[minuteDropdownKey] || false;
-
         return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
+            {renderLabel(field)}
             <div className="flex gap-2">
-              {/* Date Input */}
-              <div className="relative flex-1">
+              <div className="flex-1 relative">
                 <input
                   type="date"
-                  value={dateTimeData.date || ""}
+                  value={formData[field.label]?.date || ""}
                   onChange={(e) =>
                     handleDateTimeChange(field.label, "date", e.target.value)
                   }
-                  placeholder={field.placeholder}
-                  className="w-full px-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal cursor-pointer"
+                  className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-charcoal cursor-pointer`}
                 />
               </div>
 
-              {/* Hour Dropdown */}
-              <div className="relative w-32">
-                <button
-                  type="button"
-                  onClick={() => toggleDropdown(hourDropdownKey)}
-                  className="w-full px-3 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer"
+              <div className="w-24 relative">
+                <select
+                  value={formData[field.label]?.hour || ""}
+                  onChange={(e) =>
+                    handleDateTimeChange(field.label, "hour", e.target.value)
+                  }
+                  className={`w-full px-3 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-charcoal cursor-pointer appearance-none`}
                 >
-                  <span
-                    className={
-                      dateTimeData.hour ? "text-charcoal" : "text-slate"
-                    }
-                  >
-                    {dateTimeData.hour || field.hourplaceholder || "00 AM"}
-                  </span>
-                  <ChevronDown
-                    className={`w-4 h-4 text-slate transition-transform ${
-                      isHourDropdownOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {isHourDropdownOpen && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-auto">
-                    {generateHourOptions().map((hour, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => {
-                          handleDateTimeChange(field.label, "hour", hour);
-                          toggleDropdown(hourDropdownKey);
-                        }}
-                        className="w-full px-3 py-2 text-left hover:bg-platinum text-charcoal transition-colors text-sm cursor-pointer"
-                      >
-                        {hour}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                  <option value="">HH</option>
+                  {generateHourOptions().map((hour) => (
+                    <option key={hour} value={hour}>
+                      {hour}
+                    </option>
+                  ))}
+                </select>
+                <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate pointer-events-none" />
               </div>
 
-              {/* Minute Dropdown */}
-              <div className="relative w-24">
-                <button
-                  type="button"
-                  onClick={() => toggleDropdown(minuteDropdownKey)}
-                  className="w-full px-3 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer"
+              <div className="w-24 relative">
+                <select
+                  value={formData[field.label]?.minute || ""}
+                  onChange={(e) =>
+                    handleDateTimeChange(field.label, "minute", e.target.value)
+                  }
+                  className={`w-full px-3 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-charcoal cursor-pointer appearance-none`}
                 >
-                  <span
-                    className={
-                      dateTimeData.minute ? "text-charcoal" : "text-slate"
-                    }
-                  >
-                    {dateTimeData.minute || field.minuteplaceholder || "00"}
-                  </span>
-                  <ChevronDown
-                    className={`w-4 h-4 text-slate transition-transform ${
-                      isMinuteDropdownOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {isMinuteDropdownOpen && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-auto">
-                    {generateMinuteOptions().map((minute, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => {
-                          handleDateTimeChange(field.label, "minute", minute);
-                          toggleDropdown(minuteDropdownKey);
-                        }}
-                        className="w-full px-3 py-2 text-left hover:bg-platinum text-charcoal transition-colors text-sm cursor-pointer"
-                      >
-                        {minute}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                  <option value="">MM</option>
+                  {generateMinuteOptions().map((minute) => (
+                    <option key={minute} value={minute}>
+                      {minute}
+                    </option>
+                  ))}
+                </select>
+                <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate pointer-events-none" />
               </div>
             </div>
+            {renderError(field.label)}
           </div>
         );
 
       case "search-dropdown":
         const filteredOptions =
-          field.option?.filter((opt) =>
-            opt.toLowerCase().includes(searchTerm.toLowerCase())
+          field.option?.filter((option) =>
+            option.toLowerCase().includes(searchTerm.toLowerCase())
           ) || [];
 
         return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <div className="flex items-center gap-2 w-full">
-              <div className="flex flex-col w-full gap-2">
-                <label className="block text-sm font-medium text-charcoal">
-                  {field.label}
-                </label>
-                <div className="relative">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate" />
-                    <input
-                      type="text"
-                      placeholder={field.placeholder}
-                      value={searchTerm || formData[field.label] || ""}
-                      onChange={(e) => {
-                        setSearchTerms((prev) => ({
-                          ...prev,
-                          [fieldKey]: e.target.value,
-                        }));
-                        setDropdownStates((prev) => ({
-                          ...prev,
-                          [fieldKey]: true,
-                        }));
-                      }}
-                      onFocus={() =>
-                        setDropdownStates((prev) => ({
-                          ...prev,
-                          [fieldKey]: true,
-                        }))
-                      }
-                      className="w-full pl-10 pr-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate"
-                    />
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
+            {renderLabel(field)}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => toggleDropdown(fieldKey)}
+                className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
+              >
+                <span
+                  className={
+                    formData[field.label] ? "text-charcoal" : "text-slate"
+                  }
+                >
+                  {formData[field.label] || field.placeholder}
+                </span>
+                <ChevronDown className="w-5 h-5 text-slate" />
+              </button>
+
+              {isDropdownOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-hidden">
+                  <div className="p-2 border-b border-silver">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate" />
+                      <input
+                        type="text"
+                        placeholder="Search..."
+                        value={searchTerm}
+                        onChange={(e) =>
+                          setSearchTerms((prev) => ({
+                            ...prev,
+                            [fieldKey]: e.target.value,
+                          }))
+                        }
+                        className="w-full pl-9 pr-3 py-2 border border-silver rounded focus:outline-none focus:ring-2 focus:ring-cerulean text-sm"
+                      />
+                    </div>
                   </div>
-                  {isDropdownOpen && filteredOptions.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-auto">
-                      {filteredOptions.map((opt, idx) => (
+                  <div className="overflow-y-auto max-h-48">
+                    {filteredOptions.length > 0 ? (
+                      filteredOptions.map((option, idx) => (
                         <button
                           key={idx}
                           type="button"
                           onClick={() =>
-                            selectOption(fieldKey, field.label, opt)
+                            selectOption(fieldKey, field.label, option)
                           }
-                          className="w-full px-4 py-3 text-left hover:bg-platinum text-charcoal transition-colors cursor-pointer"
+                          className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm cursor-pointer"
                         >
-                          {opt}
+                          {option}
                         </button>
-                      ))}
-                    </div>
-                  )}
+                      ))
+                    ) : (
+                      <div className="px-4 py-2 text-slate text-sm">
+                        No options found
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <p className="text-gray-500 text-[12px]">{field.message}</p>
-              </div>
-              {field.buttonName && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (field.modal) {
-                      openModal(field.modal, field.label);
-                    }
-                  }}
-                  className="px-4 py-3 h-fit border border-silver rounded-lg hover:bg-platinum transition-colors flex items-center gap-2 text-charcoal font-medium whitespace-nowrap cursor-pointer"
-                >
-                  {field.buttonName}
-                </button>
               )}
             </div>
+            {renderError(field.label)}
           </div>
         );
 
       case "dropdown":
         return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <button
-                  type="button"
-                  onClick={() => toggleDropdown(fieldKey)}
-                  className="w-full px-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer"
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
+            {renderLabel(field)}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => toggleDropdown(fieldKey)}
+                className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
+              >
+                <span
+                  className={
+                    formData[field.label] ? "text-charcoal" : "text-slate"
+                  }
                 >
-                  <span
-                    className={
-                      formData[field.label] ? "text-charcoal" : "text-slate"
-                    }
-                  >
-                    {formData[field.label] || field.placeholder}
-                  </span>
-                  <ChevronDown
-                    className={`w-5 h-5 text-slate transition-transform ${
-                      isDropdownOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {isDropdownOpen && field.option && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-auto">
-                    {field.option.map((opt, idx) => (
-                      <div
-                        key={idx} // Move key here to the parent div
-                        className="flex flex-col justify-start px-4 py-2 hover:bg-platinum cursor-pointer"
+                  {formData[field.label] || field.placeholder}
+                </span>
+                <ChevronDown className="w-5 h-5 text-slate" />
+              </button>
+
+              {isDropdownOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-hidden">
+                  <div className="overflow-y-auto max-h-60">
+                    {field.option?.map((option, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          handleInputChange(field.label, option);
+                          toggleDropdown(fieldKey);
+                        }}
+                        className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm cursor-pointer"
                       >
-                        <button
-                          type="button"
-                          onClick={() =>
-                            selectOption(fieldKey, field.label, opt)
-                          }
-                          className="w-full text-left text-charcoal transition-colors cursor-pointer"
-                        >
-                          {opt}
-                        </button>
-                        {field.optionDescription &&
-                          field.optionDescription[idx] && (
-                            <p className="text-[10px] text-gray-600 font-sans">
-                              {field.optionDescription[idx]}
-                            </p>
-                          )}
-                      </div>
+                        {option}
+                      </button>
                     ))}
                   </div>
-                )}
-              </div>
-              {field.buttonName && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (field.modal) {
-                      openModal(field.modal, field.label);
-                    }
-                  }}
-                  className="px-4 py-3 border border-silver rounded-lg hover:bg-platinum transition-colors flex items-center gap-2 text-charcoal font-medium whitespace-nowrap cursor-pointer"
-                >
-                  {field.buttonName}
-                </button>
+                </div>
               )}
             </div>
-            <p className="text-gray-500 text-[12px] mt-2">{field.message}</p>
+            {renderError(field.label)}
+          </div>
+        );
+
+      case "radio-dropdown":
+        const radioFilteredOptions =
+          field.option?.filter((option) =>
+            option.toLowerCase().includes(searchTerm.toLowerCase())
+          ) || [];
+
+        const optionDescriptions = field.optionDescription || [];
+
+        return (
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
+            {renderLabel(field)}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => toggleDropdown(fieldKey)}
+                className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
+              >
+                <span
+                  className={
+                    formData[field.label] ? "text-charcoal" : "text-slate"
+                  }
+                >
+                  {formData[field.label] || field.placeholder}
+                </span>
+                <ChevronDown className="w-5 h-5 text-slate" />
+              </button>
+
+              {isDropdownOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-80 overflow-hidden">
+                  <div className="p-2 border-b border-silver">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate" />
+                      <input
+                        type="text"
+                        placeholder="Search..."
+                        value={searchTerm}
+                        onChange={(e) =>
+                          setSearchTerms((prev) => ({
+                            ...prev,
+                            [fieldKey]: e.target.value,
+                          }))
+                        }
+                        className="w-full pl-9 pr-3 py-2 border border-silver rounded focus:outline-none focus:ring-2 focus:ring-cerulean text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div className="overflow-y-auto max-h-64 p-2">
+                    {radioFilteredOptions.length > 0 ? (
+                      radioFilteredOptions.map((option, idx) => {
+                        const isSelected = formData[field.label] === option;
+                        return (
+                          <label
+                            key={idx}
+                            className="flex items-start gap-3 p-3 hover:bg-platinum rounded-lg cursor-pointer transition-colors"
+                          >
+                            <div className="relative flex items-center justify-center mt-0.5">
+                              <input
+                                type="radio"
+                                name={fieldKey}
+                                checked={isSelected}
+                                onChange={() =>
+                                  selectOption(fieldKey, field.label, option)
+                                }
+                                className="w-4 h-4 text-cerulean border-silver focus:ring-2 focus:ring-cerulean cursor-pointer"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <div className="text-sm font-medium text-charcoal">
+                                {option}
+                              </div>
+                              {optionDescriptions[idx] && (
+                                <div className="text-xs text-slate mt-1">
+                                  {optionDescriptions[idx]}
+                                </div>
+                              )}
+                            </div>
+                          </label>
+                        );
+                      })
+                    ) : (
+                      <div className="px-4 py-2 text-slate text-sm">
+                        No options found
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            {renderError(field.label)}
           </div>
         );
 
       case "file":
+        const files = selectedFiles[field.label] || [];
+
         return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
-            <div>
-              <label className="w-full px-4 py-3 border border-silver rounded-lg cursor-pointer hover:bg-platinum transition-colors flex items-center justify-center text-slate">
-                <input
-                  type="file"
-                  multiple={field.multiple}
-                  accept={field.accept}
-                  onChange={(e) =>
-                    handleFileChange(field.label, e.target.files)
-                  }
-                  className="hidden"
-                />
-                <span className="text-sm">
-                  {selectedFiles[field.label]?.length > 0
-                    ? `${selectedFiles[field.label].length} file(s) selected`
-                    : field.placeholder || "Choose Files"}
-                </span>
-              </label>
-
-              {selectedFiles[field.label]?.length > 0 && (
-                <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {selectedFiles[field.label].map((file, idx) => {
-                    const isImage = file.type.startsWith("image/");
-                    const fileUrl = URL.createObjectURL(file);
-
-                    return (
-                      <div
-                        key={idx}
-                        className="relative group aspect-square rounded-lg overflow-hidden border border-silver bg-platinum/30"
-                      >
-                        {/* Image Preview or File Icon */}
-                        {isImage ? (
-                          <img
-                            src={fileUrl}
-                            alt={file.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center p-4">
-                            <svg
-                              className="w-12 h-12 text-slate mb-2"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                              />
-                            </svg>
-                            <span className="text-xs text-charcoal text-center truncate w-full px-2">
-                              {file.name}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Hover Overlay with Actions */}
-                        <div className="absolute inset-0 bg-charcoal/70 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
-                          {/* Change Button */}
-                          <label className="cursor-pointer bg-cerulean hover:bg-cerulean/90 text-white p-2 rounded-lg transition-colors">
-                            <input
-                              type="file"
-                              accept={field.accept}
-                              onChange={(e) => {
-                                if (e.target.files && e.target.files[0]) {
-                                  const newFiles = [
-                                    ...selectedFiles[field.label],
-                                  ];
-                                  newFiles[idx] = e.target.files[0];
-                                  setSelectedFiles({
-                                    ...selectedFiles,
-                                    [field.label]: newFiles,
-                                  });
-                                }
-                              }}
-                              className="hidden"
-                            />
-                            <svg
-                              className="w-5 h-5"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                              />
-                            </svg>
-                          </label>
-
-                          {/* Delete Button */}
-                          <button
-                            type="button"
-                            onClick={() => removeFile(field.label, idx)}
-                            className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors cursor-pointer"
-                          >
-                            <X size={20} />
-                          </button>
-                        </div>
-
-                        {/* File Name Tooltip (appears on hover) */}
-                        {isImage && (
-                          <div className="absolute bottom-0 left-0 right-0 bg-charcoal/90 text-white text-xs p-2 truncate opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            {file.name}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
+            {renderLabel(field)}
+            <div
+              className={`border-2 ${errorBorderClass} border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-cerulean transition-colors`}
+              onClick={() =>
+                document.getElementById(`file-input-${fieldKey}`)?.click()
+              }
+            >
+              <input
+                id={`file-input-${fieldKey}`}
+                type="file"
+                multiple={field.multiple}
+                accept={field.accept}
+                onChange={(e) => handleFileChange(field.label, e.target.files)}
+                className="hidden"
+              />
+              <Plus className="w-8 h-8 mx-auto text-slate mb-2" />
+              <p className="text-sm text-slate">
+                {field.placeholder || "Click to upload files"}
+              </p>
             </div>
+
+            {files.length > 0 && (
+              <div className="mt-3 space-y-2">
+                {files.map((file, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between px-3 py-2 bg-platinum rounded-lg"
+                  >
+                    <span className="text-sm text-charcoal truncate">
+                      {file.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(field.label, idx)}
+                      className="ml-2 text-slate hover:text-red-500 transition-colors cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {renderError(field.label)}
           </div>
         );
 
@@ -600,29 +793,27 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <div
             key={fieldKey}
-            className="flex items-center justify-between py-2 w-full"
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
           >
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-charcoal">
-                {field.label}
-              </label>
-              <p className="text-gray-500 text-[12px]">{field.message}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() =>
-                handleInputChange(field.label, !formData[field.label])
-              }
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                formData[field.label] ? "bg-cerulean" : "bg-silver"
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  formData[field.label] ? "translate-x-6" : "translate-x-1"
+            <div className="flex items-center justify-between">
+              {renderLabel(field)}
+              <button
+                type="button"
+                onClick={() =>
+                  handleInputChange(field.label, !formData[field.label])
+                }
+                className={`relative w-14 h-6 rounded-full transition-colors cursor-pointer ${
+                  formData[field.label] ? "bg-cerulean" : "bg-silver"
                 }`}
-              />
-            </button>
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    formData[field.label] ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
           </div>
         );
 
@@ -631,10 +822,12 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         const tagInputKey = `${fieldKey}-input`;
 
         return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
+            {renderLabel(field)}
             <div className="flex gap-2">
               <input
                 type="text"
@@ -656,7 +849,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                     setSearchTerms((prev) => ({ ...prev, [tagInputKey]: "" }));
                   }
                 }}
-                className="flex-1 px-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate"
+                className={`flex-1 px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate`}
               />
               <button
                 type="button"
@@ -692,107 +885,36 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                       }}
                       className="hover:text-red-500 transition-colors cursor-pointer"
                     >
-                      <X size={14} />
+                      <X className="w-3 h-3" />
                     </button>
                   </span>
                 ))}
               </div>
             )}
-          </div>
-        );
-
-      case "radio-dropdown":
-        return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => toggleDropdown(fieldKey)}
-                className="w-full px-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer"
-              >
-                <span
-                  className={
-                    formData[field.label] ? "text-charcoal" : "text-slate"
-                  }
-                >
-                  {formData[field.label] || field.placeholder}
-                </span>
-                <ChevronDown
-                  className={`w-5 h-5 text-slate transition-transform ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              {isDropdownOpen && field.option && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-auto">
-                  {field.option.map((opt, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => selectOption(fieldKey, field.label, opt)}
-                      className="w-full px-4 py-3 text-left hover:bg-platinum transition-colors cursor-pointer flex items-center gap-3"
-                    >
-                      <span
-                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                          formData[field.label] === opt
-                            ? "border-cerulean"
-                            : "border-silver"
-                        }`}
-                      >
-                        {formData[field.label] === opt && (
-                          <span className="w-2 h-2 rounded-full bg-cerulean"></span>
-                        )}
-                      </span>
-                      <span className="text-charcoal">{opt}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            {renderError(field.label)}
           </div>
         );
 
       case "checkbox-group":
-        const selectedValues = formData[field.label] || [];
+        const selectedOptions = formData[field.label] || [];
 
         return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <label className="block text-sm font-medium text-charcoal mb-3">
-              {field.label}
-            </label>
-            <div className="space-y-3">
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
+            {renderLabel(field)}
+            <div className="space-y-2">
               {field.box?.map((option: any, idx: number) => {
-                const isChecked = selectedValues.includes(option.value);
+                const isChecked = selectedOptions.includes(option.label);
                 return (
                   <label
                     key={idx}
-                    className="flex items-center gap-3 cursor-pointer group"
+                    className="flex items-center gap-3 p-3 border border-silver rounded-lg hover:bg-platinum cursor-pointer transition-colors group"
                   >
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          handleInputChange(field.label, [
-                            ...selectedValues,
-                            option.value,
-                          ]);
-                        } else {
-                          handleInputChange(
-                            field.label,
-                            selectedValues.filter(
-                              (v: string) => v !== option.value
-                            )
-                          );
-                        }
-                      }}
-                      className="hidden"
-                    />
                     <span
-                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors cursor-pointer ${
+                      className={`flex items-center justify-center w-5 h-5 border-2 rounded transition-colors ${
                         isChecked
                           ? "bg-cerulean border-cerulean"
                           : "border-silver group-hover:border-cerulean"
@@ -828,11 +950,13 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         const listItems = formData[field.label] || [];
 
         return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-charcoal">
-                {field.label}
-              </label>
+              {renderLabel(field)}
               <button
                 type="button"
                 onClick={() => {
@@ -891,7 +1015,6 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         );
 
       case "stage-dropdown":
-        // Use custom colors if provided, otherwise use default stage colors
         const defaultStageColors: Record<string, string> = {
           "Lead (10%)": "bg-slate",
           "Qualified (35%)": "bg-cerulean",
@@ -900,7 +1023,6 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
           "Closed Won (100%)": "bg-green-500",
           "Closed Lost (0%)": "bg-red-500",
           "Closed Other (0%)": "bg-slate",
-          // Priority colors
           Low: "bg-slate",
           Medium: "bg-cerulean",
           High: "bg-orange-500",
@@ -910,15 +1032,17 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         const colorMap = field.optionColors || defaultStageColors;
 
         return (
-          <div key={fieldKey} className={getFieldWidth(field.nature)}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+          <div
+            key={fieldKey}
+            className={getFieldWidth(field.nature)}
+            data-field={field.label}
+          >
+            {renderLabel(field)}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => toggleDropdown(fieldKey)}
-                className="w-full px-4 py-3 border border-silver rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer"
+                className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
               >
                 <div className="flex items-center gap-2">
                   {formData[field.label] && (
@@ -936,49 +1060,32 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                     {formData[field.label] || field.placeholder}
                   </span>
                 </div>
-                <ChevronDown
-                  className={`w-5 h-5 text-slate transition-transform ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
-                />
+                <ChevronDown className="w-5 h-5 text-slate" />
               </button>
-              {isDropdownOpen && field.option && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg overflow-hidden">
-                  {field.option.map((opt, idx) => (
+
+              {isDropdownOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {field.option?.map((option, idx) => (
                     <button
                       key={idx}
                       type="button"
-                      onClick={() => selectOption(fieldKey, field.label, opt)}
-                      className="w-full px-4 py-2.5 text-left hover:bg-platinum transition-colors cursor-pointer flex items-center justify-between group"
+                      onClick={() =>
+                        selectOption(fieldKey, field.label, option)
+                      }
+                      className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors flex items-center gap-2 cursor-pointer"
                     >
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`w-3 h-3 rounded-full ${
-                            colorMap[opt] || "bg-slate"
-                          }`}
-                        ></span>
-                        <span className="text-charcoal text-sm">{opt}</span>
-                      </div>
-                      {formData[field.label] === opt && (
-                        <svg
-                          className="w-4 h-4 text-cerulean"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      )}
+                      <span
+                        className={`w-3 h-3 rounded-full ${
+                          colorMap[option] || "bg-slate"
+                        }`}
+                      ></span>
+                      <span className="text-charcoal text-sm">{option}</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
+            {renderError(field.label)}
           </div>
         );
 
@@ -987,89 +1094,18 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     }
   };
 
-  const hasSection = config?.some((item) => {
-    return (
-      isSectionConfig(item) && item.sectionName && item.sectionName !== "button"
-    );
-  });
-
   return (
     <>
-      <div className="space-y-6">
-        {!hasSection ? (
-          // FLAT LAYOUT - Render all items as fields directly with buttons
-          <>
-            <div className="flex flex-wrap gap-4">
-              {config.map((item, index) => {
-                if (isFieldConfig(item)) {
-                  return renderField(item, 0, index);
-                }
-                return null;
-              })}
-            </div>
+      <div className="space-y-8">
+        {config.map((item, itemIndex) => {
+          if (isFieldConfig(item)) {
+            return renderField(item, itemIndex, 0);
+          }
 
-            {/* Render button section for flat layout */}
-            {config.some(
-              (item) =>
-                isSectionConfig(item) &&
-                item.sectionName === "button" &&
-                item.button
-            ) && (
-              <div className="flex justify-end gap-3 pt-4">
-                {config
-                  .filter(
-                    (item) =>
-                      isSectionConfig(item) &&
-                      item.sectionName === "button" &&
-                      item.button
-                  )
-                  .map((buttonSection, btnSecIdx) => {
-                    if (
-                      isSectionConfig(buttonSection) &&
-                      buttonSection.button
-                    ) {
-                      return buttonSection.button.map((btnText, btnIdx) => (
-                        <button
-                          key={`${btnSecIdx}-${btnIdx}`}
-                          type="button"
-                          onClick={btnIdx === 0 ? onCancel : handleSubmit}
-                          className={`px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer ${
-                            btnIdx === 0
-                              ? "border border-silver text-charcoal hover:bg-platinum"
-                              : "bg-charcoal text-white hover:bg-cerulean"
-                          }`}
-                        >
-                          {btnText}
-                        </button>
-                      ));
-                    }
-                    return null;
-                  })}
-              </div>
-            )}
-          </>
-        ) : (
-          // MIXED/SECTIONED LAYOUT - Render both sections and flat fields
-          config.map((item, itemIndex) => {
-            // Handle flat fields (non-section items)
-            if (isFieldConfig(item)) {
-              return (
-                <div
-                  key={`field-${itemIndex}`}
-                  className="flex flex-wrap gap-4"
-                >
-                  {renderField(item, itemIndex, 0)}
-                </div>
-              );
-            }
-
-            // Handle section items
-            if (!isSectionConfig(item)) return null;
-
-            // Handle button section
+          if (isSectionConfig(item)) {
             if (item.sectionName === "button" && item.button) {
               return (
-                <div key={itemIndex} className="flex justify-end gap-3 pt-4">
+                <div key={itemIndex} className="flex gap-4 justify-end">
                   {item.button.map((btnText, btnIdx) => (
                     <button
                       key={btnIdx}
@@ -1088,7 +1124,6 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
               );
             }
 
-            // Handle regular form sections
             return (
               <div
                 key={itemIndex}
@@ -1098,7 +1133,6 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                     : "space-y-4"
                 }`}
               >
-                {/* Only show header if section has a name and it's not just "button" */}
                 {item.sectionName && item.sectionName !== "button" && (
                   <div className="flex items-center gap-3 mb-4">
                     {item.Icon && (
@@ -1118,11 +1152,12 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                 )}
               </div>
             );
-          })
-        )}
+          }
+
+          return null;
+        })}
       </div>
 
-      {/* Dynamic Modal */}
       {modalState.isOpen && modalState.config && (
         <DynamicModal
           isOpen={modalState.isOpen}

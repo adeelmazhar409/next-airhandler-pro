@@ -8,7 +8,7 @@ export const CustomerCompanyFormProps = [
   },
   {
     nature: "full",
-    type: "text",
+    type: "url",
     label: "Domain",
     placeholder: "acmecorp.com",
     required: true,

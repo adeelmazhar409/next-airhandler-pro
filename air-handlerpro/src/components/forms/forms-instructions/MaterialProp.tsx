@@ -12,7 +12,7 @@ export const MaterialFormProps = [
     fields: [
       {
         nature: "full",
-        type: "search-dropdown",
+        type: "dropdown",
         label: "Equipment Type",
         placeholder: "Describe material",
         required: true,

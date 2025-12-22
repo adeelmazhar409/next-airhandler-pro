@@ -405,7 +405,7 @@ export default function DynamicModal({
             </div>
           </div>
         );
-
+        
       case "dropdown":
         // Combine original options with dynamically added options
         const allOptions = [
