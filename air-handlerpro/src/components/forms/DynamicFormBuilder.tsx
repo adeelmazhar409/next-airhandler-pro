@@ -38,6 +38,20 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     parentFieldLabel: null,
   });
 
+  // Add this useEffect to clean up object URLs
+  useEffect(() => {
+    return () => {
+      // Clean up all object URLs when component unmounts
+      Object.values(selectedFiles).forEach((files) => {
+        files?.forEach((file) => {
+          if (file instanceof File) {
+            URL.revokeObjectURL(URL.createObjectURL(file));
+          }
+        });
+      });
+    };
+  }, [selectedFiles]);
+
   const handleInputChange = (label: string, value: any) => {
     setFormData((prev) => ({
       ...prev,
@@ -93,20 +107,6 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
       return updated;
     });
   };
-
-  // Add this useEffect to clean up object URLs
-  useEffect(() => {
-    return () => {
-      // Clean up all object URLs when component unmounts
-      Object.values(selectedFiles).forEach((files) => {
-        files?.forEach((file) => {
-          if (file instanceof File) {
-            URL.revokeObjectURL(URL.createObjectURL(file));
-          }
-        });
-      });
-    };
-  }, [selectedFiles]);
 
   const handleSubmit = () => {
     if (onSubmit) {

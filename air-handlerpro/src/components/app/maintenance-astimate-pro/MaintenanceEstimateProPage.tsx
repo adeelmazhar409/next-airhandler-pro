@@ -25,16 +25,6 @@ export default function MaintenanceEstimatePro() {
     // After successful submission, you might want to close the form:
     // setFormToggle(false);
   };
-  
-  const ActboxData = {
-    header: false,
-    value: "Estimate",
-    icon: <ClockIcon />,
-    formOpen: handleCreateEstimate,
-    description:
-      "Create and manage professional maintenance estimates with advanced features.",
-  };
-
 
   if (formToggle) {
     return (
@@ -44,6 +34,14 @@ export default function MaintenanceEstimatePro() {
       />
     );
   }
+  const ActboxData = {
+    header: false,
+    value: "Estimate",
+    icon: <ClockIcon />,
+    formOpen: handleCreateEstimate,
+    description:
+      "Create and manage professional maintenance estimates with advanced features.",
+  };
 
   const MantainaceData = true;
 
@@ -60,9 +58,7 @@ export default function MaintenanceEstimatePro() {
       </div>
 
       {/* Empty State Card */}
-      {MantainaceData ? <EstimatesGrid/> :   <Actbox {...ActboxData} /> }
-   
-
+      {MantainaceData ? <EstimatesGrid /> : <Actbox {...ActboxData} />}
     </div>
   );
 }

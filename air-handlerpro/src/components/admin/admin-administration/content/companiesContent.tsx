@@ -2,6 +2,8 @@
 import Button from "@/components/app/UI-components/button";
 import DataTable, { Column } from "../UI-components/table";
 import { Building2, Users, Building, FileText, Edit } from "lucide-react";
+import { useState } from "react";
+import { CustomerCompanyForm } from "../forms/CustomerCompanyForm";
 
 interface Company {
   id: number;
@@ -15,6 +17,32 @@ interface Company {
 }
 
 export default function Companies() {
+  const [formToggle, setFormToggle] = useState(false);
+
+  const handleCreateCompany = () => {
+    setFormToggle(true);
+  };
+
+  const handleCancel = () => {
+    setFormToggle(false);
+  };
+
+  const handleSubmit = (formData: any) => {
+    console.log("Form submitted:", formData);
+    // Handle form submission logic
+    // After successful submission, you might want to close the form:
+    // setFormToggle(false);
+  };
+
+  if (formToggle) {
+    return (
+      <CustomerCompanyForm
+        onCancel={handleCancel}
+        onSubmit={handleSubmit}
+      />
+    );
+  }
+
   const companies: Company[] = [
     {
       id: 1,
@@ -140,7 +168,7 @@ export default function Companies() {
           <Building2 />
           Company Management
         </h1>
-        <Button value="Add Company" />
+        <Button onClick={handleCreateCompany} value="Create New Company" />
       </div>
 
       <DataTable
