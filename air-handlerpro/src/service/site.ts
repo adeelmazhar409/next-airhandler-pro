@@ -73,6 +73,8 @@ export async function createServiceSite(
     const insertData = {
       site_name: formData.siteName,
       site_type: formData.siteType || "standalone",
+      parent_company: formData.parentCompany,
+      primary_contact:formData.primaryContact,
       parent_company_id:  null,
       primary_contact_id: null,
       service_address: formData.serviceAddress,
