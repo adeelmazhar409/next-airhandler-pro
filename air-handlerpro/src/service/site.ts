@@ -1,5 +1,5 @@
 /**
- * Service Sites Service Layer - COMPLETE VERSION
+ * Service Sites Service Layer - COMPLETE & CORRECTED VERSION
  * Handles all business logic and Supabase calls for service sites
  */
 
@@ -7,21 +7,23 @@ import { supabase } from "@/lib/supabase";
 
 export interface ServiceSiteFormData {
   siteName: string;
+  siteType?: string;
   parentCompany?: string | null;
   primaryContact: string;
   serviceAddress: string;
   manuallySetOwner?: boolean;
-  siteOwner?: string;
+  siteOwner?: string | null;
 }
 
 export interface ServiceSite {
   id: string;
   site_name: string;
-  site_type?: string | null;
+  site_type: string;
   parent_company_id: string | null;
   primary_contact_id: string;
   service_address: string;
   site_owner_id: string;
+  manually_set_owner: boolean;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -39,7 +41,7 @@ export interface ServiceSite {
   };
   parent_company?: {
     id: string;
-    name?: string;
+    business_name?: string;
   };
 }
 
@@ -70,13 +72,16 @@ export async function createServiceSite(
     // Prepare the data to insert
     const insertData = {
       site_name: formData.siteName,
-      parent_company_id: formData.parentCompany || null,
-      primary_contact_id: formData.primaryContact,
+      site_type: formData.siteType || "standalone",
+      parent_company_id:  null,
+      primary_contact_id: null,
       service_address: formData.serviceAddress,
       manually_set_owner: formData.manuallySetOwner || false,
       site_owner_id: formData.siteOwner || user.id,
-      created_by: user.id,
+      created_by: user.id, // CRITICAL: Required for RLS
     };
+
+    console.log("Inserting service site data:", insertData);
 
     // Insert data directly into Supabase
     const { data, error } = await supabase
@@ -86,6 +91,7 @@ export async function createServiceSite(
       .single();
 
     if (error) {
+      console.error("Supabase insert error:", error);
       throw new Error(error.message || "Failed to create service site");
     }
 
@@ -130,7 +136,7 @@ export async function fetchServiceSites(
         ),
         parent_company:parent_company_id (
           id,
-          name
+          business_name
         )
       `
       )
@@ -144,6 +150,7 @@ export async function fetchServiceSites(
     const { data, error } = await query;
 
     if (error) {
+      console.error("Supabase fetch error:", error);
       throw new Error(error.message || "Failed to fetch service sites");
     }
 
@@ -187,7 +194,7 @@ export async function fetchServiceSiteById(
         ),
         parent_company:parent_company_id (
           id,
-          name
+          business_name
         )
       `
       )
@@ -195,6 +202,7 @@ export async function fetchServiceSiteById(
       .single();
 
     if (error) {
+      console.error("Supabase fetch single error:", error);
       throw new Error(error.message || "Failed to fetch service site");
     }
 
@@ -225,12 +233,16 @@ export async function updateServiceSite(
 
     if (formData.siteName !== undefined)
       updateData.site_name = formData.siteName;
+    if (formData.siteType !== undefined)
+      updateData.site_type = formData.siteType;
     if (formData.parentCompany !== undefined)
       updateData.parent_company_id = formData.parentCompany;
     if (formData.primaryContact !== undefined)
       updateData.primary_contact_id = formData.primaryContact;
     if (formData.serviceAddress !== undefined)
       updateData.service_address = formData.serviceAddress;
+    if (formData.manuallySetOwner !== undefined)
+      updateData.manually_set_owner = formData.manuallySetOwner;
     if (formData.siteOwner !== undefined)
       updateData.site_owner_id = formData.siteOwner;
 
@@ -244,6 +256,7 @@ export async function updateServiceSite(
       .single();
 
     if (error) {
+      console.error("Supabase update error:", error);
       throw new Error(error.message || "Failed to update service site");
     }
 
@@ -275,6 +288,7 @@ export async function deleteServiceSite(
       .eq("id", siteId);
 
     if (error) {
+      console.error("Supabase delete error:", error);
       throw new Error(error.message || "Failed to delete service site");
     }
 

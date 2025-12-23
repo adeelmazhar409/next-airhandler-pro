@@ -19,14 +19,42 @@ export function SiteForm({ onCancel, onSubmit }: SiteFormComponentProps) {
     setError(null);
 
     try {
-      // Call the service function
-      const result = await createServiceSite(formData);
+      // DEBUG: Log what's coming from the form
+      console.log("Raw form data from DynamicFormBuilder:", formData);
+
+      // Transform the form data to match the API expected format
+      // DynamicFormBuilder uses the 'label' property as keys
+      const transformedData = {
+        siteName: formData["Site Name"] || "",
+        parentCompany: formData["Parent Company"] || null,
+        primaryContact: formData["Primary Contact"] || "",
+        serviceAddress: formData["Service Address"] || "",
+        manuallySetOwner: formData["Manually Set Owner"] || false,
+        siteOwner: formData["Site Owner"] || null,
+      };
+
+      console.log("Transformed data being sent to API:", transformedData);
+
+      // Validate required fields
+      if (!transformedData.siteName) {
+        throw new Error("Site Name is required");
+      }
+      if (!transformedData.primaryContact) {
+        throw new Error("Primary Contact is required");
+      }
+      if (!transformedData.serviceAddress) {
+        throw new Error("Service Address is required");
+      }
+
+      // Call the service function with transformed data
+      const result = await createServiceSite(transformedData);
 
       if (!result.success) {
         throw new Error(result.error || "Failed to create service site");
       }
 
       console.log("Success:", result.message);
+      console.log("Created site data:", result.data);
 
       // Call the parent's onSubmit handler with the created site data
       onSubmit(result.data);
@@ -84,12 +112,11 @@ export function SiteForm({ onCancel, onSubmit }: SiteFormComponentProps) {
       )}
 
       {/* Dynamic Form */}
-      <div className="bg-white rounded-lg shadow-sm p-8">
+      <div className="bg-white rounded-lg shadow-sm p-8 relative">
         <DynamicFormBuilder
           config={SiteFormProps}
           onSubmit={handleFormSubmit}
           onCancel={onCancel}
-      
         />
 
         {/* Loading Overlay */}
