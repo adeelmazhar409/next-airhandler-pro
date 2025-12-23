@@ -42,6 +42,27 @@ interface InputField {
   onClick?: () => void;
 }
 
+interface Activity {
+  id: string;
+  title: string;
+  description: string;
+  priority: "low" | "medium" | "high";
+  type: "note" | "meeting" | "task";
+  completedDate?: string;
+  dueDate?: string;
+}
+
+
+interface Note {
+  id: string;
+  content: string;
+  timestamp: string;
+}
+
+
+
+
+
 interface Message {
   type: "user" | "assistant";
   text: string;
@@ -126,4 +147,7 @@ export type {
   SectionConfig,
   DynamicFormBuilderProps,
   ModalSection,
+  Note,
+  Activity
+
 };

@@ -2,32 +2,14 @@
 
 import React, { useState } from "react";
 import { Deal } from "@/components/app/UI-components/table";
-import { ArrowLeft, Edit, Trash2, Plus,FileText } from "lucide-react";
-
-interface Activity {
-  id: string;
-  title: string;
-  description: string;
-  priority: "low" | "medium" | "high";
-  type: "note" | "meeting" | "task";
-  completedDate?: string;
-  dueDate?: string;
-}
-
-
-interface Note {
-  id: string;
-  content: string;
-  timestamp: string;
-}
-
+import { ArrowLeft, Edit, Trash2, Plus, FileText } from "lucide-react";
+import { Note,Activity } from "@/components/interface/DataTypes";
 
 
 interface DealDetailPageProps {
   deal: Deal;
   onBack: () => void;
 }
-
 export default function DealDetailPage({ deal, onBack }: DealDetailPageProps) {
   const [activities, setActivities] = useState<Activity[]>([
     {

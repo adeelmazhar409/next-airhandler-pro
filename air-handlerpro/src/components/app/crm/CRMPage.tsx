@@ -22,7 +22,7 @@ interface CRMDashboardProps {
 
 export default function CRMDashboard({ onShowDealDetail }: CRMDashboardProps) {
   const [activeTab, setActiveTab] = useState("Dashboard");
-  const [searchValue, setSearchValue] = useState("");
+  // const [searchValue, setSearchValue] = useState("");
   const [selectedType, setSelectedType] = useState("");
 
   const tabs = [
@@ -56,37 +56,37 @@ export default function CRMDashboard({ onShowDealDetail }: CRMDashboardProps) {
     },
   ];
 
-  const inputFields: InputField[] = [
-    {
-      type: "search",
-      placeholder: "Enter name to search...",
-      disable: false,
-      show: true,
-      onChange: (value) => console.log("Search:", value),
-    },
-    {
-      type: "dropdownButton",
-      name: "All Types",
-      options: ["Type 1", "Type 2", "Type 3", "Type 4"],
-      disable: false,
-      show: true,
-      onChange: (value) => setSelectedType(value),
-    },
-    {
-      type: "filterButton",
-      name: "Filter",
-      disable: false,
-      show: true,
-      onClick: () => console.log("Filter clicked"),
-    },
-    {
-      type: "sortButton",
-      name: "Sort",
-      disable: false,
-      show: true,
-      onClick: () => console.log("Sort clicked"),
-    },
-  ];
+  // const inputFields: InputField[] = [
+  //   {
+  //     type: "search",
+  //     placeholder: "Enter name to search...",
+  //     disable: false,
+  //     show: true,
+  //     onChange: (value) => console.log("Search:", value),
+  //   },
+  //   {
+  //     type: "dropdownButton",
+  //     name: "All Types",
+  //     options: ["Type 1", "Type 2", "Type 3", "Type 4"],
+  //     disable: false,
+  //     show: true,
+  //     onChange: (value) => setSelectedType(value),
+  //   },
+  //   {
+  //     type: "filterButton",
+  //     name: "Filter",
+  //     disable: false,
+  //     show: true,
+  //     onClick: () => console.log("Filter clicked"),
+  //   },
+  //   {
+  //     type: "sortButton",
+  //     name: "Sort",
+  //     disable: false,
+  //     show: true,
+  //     onClick: () => console.log("Sort clicked"),
+  //   },
+  // ];
 
   const renderContent = () => {
     switch (activeTab) {
