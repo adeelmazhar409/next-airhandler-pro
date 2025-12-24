@@ -2,7 +2,10 @@ import React from "react";
 import StatsCard from "../../UI-components/StatsCard";
 import { ContactsIcon, NocontactIcon } from "../../../icons/icons";
 import Actbox from "../../UI-components/Actbox";
+import { useState } from "react";
+import { CreateContactForm } from "../../contacts/CreateContactForm";
 import ContactsExample from "../../UI-components/ContactPageDataFormed";
+import Button from "../../UI-components/button";
 export default function ContactsContent() {
   const value = {
     header: false,
@@ -10,6 +13,34 @@ export default function ContactsContent() {
     icon: <NocontactIcon />,
     description: "Manage your customer and prospect relationships here.",
   };
+
+ 
+
+    const [searchValue, setSearchValue] = useState("");
+    const [selectedType, setSelectedType] = useState("");
+    const [formToggle, setFormToggle] = useState(false);
+  
+    const handleCreateContact = () => {
+      setFormToggle(true);
+    };
+  
+    const handleCancel = () => {
+      setFormToggle(false);
+    };
+  
+    const handleSubmit = (formData: any) => {
+      console.log("Form submitted:", formData);
+      // Handle form submission logic
+      // After successful submission, you might want to close the form:
+      // setFormToggle(false);
+    };
+  
+    if (formToggle) {
+      return (
+        <CreateContactForm onCancel={handleCancel} onSubmit={handleSubmit} />
+      );
+    }
+  
 
   const cards = [
     {
@@ -41,8 +72,13 @@ export default function ContactsContent() {
   const data = true;
 
   return (
-    <div className="min-h-screen bg-platinum/10">
+    <div className=" ">
       {/* Main Content */}
+
+      {/* Section Title Below */}
+      <div className="flex  w-full justify-end">
+        <Button onClick={handleCreateContact} value="Create contact" />
+      </div>
       <div className="mx-auto mt-6 px-4">
         {/* Stats Overview Card */}
         <div className="bg-white rounded-lg border border-silver shadow-sm p-4 mb-4">
@@ -90,9 +126,9 @@ export default function ContactsContent() {
           {/* Empty State */}
 
           {data ? (
-<ContactsExample/>
-           
-          ) : (  <div className="text-center py-8">
+            <ContactsExample />
+          ) : (
+            <div className="text-center py-8">
               <div className="mx-auto w-16 h-16 mb-4 text-silver">
                 <NocontactIcon />
               </div>
@@ -104,70 +140,11 @@ export default function ContactsContent() {
               </p>
 
               {/* Centered New Contact Button */}
-              <button className="bg-cerulean text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 mx-auto hover:bg-slate transition-all shadow-md">
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                New Contact
-              </button>
-            </div>)}
-
-          
-        </div>
-
-        {/* Section Title Below */}
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h3 className="text-base font-bold text-charcoal">Contacts</h3>
-            <p className="text-xs text-slate">
-              Manage your customer and prospect relationships
-            </p>
-          </div>
-
-          {/* Repeated New Contact Button (Bottom Right) */}
-          <button className="bg-cerulean text-white px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-slate transition-all shadow-md">
-            <svg
-              className="w-3.5 h-3.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            New Contact
-          </button>
+              <Button onClick={handleCreateContact} value="Create contact" />
+            </div>
+          )}
         </div>
       </div>
-
-      <div className="grid grid-cols-4 gap-4 px-4">
-        {cards.map((card, index) => (
-          <StatsCard key={index} {...card} />
-        ))}
-
-      
-      </div>
-
-        {
-        data ? (
-          <ContactsExample/>
-          ):( <Actbox {...value} />)
-        }
-     
     </div>
   );
 }
