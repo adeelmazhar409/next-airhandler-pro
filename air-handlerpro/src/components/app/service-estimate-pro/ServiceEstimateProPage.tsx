@@ -7,13 +7,7 @@ import StatsCard from "../UI-components/StatsCard";
 import Actbox from "../UI-components/Actbox";
 import { ServiceEstimateIcon } from "../../icons/icons";
 
-interface ServiceEstimatesProps {
-  onNewEstimate: () => void; // Add this prop
-}
-
-export default function ServiceEstimates({
-  onNewEstimate,
-}: ServiceEstimatesProps) {
+export default function ServiceEstimates() {
   const data = [
     {
       title: "Pre-Built Estimates",
@@ -37,7 +31,7 @@ export default function ServiceEstimates({
     value: "Estimates",
     icon: <ServiceEstimateIcon />,
     headerIcon: <ServiceEstimateIcon />,
-    formOpen: onNewEstimate, // Use the prop
+    // formOpen: onNewEstimate, // Use the prop
     description: "No estimates yet. Create your first estimate to get started.",
   };
 
@@ -51,7 +45,7 @@ export default function ServiceEstimates({
             coil cleanings, and more"
         />
 
-        <Button onClick={onNewEstimate} value="New Estimate" />
+        <Button value="New Estimate" />
       </div>
 
       {/* Cards Grid */}

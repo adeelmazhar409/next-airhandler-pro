@@ -3,7 +3,7 @@
 import { useState } from "react";
 import DynamicFormBuilder from "@/components/forms/DynamicFormBuilder";
 import { DealFormProps } from "@/components/forms/forms-instructions/DealProp";
-import { createDeal } from "@/service/deals";
+import { createDeal } from "@/service/api/deals";
 
 interface DealFormComponentProps {
   onCancel: () => void;

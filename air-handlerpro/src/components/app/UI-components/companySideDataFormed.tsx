@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchCompanies, deleteCompany, type Company } from "@/service/companies";
+import {
+  fetchCompanies,
+  deleteCompany,
+  type Company,
+} from "@/service/api/companies";
 import CustomerAccountCard from "./companySideData";
 
 interface CustomerAccountsGridProps {
@@ -21,7 +25,9 @@ function LoadingSkeleton() {
   );
 }
 
-export default function CustomerAccountsGrid({ onEditCompany }: CustomerAccountsGridProps) {
+export default function CustomerAccountsGrid({
+  onEditCompany,
+}: CustomerAccountsGridProps) {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +62,10 @@ export default function CustomerAccountsGrid({ onEditCompany }: CustomerAccounts
     loadCompanies();
   }, []);
 
-  const handleDeleteCompany = async (companyId: string, companyName: string) => {
+  const handleDeleteCompany = async (
+    companyId: string,
+    companyName: string
+  ) => {
     // Confirmation dialog
     const confirmed = window.confirm(
       `Are you sure you want to delete "${companyName}"? This action cannot be undone.`
@@ -118,22 +127,26 @@ export default function CustomerAccountsGrid({ onEditCompany }: CustomerAccounts
                 badgeLabel={company.company_type || "Company"}
                 sitesCount={0}
                 billingContactName={
-                  typeof company.primary_contact === 'string'
+                  typeof company.primary_contact === "string"
                     ? company.primary_contact
-                    : company.primary_contact && typeof company.primary_contact === 'object'
-                    ? company.primary_contact.first_name && company.primary_contact.last_name
+                    : company.primary_contact &&
+                      typeof company.primary_contact === "object"
+                    ? company.primary_contact.first_name &&
+                      company.primary_contact.last_name
                       ? `${company.primary_contact.first_name} ${company.primary_contact.last_name}`
                       : company.primary_contact.email || "N/A"
                     : "N/A"
                 }
                 billingAddress={company.billing_address || "No address"}
                 billingPhone={
-                  typeof company.primary_contact === 'object' && company.primary_contact
+                  typeof company.primary_contact === "object" &&
+                  company.primary_contact
                     ? company.primary_contact.phone || "N/A"
                     : "N/A"
                 }
                 billingEmail={
-                  typeof company.primary_contact === 'object' && company.primary_contact
+                  typeof company.primary_contact === "object" &&
+                  company.primary_contact
                     ? company.primary_contact.email || "N/A"
                     : "N/A"
                 }
@@ -144,7 +157,12 @@ export default function CustomerAccountsGrid({ onEditCompany }: CustomerAccounts
                     onEditCompany(company);
                   }
                 }}
-                onDelete={() => handleDeleteCompany(company.id, company.business_name || "this company")}
+                onDelete={() =>
+                  handleDeleteCompany(
+                    company.id,
+                    company.business_name || "this company"
+                  )
+                }
               />
             );
           })}

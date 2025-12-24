@@ -25,11 +25,12 @@ export const CompanyFormProps = [
       {
         label: "Primary Contact",
         nature: "full",
-        type: "search-dropdown",
+        type: "list-with-add",
         placeholder: "Select a contact",
         message: "Select an existing contact or create a new one",
         option: ["test1", "test2"],
         buttonName: "+",
+        linkTable: "contacts",
         modal: {
           modalHeading: "Create New Contact",
           modalFields: [
@@ -101,6 +102,7 @@ export const CompanyFormProps = [
     label: "Service Sites",
     placeholder: "No service sites added yet",
     buttonName: "Add Site",
+    linkTable: "sites",
     message: "No service sites added yet",
     modal: {
       modalHeading: "Add Service Site",

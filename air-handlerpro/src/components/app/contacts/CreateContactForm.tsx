@@ -3,7 +3,7 @@
 import { useState } from "react";
 import DynamicFormBuilder from "@/components/forms/DynamicFormBuilder";
 import { CreateNewContactFormProps } from "@/components/forms/forms-instructions/ContactProp";
-import { createContact } from "@/service/contact";
+import { createContact } from "@/service/api/contact";
 
 interface CreateContactFormComponentProps {
   onCancel: () => void;

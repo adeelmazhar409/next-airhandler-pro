@@ -3,7 +3,7 @@
 import { useState } from "react";
 import DynamicFormBuilder from "@/components/forms/DynamicFormBuilder";
 import { ActivityFormProps } from "@/components/forms/forms-instructions/ActivityProp";
-import { createActivity } from "@/service/activites";
+import { createActivity } from "@/service/api/activites";
 
 interface ActivityFormComponentProps {
   onCancel: () => void;

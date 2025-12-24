@@ -15,15 +15,26 @@ import ContactsContent from "./content/ContactsContent";
 import CompaniesContent from "./content/CompaniesContent";
 import { InputField } from "@/components/interface/DataTypes";
 import { Deal } from "@/components/app/UI-components/table";
+import DealDetailPage from "./content/DealDetailPage";
 
-interface CRMDashboardProps {
-  onShowDealDetail?: (deal: Deal) => void;
-}
-
-export default function CRMDashboard({ onShowDealDetail }: CRMDashboardProps) {
+export default function CRMDashboard() {
   const [activeTab, setActiveTab] = useState("Dashboard");
-  // const [searchValue, setSearchValue] = useState("");
+  const [showDealDetail, setShowDealDetail] = useState(false);
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [selectedType, setSelectedType] = useState("");
+  // const [searchValue, setSearchValue] = useState("");
+
+  // Handle showing deal detail
+  const handleShowDealDetail = (deal: Deal) => {
+    setSelectedDeal(deal);
+    setShowDealDetail(true);
+  };
+
+  // Handle closing deal detail
+  const handleCloseDealDetail = () => {
+    setShowDealDetail(false);
+    setSelectedDeal(null);
+  };
 
   const tabs = [
     { name: "Dashboard", value: "Dashboard" },
@@ -93,7 +104,7 @@ export default function CRMDashboard({ onShowDealDetail }: CRMDashboardProps) {
       case "Dashboard":
         return <DashboardContent />;
       case "pipeline":
-        return <PipelineContent onDealClick={onShowDealDetail} />;
+        return <PipelineContent onDealClick={handleShowDealDetail} />;
       case "activities":
         return <ActivitiesContent />;
       case "contacts":
@@ -104,6 +115,12 @@ export default function CRMDashboard({ onShowDealDetail }: CRMDashboardProps) {
         return <DashboardContent />;
     }
   };
+
+  if (showDealDetail && selectedDeal) {
+    return (
+      <DealDetailPage deal={selectedDeal} onBack={handleCloseDealDetail} />
+    );
+  }
 
   return (
     <div className="flex flex-col p-8">

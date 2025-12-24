@@ -3,7 +3,7 @@
 import { useState } from "react";
 import DynamicFormBuilder from "@/components/forms/DynamicFormBuilder";
 import { SiteFormProps } from "@/components/forms/forms-instructions/SiteProp";
-import { createServiceSite } from "@/service/site";
+import { createServiceSite } from "@/service/api/site";
 
 interface SiteFormComponentProps {
   onCancel: () => void;

@@ -52,16 +52,11 @@ interface Activity {
   dueDate?: string;
 }
 
-
 interface Note {
   id: string;
   content: string;
   timestamp: string;
 }
-
-
-
-
 
 interface Message {
   type: "user" | "assistant";
@@ -89,6 +84,7 @@ interface FieldConfig {
   hourplaceholder?: string;
   minuteplaceholder?: string;
   option?: string[];
+  linkTable?: string;
   box?: object[];
   optionDescription?: string[];
   optionColors?: Record<string, string>;
@@ -148,6 +144,5 @@ export type {
   DynamicFormBuilderProps,
   ModalSection,
   Note,
-  Activity
-
+  Activity,
 };

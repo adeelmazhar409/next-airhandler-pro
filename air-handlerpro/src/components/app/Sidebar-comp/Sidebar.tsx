@@ -22,21 +22,21 @@ const AdminNavigationItems = [
     HeaderIcon: <Shield className="h-4" />,
     TitleName: "Admin Panel",
     TitleIcon: <ChartLine className="h-4" />,
-    value: "System Administration",
+    value: "SystemAdministration",
   },
   {
     HeaderName: "Staff System",
     HeaderIcon: <UserCog2 className="h-4" />,
     TitleName: "Staff Panel",
     TitleIcon: <ChartLine className="h-4" />,
-    value: "Staff Panel",
+    value: "StaffPanel",
   },
   {
     HeaderName: "Company Admin",
     HeaderIcon: <Building2 className="h-4" />,
     TitleName: "Company Dashboard",
     TitleIcon: <ChartLine className="h-4" />,
-    value: "Company Administration",
+    value: "CompanyAdministration",
   },
 ];
 
@@ -54,27 +54,27 @@ const navigationItems = [
   {
     name: "AI Estimate Builder",
     icon: <AIEstimateBuilderIcon />,
-    value: "AI Estimate Builder",
+    value: "AIEstimateBuilder",
   },
   {
     name: "Service Estimate Pro",
     icon: <ServiceEstimateProIcon />,
-    value: "Service Estimate Pro",
+    value: "ServiceEstimatePro",
   },
   {
     name: "Maintenance Estimate Pro",
     icon: <MaintenanceEstimateProIcon />,
-    value: "Maintenance Estimate Pro",
+    value: "MaintenanceEstimatePro",
   },
   {
     name: "Service Reports",
     icon: <ServiceReportsIcon />,
-    value: "Service Reports",
+    value: "ServiceReports",
   },
   {
     name: "Job Walks",
     icon: <JobWalksIcon />,
-    value: "Job Walks",
+    value: "JobWalks",
   },
 ];
 

@@ -3,7 +3,11 @@
 import { useState } from "react";
 import DynamicFormBuilder from "@/components/forms/DynamicFormBuilder";
 import { CompanyFormProps } from "@/components/forms/forms-instructions/CompanyProp";
-import { createCompany, updateCompany, type Company } from "@/service/companies";
+import {
+  createCompany,
+  updateCompany,
+  type Company,
+} from "@/service/api/companies";
 
 interface CompanyFormComponentProps {
   onCancel: () => void;
@@ -11,44 +15,55 @@ interface CompanyFormComponentProps {
   editingCompany?: Company | null;
 }
 
-export function CompanyForm({ onCancel, onSubmit, editingCompany }: CompanyFormComponentProps) {
+export function CompanyForm({
+  onCancel,
+  onSubmit,
+  editingCompany,
+}: CompanyFormComponentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isEditMode = !!editingCompany;
 
   // Pre-fill the form config with editing company data
-  const formConfig = isEditMode && editingCompany
-    ? CompanyFormProps.map((section) => {
-        if ('fields' in section && section.fields) {
-          return {
-            ...section,
-            fields: section.fields.map((field) => {
-              if (field.label === "Business Name") {
-                return { ...field, placeholder: editingCompany.business_name };
-              }
-              if (field.label === "Company Type") {
-                return { ...field, placeholder: editingCompany.company_type };
-              }
-              if (field.label === "Primary Contact") {
-                return {
-                  ...field,
-                  placeholder:
-                    typeof editingCompany.primary_contact === "string"
-                      ? editingCompany.primary_contact
-                      : "",
-                };
-              }
-              if (field.label === "Billing Address") {
-                return { ...field, placeholder: editingCompany.billing_address };
-              }
-              return field;
-            }),
-          };
-        }
-        return section;
-      })
-    : CompanyFormProps;
+  const formConfig =
+    isEditMode && editingCompany
+      ? CompanyFormProps.map((section) => {
+          if ("fields" in section && section.fields) {
+            return {
+              ...section,
+              fields: section.fields.map((field) => {
+                if (field.label === "Business Name") {
+                  return {
+                    ...field,
+                    placeholder: editingCompany.business_name,
+                  };
+                }
+                if (field.label === "Company Type") {
+                  return { ...field, placeholder: editingCompany.company_type };
+                }
+                if (field.label === "Primary Contact") {
+                  return {
+                    ...field,
+                    placeholder:
+                      typeof editingCompany.primary_contact === "string"
+                        ? editingCompany.primary_contact
+                        : "",
+                  };
+                }
+                if (field.label === "Billing Address") {
+                  return {
+                    ...field,
+                    placeholder: editingCompany.billing_address,
+                  };
+                }
+                return field;
+              }),
+            };
+          }
+          return section;
+        })
+      : CompanyFormProps;
 
   const handleFormSubmit = async (formData: any) => {
     setIsSubmitting(true);

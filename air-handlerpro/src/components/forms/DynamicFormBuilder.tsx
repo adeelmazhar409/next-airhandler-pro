@@ -947,16 +947,82 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         );
 
       case "list-with-add":
+        const filtered2Options =
+          field.option?.filter((option) =>
+            option.toLowerCase().includes(searchTerm.toLowerCase())
+          ) || [];
         const listItems = formData[field.label] || [];
-
+        const linkList = [];
         return (
           <div
             key={fieldKey}
             className={getFieldWidth(field.nature)}
             data-field={field.label}
           >
-            <div className="flex items-center justify-between mb-2">
-              {renderLabel(field)}
+            <div className="flex gap-2 items-end justify-between mb-2">
+              <div className="w-full flex flex-col items-start">
+                {renderLabel(field)}
+                {field.placeholder && field.option && (
+                  <div className="relative w-full">
+                    <button
+                      type="button"
+                      onClick={() => toggleDropdown(fieldKey)}
+                      className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
+                    >
+                      <span
+                        className={
+                          formData[field.label] ? "text-charcoal" : "text-slate"
+                        }
+                      >
+                        {formData[field.label] || field.placeholder}
+                      </span>
+                      <ChevronDown className="w-5 h-5 text-slate" />
+                    </button>
+
+                    {isDropdownOpen && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-hidden">
+                        <div className="p-2 border-b border-silver">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate" />
+                            <input
+                              type="text"
+                              placeholder="Search..."
+                              value={searchTerm}
+                              onChange={(e) =>
+                                setSearchTerms((prev) => ({
+                                  ...prev,
+                                  [fieldKey]: e.target.value,
+                                }))
+                              }
+                              className="w-full pl-9 pr-3 py-2 border border-silver rounded focus:outline-none focus:ring-2 focus:ring-cerulean text-sm"
+                            />
+                          </div>
+                        </div>
+                        <div className="overflow-y-auto max-h-48">
+                          {filtered2Options.length > 0 ? (
+                            filtered2Options.map((option, idx) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() =>
+                                  selectOption(fieldKey, field.label, option)
+                                }
+                                className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm cursor-pointer"
+                              >
+                                {option}
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-4 py-2 text-slate text-sm">
+                              No options found
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={() => {
@@ -964,19 +1030,18 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                     openModal(field.modal, field.label);
                   }
                 }}
-                className="px-3 py-1.5 border border-silver rounded-md hover:bg-platinum transition-colors flex items-center gap-1 text-charcoal text-sm font-medium cursor-pointer"
+                className="px-3 py-1.5 w-full border border-silver rounded-md hover:bg-platinum transition-colors text-charcoal text-sm font-medium cursor-pointer"
               >
                 {field.buttonName || "Add"}
               </button>
             </div>
-
-            {listItems.length === 0 ? (
+            {!field.placeholder && listItems.length === 0 ? (
               <div className="w-full px-4 py-6 border border-silver rounded-lg bg-platinum/20 text-center">
                 <p className="text-slate text-sm">
                   {field.message || field.placeholder}
                 </p>
               </div>
-            ) : (
+            ) : !field.placeholder && listItems.length > 0 ? (
               <div className="space-y-2">
                 {listItems.map((item: any, idx: number) => (
                   <div
@@ -1010,7 +1075,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                   </div>
                 ))}
               </div>
-            )}
+            ) : null}
           </div>
         );
 

@@ -1,8 +1,4 @@
-/**
- * Companies Service Layer
- * Handles all business logic and Supabase calls for companies
- */
-
+// Companies data endpoints
 import { supabase } from "@/lib/supabase";
 
 export interface CompanyFormData {
@@ -44,9 +40,52 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-/**
- * Create a new company
- */
+// fetch Companies data
+export async function fetchCompanies(): Promise<any> {
+  try {
+    const { data: companies, error } = await supabase.from("companies").select(
+      `
+        id,
+        business_name,
+        company_type,
+        billing_address,
+        primary_contact:contacts!companies_primary_contact_id_fkey(
+          id,
+          first_name,
+          last_name,
+          title,
+          department,
+          email,
+          phone
+        ),
+        sites(
+          id,
+          site_name,
+          service_address
+        )
+      `
+    );
+    console.log("testing---", companies);
+
+    if (error) {
+      throw new Error(error.message || "Failed to fetch companies");
+    }
+
+    return {
+      success: true,
+      data: companies,
+      message: "Companies fetched successfully",
+    };
+  } catch (error) {
+    console.error("Fetch companies error:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "An unexpected error occurred",
+    };
+  }
+}
+// Create Company
 export async function createCompany(
   formData: CompanyFormData
 ): Promise<ApiResponse<Company>> {
@@ -96,45 +135,7 @@ export async function createCompany(
     };
   }
 }
-
-/**
- * Fetch all companies with related data
- */
-/**
- * Fetch all companies with related data
- */
-/**
- * Fetch all companies with related data
- */
-export async function fetchCompanies(): Promise<ApiResponse<Company[]>> {
-  try {
-    // Fetch companies without joins (simplified for now)
-    const { data, error } = await supabase
-      .from("companies")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      throw new Error(error.message || "Failed to fetch companies");
-    }
-
-    return {
-      success: true,
-      data: (data || []) as Company[],
-      message: "Companies fetched successfully",
-    };
-  } catch (error) {
-    console.error("Fetch companies error:", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error ? error.message : "An unexpected error occurred",
-    };
-  }
-}
-/**
- * Fetch a single company by ID
- */
+// fetch Company by ID
 export async function fetchCompanyById(
   companyId: string
 ): Promise<ApiResponse<Company>> {
@@ -178,10 +179,7 @@ export async function fetchCompanyById(
     };
   }
 }
-
-/**
- * Update an existing company
- */
+// Update Company by ID
 export async function updateCompany(
   companyId: string,
   formData: Partial<CompanyFormData>
@@ -225,10 +223,7 @@ export async function updateCompany(
     };
   }
 }
-
-/**
- * Delete a company
- */
+// Delete Company by ID
 export async function deleteCompany(
   companyId: string
 ): Promise<ApiResponse<void>> {

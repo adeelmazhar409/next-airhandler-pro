@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from "react";
 import Actbox from "../../UI-components/Actbox";
 import { BuildingIcon } from "../../../icons/icons";
@@ -7,7 +9,7 @@ import ServiceSitesGrid from "../../UI-components/serviceSideDataFormed";
 import CustomerAccountsGrid from "../../UI-components/companySideDataFormed";
 import { CompanyForm } from "./forms/CompanyForm";
 import { SiteForm } from "./forms/SiteForm";
-import { type Company } from "@/service/companies";
+import { type Company } from "@/service/api/companies";
 
 export default function CompaniesContent() {
   const [view, setView] = useState<"Companies" | "sites">("Companies");
@@ -137,7 +139,10 @@ export default function CompaniesContent() {
 
       {view === "Companies" &&
         (companydata ? (
-          <CustomerAccountsGrid key={refreshKey} onEditCompany={handleEditCompany} />
+          <CustomerAccountsGrid
+            key={refreshKey}
+            onEditCompany={handleEditCompany}
+          />
         ) : (
           <Actbox {...companyValue} />
         ))}
