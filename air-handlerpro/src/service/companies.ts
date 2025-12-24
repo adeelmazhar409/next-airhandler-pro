@@ -100,26 +100,18 @@ export async function createCompany(
 /**
  * Fetch all companies with related data
  */
+/**
+ * Fetch all companies with related data
+ */
+/**
+ * Fetch all companies with related data
+ */
 export async function fetchCompanies(): Promise<ApiResponse<Company[]>> {
   try {
+    // Fetch companies without joins (simplified for now)
     const { data, error } = await supabase
       .from("companies")
-      .select(
-        `
-        *,
-        primary_contact:primary_contact_id (
-          id,
-          first_name,
-          last_name,
-          email,
-          phone
-        ),
-        owner:owner_id (
-          id,
-          email
-        )
-      `
-      )
+      .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -140,7 +132,6 @@ export async function fetchCompanies(): Promise<ApiResponse<Company[]>> {
     };
   }
 }
-
 /**
  * Fetch a single company by ID
  */
@@ -203,7 +194,7 @@ export async function updateCompany(
     if (formData.companyType !== undefined)
       updateData.company_type = formData.companyType;
     if (formData.primaryContact !== undefined)
-      updateData.primary_contact_id = formData.primaryContact;
+      updateData.primary_contact = formData.primaryContact;
     if (formData.billingAddress !== undefined)
       updateData.billing_address = formData.billingAddress;
 

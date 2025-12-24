@@ -3,16 +3,52 @@
 import { useState } from "react";
 import DynamicFormBuilder from "@/components/forms/DynamicFormBuilder";
 import { CompanyFormProps } from "@/components/forms/forms-instructions/CompanyProp";
-import { createCompany } from "@/service/companies";
+import { createCompany, updateCompany, type Company } from "@/service/companies";
 
 interface CompanyFormComponentProps {
   onCancel: () => void;
   onSubmit: (formData: any) => void;
+  editingCompany?: Company | null;
 }
 
-export function CompanyForm({ onCancel, onSubmit }: CompanyFormComponentProps) {
+export function CompanyForm({ onCancel, onSubmit, editingCompany }: CompanyFormComponentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isEditMode = !!editingCompany;
+
+  // Pre-fill the form config with editing company data
+  const formConfig = isEditMode && editingCompany
+    ? CompanyFormProps.map((section) => {
+        if ('fields' in section && section.fields) {
+          return {
+            ...section,
+            fields: section.fields.map((field) => {
+              if (field.label === "Business Name") {
+                return { ...field, placeholder: editingCompany.business_name };
+              }
+              if (field.label === "Company Type") {
+                return { ...field, placeholder: editingCompany.company_type };
+              }
+              if (field.label === "Primary Contact") {
+                return {
+                  ...field,
+                  placeholder:
+                    typeof editingCompany.primary_contact === "string"
+                      ? editingCompany.primary_contact
+                      : "",
+                };
+              }
+              if (field.label === "Billing Address") {
+                return { ...field, placeholder: editingCompany.billing_address };
+              }
+              return field;
+            }),
+          };
+        }
+        return section;
+      })
+    : CompanyFormProps;
 
   const handleFormSubmit = async (formData: any) => {
     setIsSubmitting(true);
@@ -34,6 +70,25 @@ export function CompanyForm({ onCancel, onSubmit }: CompanyFormComponentProps) {
 
       console.log("Transformed data being sent to API:", transformedData);
 
+      // In edit mode, use existing values for empty fields
+      if (isEditMode && editingCompany) {
+        if (!transformedData.businessName) {
+          transformedData.businessName = editingCompany.business_name;
+        }
+        if (!transformedData.companyType) {
+          transformedData.companyType = editingCompany.company_type;
+        }
+        if (!transformedData.primaryContact) {
+          transformedData.primaryContact =
+            typeof editingCompany.primary_contact === "string"
+              ? editingCompany.primary_contact
+              : "";
+        }
+        if (!transformedData.billingAddress) {
+          transformedData.billingAddress = editingCompany.billing_address;
+        }
+      }
+
       // Validate required fields
       if (!transformedData.businessName) {
         throw new Error("Business Name is required");
@@ -48,17 +103,25 @@ export function CompanyForm({ onCancel, onSubmit }: CompanyFormComponentProps) {
         throw new Error("Billing Address is required");
       }
 
-      // Call the service function with transformed data
-      const result = await createCompany(transformedData);
-
-      if (!result.success) {
-        throw new Error(result.error || "Failed to create company");
+      // Call the appropriate service function based on mode
+      let result;
+      if (isEditMode && editingCompany) {
+        result = await updateCompany(editingCompany.id, transformedData);
+        if (!result.success) {
+          throw new Error(result.error || "Failed to update company");
+        }
+        console.log("Success:", result.message);
+        console.log("Updated company data:", result.data);
+      } else {
+        result = await createCompany(transformedData);
+        if (!result.success) {
+          throw new Error(result.error || "Failed to create company");
+        }
+        console.log("Success:", result.message);
+        console.log("Created company data:", result.data);
       }
 
-      console.log("Success:", result.message);
-      console.log("Created company data:", result.data);
-
-      // Call the parent's onSubmit handler with the created company data
+      // Call the parent's onSubmit handler with the company data
       onSubmit(result.data);
     } catch (err) {
       const errorMessage =
@@ -82,10 +145,13 @@ export function CompanyForm({ onCancel, onSubmit }: CompanyFormComponentProps) {
           <span>←</span>
           <span>Back to Companies</span>
         </button>
-        <h1 className="text-3xl font-bold text-charcoal">Add Parent Company</h1>
+        <h1 className="text-3xl font-bold text-charcoal">
+          {isEditMode ? "Edit Company" : "Add Parent Company"}
+        </h1>
         <p className="text-slate mt-1">
-          Create a new parent company to organize your service sites and manage
-          customer relationships.
+          {isEditMode
+            ? "Update company information and manage customer relationships."
+            : "Create a new parent company to organize your service sites and manage customer relationships."}
         </p>
       </div>
 
@@ -106,7 +172,7 @@ export function CompanyForm({ onCancel, onSubmit }: CompanyFormComponentProps) {
             </svg>
             <div>
               <h3 className="text-sm font-medium text-red-800">
-                Error Creating Company
+                Error {isEditMode ? "Updating" : "Creating"} Company
               </h3>
               <p className="text-sm text-red-700 mt-1">{error}</p>
             </div>
@@ -117,7 +183,7 @@ export function CompanyForm({ onCancel, onSubmit }: CompanyFormComponentProps) {
       {/* Dynamic Form */}
       <div className="bg-white rounded-lg shadow-sm p-8 relative">
         <DynamicFormBuilder
-          config={CompanyFormProps}
+          config={formConfig}
           onSubmit={handleFormSubmit}
           onCancel={onCancel}
         />
@@ -128,7 +194,7 @@ export function CompanyForm({ onCancel, onSubmit }: CompanyFormComponentProps) {
             <div className="flex items-center gap-3 bg-white px-6 py-4 rounded-lg shadow-lg border border-slate">
               <div className="w-5 h-5 border-2 border-cerulean border-t-transparent rounded-full animate-spin" />
               <span className="text-charcoal font-medium">
-                Creating company...
+                {isEditMode ? "Updating company..." : "Creating company..."}
               </span>
             </div>
           </div>

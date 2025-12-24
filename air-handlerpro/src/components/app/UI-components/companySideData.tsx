@@ -1,6 +1,8 @@
 // components/CustomerAccountCard.tsx
 
-import React from "react";
+"use client";
+
+import React, { useState, useRef, useEffect } from "react";
 import {
   Building,
   MapPin,
@@ -9,6 +11,8 @@ import {
   User,
   Edit2,
   Users,
+  Trash2,
+  Edit,
 } from "lucide-react";
 
 interface CustomerAccountCardProps {
@@ -20,6 +24,9 @@ interface CustomerAccountCardProps {
   billingPhone: string;
   billingEmail: string;
   ownerEmail: string;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  isDeleting?: boolean;
 }
 
 const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
@@ -31,15 +38,49 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
   billingPhone,
   billingEmail,
   ownerEmail,
+  onEdit,
+  onDelete,
+  isDeleting = false,
 }) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
+  const handleEdit = () => {
+    setIsDropdownOpen(false);
+    onEdit?.();
+  };
+
+  const handleDelete = () => {
+    setIsDropdownOpen(false);
+    onDelete?.();
+  };
+
   return (
     <div
-      className="bg-white rounded-xl  border border-gray-200 p-6 w-full max-w-sm 
+      className={`bg-white rounded-xl border border-gray-200 p-6 w-full max-w-sm
      transition-all duration-300
         shadow-[2px_2px_0_0_rgba(76,92,104,1),4px_4px_0_0_rgba(70,73,76,1),6px_6px_0_0_rgba(25,133,161,1)]
         hover:shadow-[0_0_0_2px_rgba(25,133,161,1),8px_8px_0_0_rgba(76,92,104,1)]
         hover:-translate-y-1
-    "
+        ${isDeleting ? 'opacity-50 pointer-events-none' : ''}
+    `}
     >
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
@@ -47,9 +88,34 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
           <Building className="w-6 h-6 text-gray-500" />
           <h3 className="text-lg font-semibold text-gray-900">{accountName}</h3>
         </div>
-        <button className="text-gray-400 hover:text-gray-600 transition">
-          <Edit2 className="w-5 h-5" />
-        </button>
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="text-gray-400 hover:text-gray-600 transition"
+          >
+            <Edit2 className="w-5 h-5" />
+          </button>
+
+          {/* Dropdown Menu */}
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+              <button
+                onClick={handleEdit}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 transition"
+              >
+                <Edit className="w-4 h-4" />
+                Edit
+              </button>
+              <button
+                onClick={handleDelete}
+                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Badges */}

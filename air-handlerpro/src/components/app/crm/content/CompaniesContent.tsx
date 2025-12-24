@@ -7,13 +7,22 @@ import ServiceSitesGrid from "../../UI-components/serviceSideDataFormed";
 import CustomerAccountsGrid from "../../UI-components/companySideDataFormed";
 import { CompanyForm } from "./forms/CompanyForm";
 import { SiteForm } from "./forms/SiteForm";
+import { type Company } from "@/service/companies";
 
 export default function CompaniesContent() {
   const [view, setView] = useState<"Companies" | "sites">("Companies");
   const [companyFormToggle, setCompanyFormToggle] = useState(false);
   const [siteFormToggle, setSiteFormToggle] = useState(false);
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleCreateCompany = () => {
+    setEditingCompany(null);
+    setCompanyFormToggle(true);
+  };
+
+  const handleEditCompany = (company: Company) => {
+    setEditingCompany(company);
     setCompanyFormToggle(true);
   };
 
@@ -24,17 +33,26 @@ export default function CompaniesContent() {
   const handleCancel = () => {
     setCompanyFormToggle(false);
     setSiteFormToggle(false);
+    setEditingCompany(null);
   };
 
   const handleSubmit = (formData: any) => {
     console.log("Form submitted:", formData);
-    // Handle form submission logic
-    // After successful submission, you might want to close the form:
-    // setFormToggle(false);
+    // Close the form and reset editing state
+    setCompanyFormToggle(false);
+    setEditingCompany(null);
+    // Trigger refresh by incrementing the key
+    setRefreshKey((prev) => prev + 1);
   };
 
   if (companyFormToggle) {
-    return <CompanyForm onCancel={handleCancel} onSubmit={handleSubmit} />;
+    return (
+      <CompanyForm
+        onCancel={handleCancel}
+        onSubmit={handleSubmit}
+        editingCompany={editingCompany}
+      />
+    );
   }
 
   if (siteFormToggle) {
@@ -118,7 +136,11 @@ export default function CompaniesContent() {
       </div>
 
       {view === "Companies" &&
-        (companydata ? <CustomerAccountsGrid /> : <Actbox {...companyValue} />)}
+        (companydata ? (
+          <CustomerAccountsGrid key={refreshKey} onEditCompany={handleEditCompany} />
+        ) : (
+          <Actbox {...companyValue} />
+        ))}
 
       {view === "sites" &&
         (ServiceData ? <ServiceSitesGrid /> : <Actbox {...siteValue} />)}
