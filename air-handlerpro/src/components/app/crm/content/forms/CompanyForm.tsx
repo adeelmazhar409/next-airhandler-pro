@@ -23,48 +23,6 @@ export function CompanyForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isEditMode = !!editingCompany;
-
-  // Pre-fill the form config with editing company data
-  const formConfig =
-    isEditMode && editingCompany
-      ? CompanyFormProps.map((section) => {
-          if ("fields" in section && section.fields) {
-            return {
-              ...section,
-              fields: section.fields.map((field) => {
-                if (field.label === "Business Name") {
-                  return {
-                    ...field,
-                    placeholder: editingCompany.business_name,
-                  };
-                }
-                if (field.label === "Company Type") {
-                  return { ...field, placeholder: editingCompany.company_type };
-                }
-                if (field.label === "Primary Contact") {
-                  return {
-                    ...field,
-                    placeholder:
-                      typeof editingCompany.primary_contact === "string"
-                        ? editingCompany.primary_contact
-                        : "",
-                  };
-                }
-                if (field.label === "Billing Address") {
-                  return {
-                    ...field,
-                    placeholder: editingCompany.billing_address,
-                  };
-                }
-                return field;
-              }),
-            };
-          }
-          return section;
-        })
-      : CompanyFormProps;
-
   const handleFormSubmit = async (formData: any) => {
     setIsSubmitting(true);
     setError(null);
@@ -72,72 +30,7 @@ export function CompanyForm({
     try {
       // DEBUG: Log what's coming from the form
       console.log("Raw form data from DynamicFormBuilder:", formData);
-
-      // Transform the form data to match the API expected format
-      // DynamicFormBuilder uses the 'label' property as keys
-      const transformedData = {
-        businessName: formData["Business Name"] || "",
-        companyType: formData["Company Type"] || "",
-        primaryContact: formData["Primary Contact"] || "",
-        billingAddress: formData["Billing Address"] || "",
-        serviceSites: formData["Service Sites"] || [], // This is a list-with-add field
-      };
-
-      console.log("Transformed data being sent to API:", transformedData);
-
-      // In edit mode, use existing values for empty fields
-      if (isEditMode && editingCompany) {
-        if (!transformedData.businessName) {
-          transformedData.businessName = editingCompany.business_name;
-        }
-        if (!transformedData.companyType) {
-          transformedData.companyType = editingCompany.company_type;
-        }
-        if (!transformedData.primaryContact) {
-          transformedData.primaryContact =
-            typeof editingCompany.primary_contact === "string"
-              ? editingCompany.primary_contact
-              : "";
-        }
-        if (!transformedData.billingAddress) {
-          transformedData.billingAddress = editingCompany.billing_address;
-        }
-      }
-
-      // Validate required fields
-      if (!transformedData.businessName) {
-        throw new Error("Business Name is required");
-      }
-      if (!transformedData.companyType) {
-        throw new Error("Company Type is required");
-      }
-      if (!transformedData.primaryContact) {
-        throw new Error("Primary Contact is required");
-      }
-      if (!transformedData.billingAddress) {
-        throw new Error("Billing Address is required");
-      }
-
-      // Call the appropriate service function based on mode
-      let result;
-      if (isEditMode && editingCompany) {
-        result = await updateCompany(editingCompany.id, transformedData);
-        if (!result.success) {
-          throw new Error(result.error || "Failed to update company");
-        }
-        console.log("Success:", result.message);
-        console.log("Updated company data:", result.data);
-      } else {
-        result = await createCompany(transformedData);
-        if (!result.success) {
-          throw new Error(result.error || "Failed to create company");
-        }
-        console.log("Success:", result.message);
-        console.log("Created company data:", result.data);
-      }
-
-      // Call the parent's onSubmit handler with the company data
-      onSubmit(result.data);
+      onSubmit(formData);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "An unexpected error occurred";
@@ -161,10 +54,10 @@ export function CompanyForm({
           <span>Back to Companies</span>
         </button>
         <h1 className="text-3xl font-bold text-charcoal">
-          {isEditMode ? "Edit Company" : "Add Parent Company"}
+          {editingCompany ? "Edit Company" : "Add Parent Company"}
         </h1>
         <p className="text-slate mt-1">
-          {isEditMode
+          {editingCompany
             ? "Update company information and manage customer relationships."
             : "Create a new parent company to organize your service sites and manage customer relationships."}
         </p>
@@ -187,7 +80,7 @@ export function CompanyForm({
             </svg>
             <div>
               <h3 className="text-sm font-medium text-red-800">
-                Error {isEditMode ? "Updating" : "Creating"} Company
+                Error {editingCompany ? "Updating" : "Creating"} Company
               </h3>
               <p className="text-sm text-red-700 mt-1">{error}</p>
             </div>
@@ -198,7 +91,8 @@ export function CompanyForm({
       {/* Dynamic Form */}
       <div className="bg-white rounded-lg shadow-sm p-8 relative">
         <DynamicFormBuilder
-          config={formConfig}
+          editingData={editingCompany}
+          config={CompanyFormProps}
           onSubmit={handleFormSubmit}
           onCancel={onCancel}
         />
@@ -209,7 +103,7 @@ export function CompanyForm({
             <div className="flex items-center gap-3 bg-white px-6 py-4 rounded-lg shadow-lg border border-slate">
               <div className="w-5 h-5 border-2 border-cerulean border-t-transparent rounded-full animate-spin" />
               <span className="text-charcoal font-medium">
-                {isEditMode ? "Updating company..." : "Creating company..."}
+                {editingCompany ? "Updating company..." : "Creating company..."}
               </span>
             </div>
           </div>

@@ -5,14 +5,14 @@ export const CompanyFormProps = [
       {
         nature: "half",
         type: "text",
-        label: "Business Name",
+        label: "business_name",
         placeholder: "Enter business name",
         required: true,
       },
       {
         nature: "half",
         type: "dropdown",
-        label: "Company Type",
+        label: "company_type",
         placeholder: "Select company type",
         required: true,
         option: ["Customer", "Prospect", "Vendor", "Subcontractor"],
@@ -23,7 +23,7 @@ export const CompanyFormProps = [
     sectionName: "Billing Contact",
     fields: [
       {
-        label: "Primary Contact",
+        label: "primary_contact",
         nature: "full",
         type: "list-with-add",
         placeholder: "Select a contact",
@@ -90,7 +90,7 @@ export const CompanyFormProps = [
       {
         nature: "full",
         type: "textarea",
-        label: "Billing Address",
+        label: "billing_address",
         placeholder: "Enter billing address",
         rows: 4,
       },
@@ -99,7 +99,7 @@ export const CompanyFormProps = [
   {
     nature: "full",
     type: "list-with-add",
-    label: "Service Sites",
+    label: "service_sites",
     placeholder: "No service sites added yet",
     buttonName: "Add Site",
     linkTable: "sites",
@@ -108,13 +108,13 @@ export const CompanyFormProps = [
       modalHeading: "Add Service Site",
       modalFields: [
         {
-          label: "Site Name",
+          label: "site_name",
           nature: "full",
           type: "text",
           placeholder: "Enter site name",
         },
         {
-          label: "Primary Contact",
+          label: "primary_contact",
           nature: "full",
           type: "dropdown",
           placeholder: "Select a contact",
@@ -177,7 +177,7 @@ export const CompanyFormProps = [
           },
         },
         {
-          label: "Service Address",
+          label: "service_address",
           nature: "full",
           type: "text",
           placeholder: "Enter service address",
@@ -193,7 +193,7 @@ export const CompanyFormProps = [
   {
     nature: "full",
     type: "dropdown",
-    label: "Owner",
+    label: "owner",
     placeholder: "Select owner (defaults to you)",
     option: [
       "Me (Default)",
@@ -208,7 +208,7 @@ export const CompanyFormProps = [
   {
     nature: "full",
     type: "textarea",
-    label: "Notes",
+    label: "notes",
     placeholder: "Add any additional notes about this company...",
     rows: 4,
   },
@@ -216,4 +216,8 @@ export const CompanyFormProps = [
     sectionName: "button",
     button: ["Cancel", "Create Parent Company"],
   },
+];
+
+export const LinkTable = [
+  'contacts', 'users'
 ];

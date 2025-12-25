@@ -124,10 +124,8 @@ export async function createContact(
   }
 }
 
-/**
- * Fetch all contacts with related data
- */
-export async function fetchContacts(): Promise<ApiResponse<Contact[]>> {
+// fetch Contacts data
+export async function fetchContacts(): Promise<any> {
   try {
     const { data, error } = await supabase
       .from("contacts")

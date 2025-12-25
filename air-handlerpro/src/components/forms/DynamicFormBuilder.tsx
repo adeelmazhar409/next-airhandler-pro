@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { ChevronDown, Calendar, Plus, Search, X, Clock } from "lucide-react";
+import {
+  ChevronDown,
+  Calendar,
+  Plus,
+  Search,
+  X,
+  Clock,
+  CloudCog,
+} from "lucide-react";
 import { z } from "zod";
 import DynamicModal from "./DynamicModal";
 import {
@@ -16,6 +24,7 @@ import {
 } from "../utility/HelperFunctions";
 
 const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
+  editingData,
   config,
   onSubmit,
   onCancel,
@@ -65,6 +74,16 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             // Create schema based on field type with custom error messages
             switch (field.type) {
               case "text":
+                fieldSchema = z
+                  .string()
+                  .min(1, `${field.label} is required`)
+                  .refine(
+                    (val) => val === "" || /^[a-zA-Z ]+$/.test(val),
+                    "Please enter only text"
+                  );
+                break;
+
+              case "textarea":
                 fieldSchema = z
                   .string()
                   .min(1, `${field.label} is required`)
@@ -148,8 +167,19 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                 fieldSchema = z.string().min(1, `${field.label} is required`);
                 break;
 
-              case "textarea":
-                fieldSchema = z.string().min(1, `${field.label} is required`);
+              case "toggle":
+                fieldSchema = z
+                  .boolean()
+                  .refine(
+                    (val) => val === true || val === false,
+                    "Please select a value"
+                  );
+                break;
+
+              case "checkbox-group":
+                fieldSchema = z
+                  .array(z.string())
+                  .min(1, `${field.label} is required`);
                 break;
 
               default:
@@ -171,6 +201,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
       ...prev,
       [label]: value,
     }));
+    console.log("Form data:", formData);
     // Clear validation error when user starts typing
     if (validationErrors[label]) {
       setValidationErrors((prev) => {
@@ -238,6 +269,13 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     });
   };
 
+
+  useEffect(() => {
+    if (editingData) {
+      setFormData(editingData);
+    }
+  }, [editingData]);
+
   useEffect(() => {
     return () => {
       Object.values(selectedFiles).forEach((files) => {
@@ -250,6 +288,8 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     };
   }, [selectedFiles]);
 
+  console.log("config:", config);
+  console.log("Editing data:", editingData);
   const handleSubmit = () => {
     try {
       // Create and validate schema

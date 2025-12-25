@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Actbox from "../../UI-components/Actbox";
 import { BuildingIcon } from "../../../icons/icons";
 import { SiteIcon } from "../../../icons/icons";
@@ -9,24 +9,66 @@ import ServiceSitesGrid from "../../UI-components/serviceSideDataFormed";
 import CustomerAccountsGrid from "../../UI-components/companySideDataFormed";
 import { CompanyForm } from "./forms/CompanyForm";
 import { SiteForm } from "./forms/SiteForm";
-import { type Company } from "@/service/api/companies";
+import { deleteCompany, fetchCompanies, type Company } from "@/service/api/companies";
+import { LinkTable } from "@/components/forms/forms-instructions/CompanyProp";
+import { supabase } from "@/lib/supabase";
 
 export default function CompaniesContent() {
   const [view, setView] = useState<"Companies" | "sites">("Companies");
   const [companyFormToggle, setCompanyFormToggle] = useState(false);
   const [siteFormToggle, setSiteFormToggle] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const linkTableData: Record<string, any> = {};
+
+  const handleFetchCompanies = async () => {
+    try {
+      setLoading(true);
+      const response = await fetchCompanies();
+
+      if (!response.success) {
+        setError(response.error || "Failed to load companies");
+        return;
+      }
+
+      setCompanies(response.data || []);
+
+    } catch (err) {
+      console.error("Error loading companies:", err);
+      setError("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteCompany = async (
+    companyId: string,
+    companyName: string
+  ) => {
+    try {
+      await deleteCompany(companyId);
+      setRefreshKey((prev) => prev + 1);
+    } catch (err) {
+      console.error("Error deleting company:", err);
+    }
+  };
 
   const handleCreateCompany = () => {
     setEditingCompany(null);
     setCompanyFormToggle(true);
   };
-
+  
   const handleEditCompany = (company: Company) => {
     setEditingCompany(company);
     setCompanyFormToggle(true);
   };
+
+  useEffect(() => {
+    handleFetchCompanies();
+  }, []);
 
   const handleCreateSite = () => {
     setSiteFormToggle(true);
@@ -46,6 +88,36 @@ export default function CompaniesContent() {
     // Trigger refresh by incrementing the key
     setRefreshKey((prev) => prev + 1);
   };
+
+  const handleLinkTable = async () => {
+    LinkTable.forEach(async (table) => {
+      if(table === 'users'){
+        const { data, error } = await supabase.auth.from('users').select('*');
+        if (error) {
+          console.error("Supabase fetch error:", error);
+          throw new Error(error.message || "Failed to fetch users");
+        }
+        linkTableData[table] = data.users || [];
+      }
+      else{
+        const { data, error } = await supabase
+        .from(table)
+        .select("*");
+        if (error) {
+          console.error("Supabase fetch error:", error);
+          throw new Error(error.message || "Failed to fetch " + table);
+        }
+        linkTableData[table] = data || [];
+      }
+    });  
+    return linkTableData;
+  };
+
+  useEffect(() => {
+    handleLinkTable();
+  }, [refreshKey]);
+
+  console.log("linkTableData:", linkTableData);
 
   if (companyFormToggle) {
     return (
@@ -141,6 +213,10 @@ export default function CompaniesContent() {
         (companydata ? (
           <CustomerAccountsGrid
             key={refreshKey}
+            loading={loading}
+            error={error}
+            companies={companies}
+            handleDeleteCompany={handleDeleteCompany}
             onEditCompany={handleEditCompany}
           />
         ) : (
