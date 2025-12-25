@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from "react";
 import Actbox from "../../UI-components/Actbox";
@@ -9,9 +9,14 @@ import ServiceSitesGrid from "../../UI-components/serviceSideDataFormed";
 import CustomerAccountsGrid from "../../UI-components/companySideDataFormed";
 import { CompanyForm } from "./forms/CompanyForm";
 import { SiteForm } from "./forms/SiteForm";
-import { deleteCompany, fetchCompanies, type Company } from "@/service/api/companies";
+import {
+  deleteCompany,
+  fetchCompanies,
+  type Company,
+} from "@/service/api/companies";
 import { LinkTable } from "@/components/forms/forms-instructions/CompanyProp";
 import { supabase } from "@/lib/supabase";
+import { any } from "zod";
 
 export default function CompaniesContent() {
   const [view, setView] = useState<"Companies" | "sites">("Companies");
@@ -22,7 +27,7 @@ export default function CompaniesContent() {
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [companies, setCompanies] = useState<Company[]>([]);
-  const linkTableData: Record<string, any> = {};
+  const [linkTableData, setlinkTableData] = useState<{}>([]);
 
   const handleFetchCompanies = async () => {
     try {
@@ -35,7 +40,6 @@ export default function CompaniesContent() {
       }
 
       setCompanies(response.data || []);
-
     } catch (err) {
       console.error("Error loading companies:", err);
       setError("An unexpected error occurred");
@@ -60,7 +64,7 @@ export default function CompaniesContent() {
     setEditingCompany(null);
     setCompanyFormToggle(true);
   };
-  
+
   const handleEditCompany = (company: Company) => {
     setEditingCompany(company);
     setCompanyFormToggle(true);
@@ -90,40 +94,40 @@ export default function CompaniesContent() {
   };
 
   const handleLinkTable = async () => {
-    LinkTable.forEach(async (table) => {
-      if(table === 'users'){
-const { data, error } = await supabase.from("users").select("*");
+    try {
+      // Use map to create an array of promises
+      const promises = LinkTable.map(async (table) => {
+        const { data, error } = await supabase.from(table).select("*");
         if (error) {
-          console.error("Supabase fetch error:", error);
-          throw new Error(error.message || "Failed to fetch users");
+          console.error(`Error fetching ${table}:`, error);
+          throw new Error(error.message || `Failed to fetch ${table}`);
         }
-        linkTableData[table] = data || [];
-      }
-      else{
-        const { data, error } = await supabase
-        .from(table)
-        .select("*");
-        if (error) {
-          console.error("Supabase fetch error:", error);
-          throw new Error(error.message || "Failed to fetch " + table);
-        }
-        linkTableData[table] = data || [];
-      }
-    });  
-    return linkTableData;
+        return { [table]: data };
+      });
+
+      // Wait for all promises to resolve
+      const results = await Promise.all(promises);
+
+      console.log("All tables fetched:", results);
+      setlinkTableData(results);
+
+      return results;
+    } catch (error) {
+      console.error("Error in handleLinkTable:", error);
+      // Handle error appropriately (show toast, etc.)
+    }
   };
 
   useEffect(() => {
     handleLinkTable();
   }, [refreshKey]);
 
-  console.log("linkTableData:", linkTableData);
-
   if (companyFormToggle) {
     return (
       <CompanyForm
         onCancel={handleCancel}
         onSubmit={handleSubmit}
+        linkTableData={Array.isArray(linkTableData) ? linkTableData : []}
         editingCompany={editingCompany}
       />
     );

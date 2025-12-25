@@ -12,12 +12,14 @@ import {
 interface CompanyFormComponentProps {
   onCancel: () => void;
   onSubmit: (formData: any) => void;
+  linkTableData: any[];
   editingCompany?: Company | null;
 }
 
 export function CompanyForm({
   onCancel,
   onSubmit,
+  linkTableData,
   editingCompany,
 }: CompanyFormComponentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -91,6 +93,7 @@ export function CompanyForm({
       {/* Dynamic Form */}
       <div className="bg-white rounded-lg shadow-sm p-8 relative">
         <DynamicFormBuilder
+          linkTableData={linkTableData}
           editingData={editingCompany}
           config={CompanyFormProps}
           onSubmit={handleFormSubmit}

@@ -24,6 +24,7 @@ import {
 } from "../utility/HelperFunctions";
 
 const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
+  linkTableData,
   editingData,
   config,
   onSubmit,
@@ -40,7 +41,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File[]>>(
     {}
   );
-
+  setFormData(editingData);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     config: ModalConfig | null;
@@ -269,13 +270,6 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     });
   };
 
-
-  useEffect(() => {
-    if (editingData) {
-      setFormData(editingData);
-    }
-  }, [editingData]);
-
   useEffect(() => {
     return () => {
       Object.values(selectedFiles).forEach((files) => {
@@ -290,6 +284,9 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
 
   console.log("config:", config);
   console.log("Editing data:", editingData);
+  console.log("LinkTable data:", linkTableData);
+  console.log("formdata", formData);
+
   const handleSubmit = () => {
     try {
       // Create and validate schema
@@ -987,12 +984,13 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         );
 
       case "list-with-add":
-        const filtered2Options =
-          field.option?.filter((option) =>
-            option.toLowerCase().includes(searchTerm.toLowerCase())
-          ) || [];
-        const listItems = formData[field.label] || [];
-        const linkList = [];
+        const listItems =
+          linkTableData.find((t) => Object.keys(t)[0] === field.linkTable)?.[
+            field.linkTable!
+          ] || [];
+
+        console.log("list", listItems, formData, field.label);
+
         return (
           <div
             key={fieldKey}
@@ -1014,13 +1012,14 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                           formData[field.label] ? "text-charcoal" : "text-slate"
                         }
                       >
-                        {formData[field.label] || field.placeholder}
+                        {formData[field.label].first_name || field.placeholder}
                       </span>
                       <ChevronDown className="w-5 h-5 text-slate" />
                     </button>
 
                     {isDropdownOpen && (
                       <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-hidden">
+                        {/* search input */}
                         <div className="p-2 border-b border-silver">
                           <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate" />
@@ -1038,9 +1037,10 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                             />
                           </div>
                         </div>
+                        {/* list of items */}
                         <div className="overflow-y-auto max-h-48">
-                          {filtered2Options.length > 0 ? (
-                            filtered2Options.map((option, idx) => (
+                          {listItems.length > 0 ? (
+                            listItems.map((option: any, idx: any) => (
                               <button
                                 key={idx}
                                 type="button"
@@ -1049,7 +1049,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                                 }
                                 className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm cursor-pointer"
                               >
-                                {option}
+                                {option.first_name}
                               </button>
                             ))
                           ) : (
@@ -1203,11 +1203,11 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     <>
       <div className="space-y-8">
         {config.map((item, itemIndex) => {
-          if (isFieldConfig(item)) {
+          if (isFieldConfig(item) && formData) {
             return renderField(item, itemIndex, 0);
           }
 
-          if (isSectionConfig(item)) {
+          if (isSectionConfig(item) && formData) {
             if (item.sectionName === "button" && item.button) {
               return (
                 <div key={itemIndex} className="flex gap-4 justify-end">

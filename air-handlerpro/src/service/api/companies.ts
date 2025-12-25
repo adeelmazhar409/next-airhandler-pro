@@ -65,7 +65,6 @@ export async function fetchCompanies(): Promise<any> {
         )
       `
     );
-    console.log("testing---", companies);
 
     if (error) {
       throw new Error(error.message || "Failed to fetch companies");

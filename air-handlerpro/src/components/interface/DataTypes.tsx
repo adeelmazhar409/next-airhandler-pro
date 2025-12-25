@@ -106,6 +106,7 @@ interface SectionConfig {
 }
 
 interface DynamicFormBuilderProps {
+  linkTableData: any[];
   editingData: any | null;
   config: (SectionConfig | FieldConfig)[];
   onSubmit?: (formData: any) => void;

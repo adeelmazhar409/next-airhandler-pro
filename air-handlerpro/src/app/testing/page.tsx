@@ -1,19 +1,20 @@
-"use client"
+"use client";
 
 import { fetchCompanies } from "@/service/api/companies";
 import { fetchJobWalks } from "@/service/api/jobwalks";
+import { fetchUsers } from "@/service/api/user";
 import { fetchWorkOrders } from "@/service/api/workorder";
-
 
 // const response = await fetchCompanies();
 const response = await fetchJobWalks();
 const response2 = await fetchWorkOrders();
+const res = await fetchUsers();
 
 export default function First() {
-  console.log("Jobwalks fetched:", response);
-    console.log("Work Orders fetched:", response2);
+  // console.log("Jobwalks fetched:", response);
+  //   console.log("Work Orders fetched:", response2);
+  console.log("fetch users", res);
 }
-
 
 // "use client";
 
