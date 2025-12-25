@@ -54,6 +54,7 @@ export default function CustomerAccountsGrid({
 
             return (
               <CustomerAccountCard
+                key={company.id}
                 companyData={company}
                 onEdit={() => {
                   if (onEditCompany) {

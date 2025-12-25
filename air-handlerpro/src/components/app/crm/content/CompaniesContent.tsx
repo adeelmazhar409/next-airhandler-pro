@@ -92,12 +92,12 @@ export default function CompaniesContent() {
   const handleLinkTable = async () => {
     LinkTable.forEach(async (table) => {
       if(table === 'users'){
-        const { data, error } = await supabase.auth.from('users').select('*');
+const { data, error } = await supabase.from("users").select("*");
         if (error) {
           console.error("Supabase fetch error:", error);
           throw new Error(error.message || "Failed to fetch users");
         }
-        linkTableData[table] = data.users || [];
+        linkTableData[table] = data || [];
       }
       else{
         const { data, error } = await supabase

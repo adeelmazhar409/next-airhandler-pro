@@ -65,14 +65,16 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
         shadow-[2px_2px_0_0_rgba(76,92,104,1),4px_4px_0_0_rgba(70,73,76,1),6px_6px_0_0_rgba(25,133,161,1)]
         hover:shadow-[0_0_0_2px_rgba(25,133,161,1),8px_8px_0_0_rgba(76,92,104,1)]
         hover:-translate-y-1
-        ${isDeleting ? 'opacity-50 pointer-events-none' : ''}
+        ${isDeleting ? "opacity-50 pointer-events-none" : ""}
     `}
     >
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
           <Building className="w-6 h-6 text-gray-500" />
-          <h3 className="text-lg font-semibold text-gray-900">{companyData.business_name}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">
+            {companyData.business_name}
+          </h3>
         </div>
         <div className="relative" ref={dropdownRef}>
           <button
@@ -111,7 +113,8 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
         </span>
         <span className="flex items-center gap-1.5 px-4 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full border border-gray-300">
           <Users className="w-4 h-4" />
-          {companyData.sites_count} {companyData.sites_count === 1 ? "Site" : "Sites"}
+          {companyData.sites_count}{" "}
+          {companyData.sites_count === 1 ? "Site" : "Sites"}
         </span>
       </div>
 
@@ -124,20 +127,27 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
           <div className="flex items-center gap-3">
             <User className="w-4 h-4 text-gray-500" />
             <span className="text-sm font-medium text-gray-900">
-              {companyData.primary_contact.first_name} {companyData.primary_contact.last_name}
+              {companyData.primary_contact?.first_name}{" "}
+              {companyData.primary_contact?.last_name}
             </span>
           </div>
           <div className="flex items-start gap-3">
             <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
-            <span className="text-sm text-gray-700">{companyData.billing_address}</span>
+            <span className="text-sm text-gray-700">
+              {companyData.billing_address}
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <Phone className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-700">{companyData.primary_contact.phone}</span>
+            <span className="text-sm text-gray-700">
+              {companyData.primary_contact?.phone}
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <Mail className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-700">{companyData.primary_contact.email}</span>
+            <span className="text-sm text-gray-700">
+              {companyData.primary_contact?.email}
+            </span>
           </div>
         </div>
       </div>
@@ -147,7 +157,10 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
         <div className="flex items-center gap-3">
           <User className="w-4 h-4 text-gray-500" />
           <span className="text-sm text-gray-700">
-            Owner: <span className="font-medium">{companyData.owner?.email || companyData.created_by || "N/A"}</span>
+            Owner:{" "}
+            <span className="font-medium">
+              {companyData.owner?.email || companyData.created_by || "N/A"}
+            </span>
           </span>
         </div>
       </div>

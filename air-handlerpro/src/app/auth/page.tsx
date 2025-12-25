@@ -7,10 +7,9 @@ import { ForgotPasswordForm } from "@/components/auth/forgotpassword";
 import { supabase } from "@/lib/supabase";
 
 // ============================================================================
-// MAIN AUTH COMPONENT - IMPROVED ERROR HANDLING VERSION
+// SIMPLE AUTH COMPONENT - RELIES ON DATABASE TRIGGER
 // ============================================================================
 export default function Auth() {
-  // State Management
   const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,13 +20,11 @@ export default function Auth() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // // Form Handlers
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    // Client-side validation
     if (!email || !email.includes("@")) {
       setError("Your email address is incorrect or invalid");
       setLoading(false);
@@ -49,9 +46,7 @@ export default function Auth() {
       });
 
       if (error) {
-        // Parse Supabase error to provide specific feedback
         if (error.message.toLowerCase().includes("invalid login credentials")) {
-          // This error means either email or password (or both) are wrong
           setError(
             "Your email or password is incorrect. Please check both fields and try again"
           );
@@ -61,10 +56,6 @@ export default function Auth() {
           setError(
             "Please verify your email before signing in. Check your inbox for the verification link."
           );
-        } else if (error.message.toLowerCase().includes("email")) {
-          setError("Your email address is incorrect or not registered");
-        } else if (error.message.toLowerCase().includes("password")) {
-          setError("Your password is incorrect");
         } else {
           setError(error.message);
         }
@@ -73,18 +64,13 @@ export default function Auth() {
       }
 
       if (data.user) {
-        console.log("Sign in successful:", data.user);
-
-        // FIX: Check if email is verified before allowing access
         if (!data.user.email_confirmed_at) {
           setError(
             "Please verify your email before signing in. Check your inbox for the verification link."
           );
-          await supabase.auth.signOut(); // Sign them out
+          await supabase.auth.signOut();
           return;
         }
-
-        // Only redirect if email is verified
         window.location.assign("/system");
       }
     } catch (err) {
@@ -101,7 +87,6 @@ export default function Auth() {
     setError("");
     setSuccessMessage("");
 
-    // Enhanced client-side validation for sign-up
     if (!email || !email.includes("@") || !email.includes(".")) {
       setError("Your email address is invalid. Please enter a valid email");
       setLoading(false);
@@ -122,7 +107,6 @@ export default function Auth() {
       return;
     }
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError(
         "Your passwords do not match. Please make sure both password fields are identical"
@@ -132,13 +116,13 @@ export default function Auth() {
     }
 
     try {
+      // Just create the auth user - the database trigger handles the rest!
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
       if (error) {
-        // Parse Supabase error to provide specific feedback
         if (error.message.toLowerCase().includes("email")) {
           setError("Your email address is invalid or already registered");
         } else if (error.message.toLowerCase().includes("password")) {
@@ -153,19 +137,18 @@ export default function Auth() {
       }
 
       if (data.user) {
-        console.log("Sign up successful:", data.user);
+        console.log(
+          "Sign up successful - database trigger will create profile"
+        );
 
-        // FIX: Don't redirect, show success message instead
         setSuccessMessage(
           "Account created successfully! Please check your email to verify your account before signing in."
         );
 
-        // Clear the form
         setEmail("");
         setPassword("");
         setConfirmPassword("");
 
-        // Switch to sign in tab after 5 seconds
         setTimeout(() => {
           setActiveTab("signin");
           setSuccessMessage("");
@@ -184,7 +167,6 @@ export default function Auth() {
     setLoading(true);
     setError("");
 
-    // Validate email before sending reset
     if (!resetEmail || !resetEmail.includes("@")) {
       setError("Your email address is invalid. Please enter a valid email");
       setLoading(false);
@@ -209,10 +191,8 @@ export default function Auth() {
       }
 
       setSuccessMessage("Password reset link sent! Check your email inbox");
-      setError(""); // Clear any previous errors
-      console.log("Reset password email sent to:", resetEmail);
+      setError("");
 
-      // Clear form and go back after 3 seconds
       setTimeout(() => {
         setResetEmail("");
         setShowForgotPassword(false);
@@ -226,7 +206,6 @@ export default function Auth() {
     }
   };
 
-  // Show Forgot Password Screen
   if (showForgotPassword) {
     return (
       <ForgotPasswordForm
@@ -242,11 +221,9 @@ export default function Auth() {
     );
   }
 
-  // Main Auth Screen
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
-        {/* Header */}
         <div className="text-center">
           <h1 className="text-3xl font-bold text-charcoal">
             Customer Database
@@ -256,23 +233,19 @@ export default function Auth() {
           </p>
         </div>
 
-        {/* Success Message */}
         {successMessage && (
           <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded">
             <p className="text-sm">{successMessage}</p>
           </div>
         )}
 
-        {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
             <p className="text-sm">{error}</p>
           </div>
         )}
 
-        {/* Card with Tabs and Forms */}
         <div className="bg-white border border-silver shadow-[0_0_0_1px_rgba(197,195,198,0.3),4px_4px_0_0_rgba(25,133,161,1)]">
-          {/* Tab Switcher */}
           <div className="p-6 pb-0">
             <div className="inline-flex h-10 items-center justify-center bg-platinum p-1 text-slate w-full">
               <button
@@ -308,7 +281,6 @@ export default function Auth() {
             </div>
           </div>
 
-          {/* Render Active Form */}
           {activeTab === "signin" && (
             <SignInForm
               email={email}
@@ -341,7 +313,6 @@ export default function Auth() {
           )}
         </div>
 
-        {/* Footer */}
         <div className="text-center text-sm text-slate">
           <p>
             By signing up, you agree to our terms of service and privacy policy.
