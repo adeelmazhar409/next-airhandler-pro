@@ -23,6 +23,8 @@ export function CompanyForm({
   editingCompany,
 }: CompanyFormComponentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  
   const [error, setError] = useState<string | null>(null);
 
   const handleFormSubmit = async (formData: any) => {
