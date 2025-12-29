@@ -227,7 +227,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
 
   // Watch all form values for debugging
   const formValues = watch();
-  console.log("Form values:", formValues);
+  
   useEffect(() => {
     if (editingData) {
       reset(editingData);
@@ -531,7 +531,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             defaultValue=""
             render={({ field: { onChange, value } }) => {
               const displayOptions = getDisplayOptions(
-                linkTableData,
+                linkTableData || [],
                 field.linkTable
               );
               const displayValue = getDisplayValue(
@@ -625,7 +625,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             defaultValue=""
             render={({ field: { onChange, value } }) => {
               const displayOptions = getDisplayOptions(
-                linkTableData,
+                linkTableData || [],
                 field.linkTable
               );
               const displayValue = getDisplayValue(
@@ -1136,7 +1136,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             defaultValue={[]}
             render={({ field: { onChange, value } }) => {
               const displayOptions = getDisplayOptions(
-                linkTableData,
+                linkTableData || [],
                 field.linkTable
               );
               const displayValue = getDisplayValue(
