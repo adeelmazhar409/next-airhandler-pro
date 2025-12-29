@@ -1,46 +1,26 @@
-// "use client";
-
-// import { fetchCompanies } from "@/service/api/companies";
-// import { fetchJobWalks } from "@/service/api/jobwalks";
-// import { fetchUsers } from "@/service/api/user";
-// import { fetchWorkOrders } from "@/service/api/workorder";
-
-// // const response = await fetchCompanies();
-// const response = await fetchJobWalks();
-// const response2 = await fetchWorkOrders();
-// const res = await fetchUsers();
-
-// export default function First() {
-//   // console.log("Jobwalks fetched:", response);
-//   //   console.log("Work Orders fetched:", response2);
-//   console.log("fetch users", res);
-// }
-
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
-  createWorkOrder,
-  fetchWorkOrders,
-} from "@/service/api/workorder"
-import {
-  createJobWalk,
-  fetchJobWalks,
-} from "@/service/api/jobwalks";
-import { supabase } from "@/lib/supabase";
+  handleFormOperation,
+  baseCreate,
+  baseFetch,
+  baseFetchById,
+  baseUpdate,
+  baseDelete,
+} from "@/service/base";
+import { WorkOrderFormData } from "@/service/api/workorder";
+import { JobWalkFormData } from "@/service/api/jobwalks";
 
-export default function TestPage() {
-  const [activeTab, setActiveTab] = useState<"workorders" | "jobwalks">(
-    "workorders"
+export default function TestingPage() {
+  const [activeTab, setActiveTab] = useState<"workorder" | "jobwalk">(
+    "workorder"
   );
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [sites, setSites] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
 
   // Work Order Form State
-  const [woForm, setWoForm] = useState({
+  const [woForm, setWoForm] = useState<WorkOrderFormData>({
     customerCompanyId: "",
     customerSiteId: "",
     workOrderNumber: "",
@@ -51,7 +31,7 @@ export default function TestPage() {
   });
 
   // Job Walk Form State
-  const [jwForm, setJwForm] = useState({
+  const [jwForm, setJwForm] = useState<JobWalkFormData>({
     customerCompanyId: "",
     customerSiteId: "",
     jobName: "",
@@ -63,42 +43,14 @@ export default function TestPage() {
     photosCount: 0,
   });
 
-  // Load dropdown data
-  useEffect(() => {
-    loadDropdownData();
-  }, []);
-
-  const loadDropdownData = async () => {
-    // Load companies
-    const { data: companiesData } = await supabase
-      .from("companies")
-      .select("id, business_name")
-      .order("business_name");
-    setCompanies(companiesData || []);
-
-    // Load sites
-    const { data: sitesData } = await supabase
-      .from("sites")
-      .select("id, site_name, service_address")
-      .order("site_name");
-    setSites(sitesData || []);
-
-    // Load users
-    const { data: usersData } = await supabase
-      .from("users")
-      .select("id, email, full_name")
-      .order("email");
-    setUsers(usersData || []);
-  };
-
   // ============================================================================
-  // WORK ORDER FUNCTIONS
+  // WORK ORDER OPERATIONS - Using Base Handler
   // ============================================================================
 
   const handleCreateWorkOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const result = await createWorkOrder(woForm);
+    const result = await baseCreate("workorder", woForm);
     setResults(result);
     setLoading(false);
     if (result.success) {
@@ -116,19 +68,19 @@ export default function TestPage() {
 
   const handleFetchWorkOrders = async () => {
     setLoading(true);
-    const result = await fetchWorkOrders();
+    const result = await baseFetch("workorder");
     setResults(result);
     setLoading(false);
   };
 
   // ============================================================================
-  // JOB WALK FUNCTIONS
+  // JOB WALK OPERATIONS - Using Base Handler
   // ============================================================================
 
   const handleCreateJobWalk = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const result = await createJobWalk(jwForm);
+    const result = await baseCreate("jobwalk", jwForm);
     setResults(result);
     setLoading(false);
     if (result.success) {
@@ -148,7 +100,7 @@ export default function TestPage() {
 
   const handleFetchJobWalks = async () => {
     setLoading(true);
-    const result = await fetchJobWalks();
+    const result = await baseFetch("jobwalk");
     setResults(result);
     setLoading(false);
   };
@@ -156,16 +108,18 @@ export default function TestPage() {
   return (
     <div className="p-8 max-w-6xl mx-auto text-black">
       <h1 className="text-3xl font-bold text-charcoal mb-2">
-        Endpoint Test Page
+        Base API Test Page
       </h1>
-      <p className="text-slate mb-6">Test Work Orders & Job Walks APIs</p>
+      <p className="text-slate mb-6">
+        Testing centralized base handler for Work Orders & Job Walks
+      </p>
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6 border-b border-silver">
         <button
-          onClick={() => setActiveTab("workorders")}
+          onClick={() => setActiveTab("workorder")}
           className={`px-4 py-2 font-medium transition-colors ${
-            activeTab === "workorders"
+            activeTab === "workorder"
               ? "text-cerulean border-b-2 border-cerulean"
               : "text-slate hover:text-charcoal"
           }`}
@@ -173,9 +127,9 @@ export default function TestPage() {
           Work Orders
         </button>
         <button
-          onClick={() => setActiveTab("jobwalks")}
+          onClick={() => setActiveTab("jobwalk")}
           className={`px-4 py-2 font-medium transition-colors ${
-            activeTab === "jobwalks"
+            activeTab === "jobwalk"
               ? "text-cerulean border-b-2 border-cerulean"
               : "text-slate hover:text-charcoal"
           }`}
@@ -185,7 +139,7 @@ export default function TestPage() {
       </div>
 
       {/* Work Orders Tab */}
-      {activeTab === "workorders" && (
+      {activeTab === "workorder" && (
         <div className="grid grid-cols-2 gap-6">
           {/* Create Form */}
           <div className="border border-silver rounded-lg p-6">
@@ -193,43 +147,33 @@ export default function TestPage() {
             <form onSubmit={handleCreateWorkOrder} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Customer Company *
+                  Customer Company ID *
                 </label>
-                <select
+                <input
                   required
+                  type="text"
                   value={woForm.customerCompanyId}
                   onChange={(e) =>
                     setWoForm({ ...woForm, customerCompanyId: e.target.value })
                   }
                   className="w-full border border-silver rounded px-3 py-2"
-                >
-                  <option value="">Select Company</option>
-                  {companies.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.business_name}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="Enter company UUID"
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Service Site (Optional)
+                  Service Site ID (Optional)
                 </label>
-                <select
-                  value={woForm.customerSiteId}
+                <input
+                  type="text"
+                  value={woForm.customerSiteId || ""}
                   onChange={(e) =>
                     setWoForm({ ...woForm, customerSiteId: e.target.value })
                   }
                   className="w-full border border-silver rounded px-3 py-2"
-                >
-                  <option value="">None</option>
-                  {sites.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.site_name} - {s.service_address}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="Enter site UUID"
+                />
               </div>
 
               <div>
@@ -238,12 +182,12 @@ export default function TestPage() {
                 </label>
                 <input
                   type="text"
-                  value={woForm.workOrderNumber}
+                  value={woForm.workOrderNumber || ""}
                   onChange={(e) =>
                     setWoForm({ ...woForm, workOrderNumber: e.target.value })
                   }
                   className="w-full border border-silver rounded px-3 py-2"
-                  placeholder="WO-2025-001"
+                  placeholder="WO-2024-001"
                 />
               </div>
 
@@ -253,7 +197,7 @@ export default function TestPage() {
                 </label>
                 <input
                   type="datetime-local"
-                  value={woForm.scheduledStart}
+                  value={woForm.scheduledStart || ""}
                   onChange={(e) =>
                     setWoForm({ ...woForm, scheduledStart: e.target.value })
                   }
@@ -267,7 +211,7 @@ export default function TestPage() {
                 </label>
                 <input
                   type="datetime-local"
-                  value={woForm.scheduledEnd}
+                  value={woForm.scheduledEnd || ""}
                   onChange={(e) =>
                     setWoForm({ ...woForm, scheduledEnd: e.target.value })
                   }
@@ -280,31 +224,13 @@ export default function TestPage() {
                   Description
                 </label>
                 <textarea
-                  value={woForm.description}
+                  value={woForm.description || ""}
                   onChange={(e) =>
                     setWoForm({ ...woForm, description: e.target.value })
                   }
                   className="w-full border border-silver rounded px-3 py-2"
                   rows={3}
                   placeholder="AC unit not cooling properly..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Equipment Information
-                </label>
-                <textarea
-                  value={woForm.equipmentInformation}
-                  onChange={(e) =>
-                    setWoForm({
-                      ...woForm,
-                      equipmentInformation: e.target.value,
-                    })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                  rows={2}
-                  placeholder="Carrier 5-ton rooftop unit..."
                 />
               </div>
 
@@ -333,7 +259,7 @@ export default function TestPage() {
       )}
 
       {/* Job Walks Tab */}
-      {activeTab === "jobwalks" && (
+      {activeTab === "jobwalk" && (
         <div className="grid grid-cols-2 gap-6">
           {/* Create Form */}
           <div className="border border-silver rounded-lg p-6">
@@ -341,57 +267,17 @@ export default function TestPage() {
             <form onSubmit={handleCreateJobWalk} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Link to Customer (Optional)
-                </label>
-                <select
-                  value={jwForm.customerCompanyId}
-                  onChange={(e) =>
-                    setJwForm({ ...jwForm, customerCompanyId: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                >
-                  <option value="">None</option>
-                  {companies.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.business_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Service Site (Optional)
-                </label>
-                <select
-                  value={jwForm.customerSiteId}
-                  onChange={(e) =>
-                    setJwForm({ ...jwForm, customerSiteId: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                >
-                  <option value="">None</option>
-                  {sites.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.site_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Job Name / Site Address *
+                  Job Name *
                 </label>
                 <input
-                  type="text"
                   required
+                  type="text"
                   value={jwForm.jobName}
                   onChange={(e) =>
                     setJwForm({ ...jwForm, jobName: e.target.value })
                   }
                   className="w-full border border-silver rounded px-3 py-2"
-                  placeholder="HVAC Assessment - 123 Main St"
+                  placeholder="HVAC Installation Site Walk"
                 />
               </div>
 
@@ -400,8 +286,8 @@ export default function TestPage() {
                   Date of Walk *
                 </label>
                 <input
-                  type="date"
                   required
+                  type="date"
                   value={jwForm.dateOfWalk}
                   onChange={(e) =>
                     setJwForm({ ...jwForm, dateOfWalk: e.target.value })
@@ -414,77 +300,39 @@ export default function TestPage() {
                 <label className="block text-sm font-medium mb-1">
                   Task Type
                 </label>
-                <select
-                  value={jwForm.taskType}
+                <input
+                  type="text"
+                  value={jwForm.taskType || ""}
                   onChange={(e) =>
                     setJwForm({ ...jwForm, taskType: e.target.value })
                   }
                   className="w-full border border-silver rounded px-3 py-2"
-                >
-                  <option value="">Select Type</option>
-                  <option value="Assessment">Assessment</option>
-                  <option value="Repair">Repair</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Installation">Installation</option>
-                  <option value="Other">Other</option>
-                </select>
+                  placeholder="Installation"
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Job Notes / Observations
+                  Job Notes
                 </label>
                 <textarea
-                  value={jwForm.jobNotes}
+                  value={jwForm.jobNotes || ""}
                   onChange={(e) =>
                     setJwForm({ ...jwForm, jobNotes: e.target.value })
                   }
                   className="w-full border border-silver rounded px-3 py-2"
                   rows={3}
-                  placeholder="Detailed notes from site visit..."
+                  placeholder="Detailed notes about the job walk..."
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Next Step / Action Needed
+                  Photos Count
                 </label>
-                <input
-                  type="text"
-                  value={jwForm.nextStep}
-                  onChange={(e) =>
-                    setJwForm({ ...jwForm, nextStep: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                  placeholder="Schedule follow-up meeting..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Assign To
-                </label>
-                <select
-                  value={jwForm.assignedTo}
-                  onChange={(e) =>
-                    setJwForm({ ...jwForm, assignedTo: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                >
-                  <option value="">Unassigned</option>
-                  {users.map((u) => (
-                    <option key={u.id} value={u.id}>
-                      { u.email || u.full_name }
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Photos</label>
                 <input
                   type="number"
-                  value={jwForm.photosCount}
+                  value={jwForm.photosCount || 0}
                   onChange={(e) =>
                     setJwForm({
                       ...jwForm,
@@ -551,12 +399,17 @@ export default function TestPage() {
       )}
 
       {/* Info Box */}
-      <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
-        <p className="text-sm text-charcoal">
-          <strong>Instructions:</strong> First run the SQL migration, then make
-          sure you have companies, sites, and users in your database. Test
-          creating and fetching both work orders and job walks.
+      <div className="mt-6 p-4 bg-cerulean/10 border border-cerulean/20 rounded">
+        <p className="text-sm text-charcoal mb-2">
+          <strong>🧠 Base Handler Test</strong>
         </p>
+        <p className="text-sm text-charcoal">
+          This page uses the centralized base.ts handler. All operations flow
+          through:
+        </p>
+        <code className="bg-white px-3 py-2 rounded text-xs mt-2 inline-block border border-silver">
+          Component → base.ts → workorder.ts/jobwalks.ts → Supabase
+        </code>
       </div>
     </div>
   );
