@@ -24,6 +24,7 @@ import {
   generateMinuteOptions,
   getFieldWidth,
 } from "../utility/HelperFunctions";
+import { inspect } from "util";
 
 const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
   linkTableData,
@@ -32,6 +33,16 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
   onSubmit,
   onCancel,
 }) => {
+const [formData, setFormData] = useState<Record<string, any>>(
+  editingData || {}
+  );
+  
+ // Previous form data variables
+ 
+  // const [formData, setFormData] = useState<Record<string, any>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
   const [dropdownStates, setDropdownStates] = useState<Record<string, boolean>>(
     {}
   );
@@ -49,6 +60,10 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     parentFieldLabel: null,
   });
 
+  
+  
+  // console.log("This is the editing data", editingData);
+  // setFormData(editingData);
   // Create dynamic Zod schema based on field configuration
   const createValidationSchema = () => {
     const schemaFields: Record<string, z.ZodTypeAny> = {};
