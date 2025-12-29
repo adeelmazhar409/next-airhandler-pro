@@ -9,29 +9,7 @@ export interface CompanyFormData {
   serviceSites?: string[]; // Array of site IDs
 }
 
-export interface Company {
-  id: string;
-  business_name: string;
-  company_type: string;
-  primary_contact_id: string;
-  billing_address: string;
-  owner_id: string;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-  // Joined data
-  primary_contact?: {
-    id: string;
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-    phone?: string;
-  };
-  owner?: {
-    id: string;
-    email?: string;
-  };
-}
+
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -47,8 +25,12 @@ export async function fetchCompanies(): Promise<any> {
       `
         id,
         business_name,
-        company_type,
+        company_types!companies_company_type_id_fkey(
+          id,
+          type
+        ),
         billing_address,
+        notes,
         primary_contact:contacts!companies_primary_contact_id_fkey(
           id,
           first_name,
@@ -62,10 +44,15 @@ export async function fetchCompanies(): Promise<any> {
           id,
           site_name,
           service_address
+        ),
+        owner:users!companies_owner_id_fkey1(
+        id,
+        full_name,
+        email
         )
       `
     );
-
+    console.log(companies)
     if (error) {
       throw new Error(error.message || "Failed to fetch companies");
     }
@@ -87,7 +74,7 @@ export async function fetchCompanies(): Promise<any> {
 // Create Company
 export async function createCompany(
   formData: CompanyFormData
-): Promise<ApiResponse<Company>> {
+): Promise<ApiResponse<any>> {
   try {
     // Get the current authenticated user
     const {
@@ -122,7 +109,7 @@ export async function createCompany(
 
     return {
       success: true,
-      data: data as Company,
+      data: data as any,
       message: "Company created successfully",
     };
   } catch (error) {
@@ -137,7 +124,7 @@ export async function createCompany(
 // fetch Company by ID
 export async function fetchCompanyById(
   companyId: string
-): Promise<ApiResponse<Company>> {
+): Promise<ApiResponse<any>> {
   try {
     const { data, error } = await supabase
       .from("companies")
@@ -166,7 +153,7 @@ export async function fetchCompanyById(
 
     return {
       success: true,
-      data: data as Company,
+      data: data as any,
       message: "Company fetched successfully",
     };
   } catch (error) {
@@ -182,7 +169,7 @@ export async function fetchCompanyById(
 export async function updateCompany(
   companyId: string,
   formData: Partial<CompanyFormData>
-): Promise<ApiResponse<Company>> {
+): Promise<ApiResponse<any>> {
   try {
     const updateData: any = {};
 
@@ -210,7 +197,7 @@ export async function updateCompany(
 
     return {
       success: true,
-      data: data as Company,
+      data: data as any,
       message: "Company updated successfully",
     };
   } catch (error) {

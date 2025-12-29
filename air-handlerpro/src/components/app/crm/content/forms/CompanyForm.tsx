@@ -3,17 +3,13 @@
 import { useState } from "react";
 import DynamicFormBuilder from "@/components/forms/DynamicFormBuilder";
 import { CompanyFormProps } from "@/components/forms/forms-instructions/CompanyProp";
-import {
-  createCompany,
-  updateCompany,
-  type Company,
-} from "@/service/api/companies";
+
 
 interface CompanyFormComponentProps {
   onCancel: () => void;
   onSubmit: (formData: any) => void;
   linkTableData: any[];
-  editingCompany?: Company | null;
+  editingCompany?: any;
 }
 
 export function CompanyForm({
@@ -24,6 +20,7 @@ export function CompanyForm({
 }: CompanyFormComponentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
 
   const handleFormSubmit = async (formData: any) => {
     setIsSubmitting(true);

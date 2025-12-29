@@ -11,6 +11,7 @@ import JobWalksPage from "@/components/app/job-walks/JobWalksPage";
 import Administration from "@/components/admin/admin-administration/admistration";
 import SystemAdministration from "@/components/admin/company-administration/system-admistration";
 import AdminStaff from "@/components/admin/admin-staff/adminStaff";
+import Header from "@/components/app/UI-components/Header";
 
 export default function MainApplication() {
   const [activePage, setActivePage] = useState("CRM");
@@ -41,6 +42,7 @@ export default function MainApplication() {
     <div className="flex h-screen bg-white">
       <Sidebar activePage={activePage} onPageChange={handlePageChange} />
       <main className="flex-1 overflow-y-auto">
+        <Header value={activePage} />
         <div>{renderPage(activePage)}</div>
       </main>
     </div>

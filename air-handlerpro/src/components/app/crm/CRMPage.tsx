@@ -67,49 +67,18 @@ export default function CRMDashboard() {
     },
   ];
 
-  // const inputFields: InputField[] = [
-  //   {
-  //     type: "search",
-  //     placeholder: "Enter name to search...",
-  //     disable: false,
-  //     show: true,
-  //     onChange: (value) => console.log("Search:", value),
-  //   },
-  //   {
-  //     type: "dropdownButton",
-  //     name: "All Types",
-  //     options: ["Type 1", "Type 2", "Type 3", "Type 4"],
-  //     disable: false,
-  //     show: true,
-  //     onChange: (value) => setSelectedType(value),
-  //   },
-  //   {
-  //     type: "filterButton",
-  //     name: "Filter",
-  //     disable: false,
-  //     show: true,
-  //     onClick: () => console.log("Filter clicked"),
-  //   },
-  //   {
-  //     type: "sortButton",
-  //     name: "Sort",
-  //     disable: false,
-  //     show: true,
-  //     onClick: () => console.log("Sort clicked"),
-  //   },
-  // ];
-
   const renderContent = () => {
     switch (activeTab) {
       case "Dashboard":
         return <DashboardContent />;
-      case "pipeline":
-        return <PipelineContent onDealClick={handleShowDealDetail} />;
-      case "activities":
-        return <ActivitiesContent />;
-      case "contacts":
-        return <ContactsContent />;
-      case "companies":
+        case "pipeline":
+          return <PipelineContent onDealClick={handleShowDealDetail} />;
+          case "activities":
+            return <ActivitiesContent />;
+            case "contacts":
+              return <ContactsContent />;
+              case "companies":
+        console.log("testing render-----------------")
         return <CompaniesContent />;
       default:
         return <DashboardContent />;
@@ -130,11 +99,6 @@ export default function CRMDashboard() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-      {/* <SearchAndFilters
-        fields={inputFields}
-        searchValue={searchValue}
-        onSearchChange={setSearchValue}
-      /> */}
       <div className="mt-4">{renderContent()}</div>
     </div>
   );

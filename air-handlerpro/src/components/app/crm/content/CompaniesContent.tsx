@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Actbox from "../../UI-components/Actbox";
 import { BuildingIcon } from "../../../icons/icons";
 import { SiteIcon } from "../../../icons/icons";
@@ -12,67 +12,80 @@ import { SiteForm } from "./forms/SiteForm";
 import {
   deleteCompany,
   fetchCompanies,
-  type Company,
 } from "@/service/api/companies";
 import { LinkTable } from "@/components/forms/forms-instructions/CompanyProp";
 import { supabase } from "@/lib/supabase";
-import { any } from "zod";
 
 export default function CompaniesContent() {
   const [view, setView] = useState<"Companies" | "sites">("Companies");
   const [companyFormToggle, setCompanyFormToggle] = useState(false);
   const [siteFormToggle, setSiteFormToggle] = useState(false);
-  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [editingCompany, setEditingCompany] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true); // Start as true
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [linkTableData, setlinkTableData] = useState<{}>([]);
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [linkTableData, setLinkTableData] = useState<any[]>([]);
 
-  const handleFetchCompanies = async () => {
+  // Memoized fetch functions to avoid recreating on every render
+  const fetchAllData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      const response = await fetchCompanies();
-
-      if (!response.success) {
-        setError(response.error || "Failed to load companies");
-        return;
+      // Fetch companies
+      const companiesResponse = await fetchCompanies();
+      if (!companiesResponse.success) {
+        setError(companiesResponse.error || "Failed to load companies");
+      } else {
+        setCompanies(companiesResponse.data || []);
       }
 
-      setCompanies(response.data || []);
-    } catch (err) {
-      console.error("Error loading companies:", err);
+      // Fetch link table data in parallel
+      const promises = LinkTable.map(async (table) => {
+        const { data, error } = await supabase.from(table).select("*");
+        if (error) {
+          console.error(`Error fetching ${table}:`, error);
+          return { [table]: [] }; // Return empty on error
+        }
+        return { [table]: data };
+      });
+
+      const results = await Promise.all(promises);
+      setLinkTableData(results);
+    } catch (err: any) {
+      console.error("Error loading data:", err);
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  // Trigger refresh
+  const triggerRefresh = () => {
+    setRefreshKey((prev) => prev + 1);
   };
 
-  const handleDeleteCompany = async (
-    companyId: string,
-    companyName: string
-  ) => {
+  // Delete company
+  const handleDeleteCompany = async (companyId: string) => {
     try {
       await deleteCompany(companyId);
-      setRefreshKey((prev) => prev + 1);
+      triggerRefresh();
     } catch (err) {
       console.error("Error deleting company:", err);
     }
   };
 
+  // Form handlers
   const handleCreateCompany = () => {
     setEditingCompany(null);
     setCompanyFormToggle(true);
   };
 
-  const handleEditCompany = (company: Company) => {
+  const handleEditCompany = (company: any) => {
     setEditingCompany(company);
     setCompanyFormToggle(true);
   };
-
-  useEffect(() => {
-    handleFetchCompanies();
-  }, []);
 
   const handleCreateSite = () => {
     setSiteFormToggle(true);
@@ -84,50 +97,26 @@ export default function CompaniesContent() {
     setEditingCompany(null);
   };
 
-  const handleSubmit = (formData: any) => {
-    console.log("Form submitted:", formData);
-    // Close the form and reset editing state
+  const handleSubmit = () => {
     setCompanyFormToggle(false);
+    setSiteFormToggle(false);
     setEditingCompany(null);
-    // Trigger refresh by incrementing the key
-    setRefreshKey((prev) => prev + 1);
+    triggerRefresh(); // Refresh data after submit
   };
 
-  const handleLinkTable = async () => {
-    try {
-      // Use map to create an array of promises
-      const promises = LinkTable.map(async (table) => {
-        const { data, error } = await supabase.from(table).select("*");
-        if (error) {
-          console.error(`Error fetching ${table}:`, error);
-          throw new Error(error.message || `Failed to fetch ${table}`);
-        }
-        return { [table]: data };
-      });
-
-      // Wait for all promises to resolve
-      const results = await Promise.all(promises);
-
-      console.log("All tables fetched:", results);
-      setlinkTableData(results);
-
-      return results;
-    } catch (error) {
-      console.error("Error in handleLinkTable:", error);
-      // Handle error appropriately (show toast, etc.)
-    }
-  };
-
+  // Load data on mount and refresh
   useEffect(() => {
-    handleLinkTable();
-  }, [refreshKey]);
+    fetchAllData();
+  }, [refreshKey, fetchAllData]);
 
+  // Early returns for forms
   if (companyFormToggle) {
+    console.log('test render--------------', linkTableData, editingCompany)
     return (
       <CompanyForm
         onCancel={handleCancel}
         onSubmit={handleSubmit}
-        linkTableData={Array.isArray(linkTableData) ? linkTableData : []}
+        linkTableData={linkTableData}
         editingCompany={editingCompany}
       />
     );
@@ -152,8 +141,9 @@ export default function CompaniesContent() {
     description:
       "Sites help you manage locations associated with your companies and streamline service operations.",
   };
-  const companydata = true;
-  const ServiceData = true;
+
+  const hasCompanyData = companies.length > 0;
+  const hasServiceData = true; // Adjust based on actual data if needed
 
   return (
     <div className="">
@@ -167,12 +157,7 @@ export default function CompaniesContent() {
                 : "bg-white text-charcoal hover:bg-charcoal/30"
             }`}
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -191,12 +176,7 @@ export default function CompaniesContent() {
                 : "bg-white text-charcoal hover:bg-charcoal/30"
             }`}
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -204,9 +184,10 @@ export default function CompaniesContent() {
                 d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
               />
             </svg>
-            sites
+            Sites
           </button>
         </div>
+
         <div className="flex gap-2">
           <Button onClick={handleCreateCompany} value="Add Companies" />
           <Button onClick={handleCreateSite} value="Add Sites" />
@@ -214,7 +195,7 @@ export default function CompaniesContent() {
       </div>
 
       {view === "Companies" &&
-        (companydata ? (
+        (hasCompanyData ? (
           <CustomerAccountsGrid
             key={refreshKey}
             loading={loading}
@@ -228,7 +209,7 @@ export default function CompaniesContent() {
         ))}
 
       {view === "sites" &&
-        (ServiceData ? <ServiceSitesGrid /> : <Actbox {...siteValue} />)}
+        (hasServiceData ? <ServiceSitesGrid /> : <Actbox {...siteValue} />)}
     </div>
   );
 }
