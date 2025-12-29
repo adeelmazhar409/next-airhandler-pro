@@ -473,8 +473,8 @@ export default function TestPage() {
                 >
                   <option value="">Unassigned</option>
                   {users.map((u) => (
-                    <option key={u.email} value={u.email}>
-                      { u.email}
+                    <option key={u.id} value={u.id}>
+                      { u.email || u.full_name }
                     </option>
                   ))}
                 </select>
