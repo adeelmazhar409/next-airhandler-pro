@@ -25,31 +25,16 @@ export async function fetchCompanies(): Promise<any> {
       `
         id,
         business_name,
-        company_types!companies_company_type_id_fkey(
-          id,
-          type
-        ),
+        company_type_id,
         billing_address,
         notes,
-        primary_contact:contacts!companies_primary_contact_id_fkey(
-          id,
-          first_name,
-          last_name,
-          title,
-          department,
-          email,
-          phone
-        ),
+        primary_contact_id,
         sites(
           id,
           site_name,
           service_address
         ),
-        owner:users!companies_owner_id_fkey1(
-        id,
-        full_name,
-        email
-        )
+        owner_id
       `
     );
     console.log(companies)

@@ -22,6 +22,8 @@ import {
 import {
   generateHourOptions,
   generateMinuteOptions,
+  getDisplayOptions,
+  getDisplayValue,
   getFieldWidth,
 } from "../utility/HelperFunctions";
 import { inspect } from "util";
@@ -33,12 +35,12 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
   onSubmit,
   onCancel,
 }) => {
-const [formData, setFormData] = useState<Record<string, any>>(
-  editingData || {}
+  const [formData, setFormData] = useState<Record<string, any>>(
+    editingData || {}
   );
-  
- // Previous form data variables
- 
+
+  // Previous form data variables
+
   // const [formData, setFormData] = useState<Record<string, any>>({});
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
@@ -60,11 +62,6 @@ const [formData, setFormData] = useState<Record<string, any>>(
     parentFieldLabel: null,
   });
 
-  
-  
-  // console.log("This is the editing data", editingData);
-  // setFormData(editingData);
-  // Create dynamic Zod schema based on field configuration
   const createValidationSchema = () => {
     const schemaFields: Record<string, z.ZodTypeAny> = {};
 
@@ -195,6 +192,12 @@ const [formData, setFormData] = useState<Record<string, any>>(
                   .min(1, `${field.label} is required`);
                 break;
 
+              case "list-with-add":
+                fieldSchema = z
+                  .array(z.any())
+                  .min(1, `${field.label} is required`);
+                break;
+
               default:
                 fieldSchema = z.string().min(1, `${field.label} is required`);
             }
@@ -224,14 +227,8 @@ const [formData, setFormData] = useState<Record<string, any>>(
 
   // Watch all form values for debugging
   const formValues = watch();
-
+  console.log("Form values:", formValues);
   useEffect(() => {
-    // console.log("DynamicFormBuilder mounted");
-    // console.log("Editing data:", editingData);
-    // console.log("Form values:", formValues);
-    // console.log("Link table data:", linkTableData);
-    
-    // Reset form with editing data if available
     if (editingData) {
       reset(editingData);
     }
@@ -250,7 +247,11 @@ const [formData, setFormData] = useState<Record<string, any>>(
     setSearchTerms((prev) => ({ ...prev, [fieldKey]: "" }));
   };
 
-  const handleFileChange = (label: string, files: FileList | null, onChange: any) => {
+  const handleFileChange = (
+    label: string,
+    files: FileList | null,
+    onChange: any
+  ) => {
     if (files) {
       const fileArray = Array.from(files);
       setSelectedFiles((prev) => ({
@@ -261,7 +262,12 @@ const [formData, setFormData] = useState<Record<string, any>>(
     }
   };
 
-  const removeFile = (label: string, index: number, currentFiles: File[], onChange: any) => {
+  const removeFile = (
+    label: string,
+    index: number,
+    currentFiles: File[],
+    onChange: any
+  ) => {
     const updatedFiles = currentFiles.filter((_, i) => i !== index);
     setSelectedFiles((prev) => ({
       ...prev,
@@ -301,7 +307,7 @@ const [formData, setFormData] = useState<Record<string, any>>(
   const renderLabel = (field: FieldConfig) => {
     return (
       <label className="block text-sm font-medium text-charcoal mb-2">
-        {field.label}
+        {field.Title}
         {field.required && (
           <span className="text-red-500 ml-1 text-base align-super">*</span>
         )}
@@ -313,9 +319,7 @@ const [formData, setFormData] = useState<Record<string, any>>(
     const error = errors[fieldLabel];
     if (error) {
       return (
-        <p className="text-red-500 text-sm mt-1">
-          {error.message as string}
-        </p>
+        <p className="text-red-500 text-sm mt-1">{error.message as string}</p>
       );
     }
     return null;
@@ -456,7 +460,7 @@ const [formData, setFormData] = useState<Record<string, any>>(
             defaultValue={{ date: "", hour: "", minute: "" }}
             render={({ field: { onChange, value } }) => {
               const currentValue = value || { date: "", hour: "", minute: "" };
-              
+
               return (
                 <div
                   className={getFieldWidth(field.nature)}
@@ -519,80 +523,96 @@ const [formData, setFormData] = useState<Record<string, any>>(
         );
 
       case "search-dropdown":
-        const filteredOptions =
-          field.option?.filter((option) =>
-            option.toLowerCase().includes(searchTerm.toLowerCase())
-          ) || [];
-
         return (
           <Controller
             key={fieldKey}
             name={field.label}
             control={control}
             defaultValue=""
-            render={({ field: { onChange, value } }) => (
-              <div
-                className={getFieldWidth(field.nature)}
-                data-field={field.label}
-              >
-                {renderLabel(field)}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown(fieldKey)}
-                    className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
-                  >
-                    <span className={value ? "text-charcoal" : "text-slate"}>
-                      {value || field.placeholder}
-                    </span>
-                    <ChevronDown className="w-5 h-5 text-slate" />
-                  </button>
+            render={({ field: { onChange, value } }) => {
+              const displayOptions = getDisplayOptions(
+                linkTableData,
+                field.linkTable
+              );
+              const displayValue = getDisplayValue(
+                displayOptions,
+                value,
+                field.linkTableValue as string | string[]
+              );
 
-                  {isDropdownOpen && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-hidden">
-                      <div className="p-2 border-b border-silver">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate" />
-                          <input
-                            type="text"
-                            placeholder="Search..."
-                            value={searchTerm}
-                            onChange={(e) =>
-                              setSearchTerms((prev) => ({
-                                ...prev,
-                                [fieldKey]: e.target.value,
-                              }))
-                            }
-                            className="w-full pl-9 pr-3 py-2 border border-silver rounded focus:outline-none focus:ring-2 focus:ring-cerulean text-sm"
-                          />
+              return (
+                <div
+                  className={getFieldWidth(field.nature)}
+                  data-field={field.label}
+                >
+                  {renderLabel(field)}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => toggleDropdown(fieldKey)}
+                      className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
+                    >
+                      <span className={value ? "text-charcoal" : "text-slate"}>
+                        {value || field.placeholder}
+                      </span>
+                      <ChevronDown className="w-5 h-5 text-slate" />
+                    </button>
+
+                    {isDropdownOpen && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-hidden">
+                        <div className="p-2 border-b border-silver">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate" />
+                            <input
+                              type="text"
+                              placeholder="Search..."
+                              value={searchTerm || field.placeholder}
+                              onChange={(e) =>
+                                setSearchTerms((prev) => ({
+                                  ...prev,
+                                  [fieldKey]: e.target.value,
+                                }))
+                              }
+                              className="w-full pl-9 pr-3 py-2 border border-silver rounded focus:outline-none focus:ring-2 focus:ring-cerulean text-sm"
+                            />
+                          </div>
+                        </div>
+                        <div className="overflow-y-auto max-h-48">
+                          {displayOptions.length > 0 ? (
+                            displayOptions.map((option, idx) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() =>
+                                  selectOption(fieldKey, option.id, onChange)
+                                }
+                                className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm cursor-pointer"
+                              >
+                                {Array.isArray(field.linkTableValue)
+                                  ? field.linkTableValue
+                                      .map(
+                                        (value) =>
+                                          option[value as keyof typeof option]
+                                      )
+                                      .join(" ")
+                                  : option[
+                                      field.linkTableValue as keyof typeof option
+                                    ]}
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-4 py-2 text-slate text-sm">
+                              No options found
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <div className="overflow-y-auto max-h-48">
-                        {filteredOptions.length > 0 ? (
-                          filteredOptions.map((option, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() =>
-                                selectOption(fieldKey, option, onChange)
-                              }
-                              className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm cursor-pointer"
-                            >
-                              {option}
-                            </button>
-                          ))
-                        ) : (
-                          <div className="px-4 py-2 text-slate text-sm">
-                            No options found
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                  {renderError(field.label)}
                 </div>
-                {renderError(field.label)}
-              </div>
-            )}
+              );
+            }}
           />
         );
 
@@ -603,47 +623,69 @@ const [formData, setFormData] = useState<Record<string, any>>(
             name={field.label}
             control={control}
             defaultValue=""
-            render={({ field: { onChange, value } }) => (
-              <div
-                className={getFieldWidth(field.nature)}
-                data-field={field.label}
-              >
-                {renderLabel(field)}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown(fieldKey)}
-                    className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
-                  >
-                    <span className={value ? "text-charcoal" : "text-slate"}>
-                      {value || field.placeholder}
-                    </span>
-                    <ChevronDown className="w-5 h-5 text-slate" />
-                  </button>
+            render={({ field: { onChange, value } }) => {
+              const displayOptions = getDisplayOptions(
+                linkTableData,
+                field.linkTable
+              );
+              const displayValue = getDisplayValue(
+                displayOptions,
+                value,
+                field.linkTableValue as string | string[]
+              );
 
-                  {isDropdownOpen && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-hidden">
-                      <div className="overflow-y-auto max-h-60">
-                        {field.option?.map((option, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => {
-                              onChange(option);
-                              toggleDropdown(fieldKey);
-                            }}
-                            className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm cursor-pointer"
-                          >
-                            {option}
-                          </button>
-                        ))}
+              return (
+                <div
+                  className={getFieldWidth(field.nature)}
+                  data-field={field.label}
+                >
+                  {renderLabel(field)}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => toggleDropdown(fieldKey)}
+                      className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
+                    >
+                      <span className={value ? "text-charcoal" : "text-slate"}>
+                        {displayValue || field.placeholder}
+                      </span>
+                      <ChevronDown className="w-5 h-5 text-slate" />
+                    </button>
+
+                    {isDropdownOpen && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-hidden">
+                        <div className="overflow-y-auto max-h-60">
+                          {displayOptions?.map((option, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => {
+                                // Store the ID, not the display value
+                                onChange(option.id);
+                                toggleDropdown(fieldKey);
+                              }}
+                              className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm cursor-pointer"
+                            >
+                              {Array.isArray(field.linkTableValue)
+                                ? field.linkTableValue
+                                    .map(
+                                      (value) =>
+                                        option[value as keyof typeof option]
+                                    )
+                                    .join(" ")
+                                : option[
+                                    field.linkTableValue as keyof typeof option
+                                  ]}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                  {renderError(field.label)}
                 </div>
-                {renderError(field.label)}
-              </div>
-            )}
+              );
+            }}
           />
         );
 
@@ -754,7 +796,7 @@ const [formData, setFormData] = useState<Record<string, any>>(
             defaultValue={[]}
             render={({ field: { onChange, value } }) => {
               const files = (value as File[]) || [];
-              
+
               return (
                 <div
                   className={getFieldWidth(field.nature)}
@@ -857,7 +899,7 @@ const [formData, setFormData] = useState<Record<string, any>>(
             defaultValue={[]}
             render={({ field: { onChange, value } }) => {
               const tags = (value as string[]) || [];
-              
+
               return (
                 <div
                   className={getFieldWidth(field.nature)}
@@ -946,7 +988,7 @@ const [formData, setFormData] = useState<Record<string, any>>(
             defaultValue={[]}
             render={({ field: { onChange, value } }) => {
               const selectedOptions = (value as string[]) || [];
-              
+
               return (
                 <div
                   className={getFieldWidth(field.nature)}
@@ -1061,7 +1103,9 @@ const [formData, setFormData] = useState<Record<string, any>>(
                         <button
                           key={idx}
                           type="button"
-                          onClick={() => selectOption(fieldKey, option, onChange)}
+                          onClick={() =>
+                            selectOption(fieldKey, option, onChange)
+                          }
                           className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors flex items-center gap-2 cursor-pointer"
                         >
                           <span
@@ -1069,7 +1113,9 @@ const [formData, setFormData] = useState<Record<string, any>>(
                               colorMap[option] || "bg-slate"
                             }`}
                           ></span>
-                          <span className="text-charcoal text-sm">{option}</span>
+                          <span className="text-charcoal text-sm">
+                            {option}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -1081,6 +1127,215 @@ const [formData, setFormData] = useState<Record<string, any>>(
           />
         );
 
+      case "list-with-add":
+        return (
+          <Controller
+            key={fieldKey}
+            name={field.label}
+            control={control}
+            defaultValue={[]}
+            render={({ field: { onChange, value } }) => {
+              const displayOptions = getDisplayOptions(
+                linkTableData,
+                field.linkTable
+              );
+              const displayValue = getDisplayValue(
+                displayOptions,
+                value,
+                field.linkTableValue as string | string[]
+              );
+
+              // Filter by search term first, then remove already selected items
+              const filteredDisplayOptions = displayOptions
+                .filter((option: any) => {
+                  if (!searchTerm) return true;
+                  const searchLower = searchTerm.toLowerCase();
+                  // Search in the display value(s)
+                  if (Array.isArray(field.linkTableValue)) {
+                    return field.linkTableValue.some((key) =>
+                      String(option[key as keyof typeof option])
+                        .toLowerCase()
+                        .includes(searchLower)
+                    );
+                  } else {
+                    return String(
+                      option[field.linkTableValue as keyof typeof option]
+                    )
+                      .toLowerCase()
+                      .includes(searchLower);
+                  }
+                })
+                .filter((option: any) => !value.includes(option.id));
+
+              return (
+                <div
+                  className={getFieldWidth(field.nature)}
+                  data-field={field.label}
+                >
+                  {renderLabel(field)}
+                  <div className="flex gap-2 items-center justify-end mb-2">
+                      {field.placeholder && (
+                    <div className="w-full flex flex-col items-start">
+                        <div className="relative w-full">
+                          <button
+                            type="button"
+                            onClick={() => toggleDropdown(fieldKey)}
+                            className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
+                          >
+                            <span
+                              className={
+                                displayValue && displayValue.length > 0
+                                  ? "text-charcoal"
+                                  : "text-slate"
+                              }
+                            >
+                              {displayValue || field.placeholder}
+                            </span>
+                            <ChevronDown className="w-5 h-5 text-slate" />
+                          </button>
+                          {isDropdownOpen && (
+                            <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-hidden">
+                              {/* search input */}
+                              <div className="p-2 border-b border-silver">
+                                <div className="relative">
+                                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate" />
+                                  <input
+                                    type="text"
+                                    placeholder="Search..."
+                                    value={searchTerm}
+                                    onChange={(e) =>
+                                      setSearchTerms((prev) => ({
+                                        ...prev,
+                                        [fieldKey]: e.target.value,
+                                      }))
+                                    }
+                                    className="w-full pl-9 pr-3 py-2 border border-silver rounded focus:outline-none focus:ring-2 focus:ring-cerulean text-sm text-charcoal"
+                                  />
+                                </div>
+                              </div>
+                              {/* list of items */}
+                              <div className="overflow-y-auto max-h-48 py-2">
+                                {filteredDisplayOptions.length > 0 ? (
+                                  filteredDisplayOptions.map(
+                                    (option: any, idx: any) => {
+                                      return (
+                                        <button
+                                          key={idx}
+                                          type="button"
+                                          onClick={() => {
+                                            if (!value.includes(option.id)) {
+                                              onChange(option.id);
+                                              toggleDropdown(fieldKey);
+                                              setSearchTerms((prev) => ({
+                                                ...prev,
+                                                [fieldKey]: "",
+                                              }));
+                                            }
+                                          }}
+                                          disabled={value.includes(option.id)}
+                                          className={`w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm ${
+                                            value.includes(option.id)
+                                              ? "opacity-50 cursor-not-allowed"
+                                              : "cursor-pointer"
+                                          }`}
+                                        >
+                                          {Array.isArray(field.linkTableValue)
+                                            ? field.linkTableValue
+                                                .map(
+                                                  (value) =>
+                                                    option[
+                                                      value as keyof typeof option
+                                                    ]
+                                                )
+                                                .join(" ")
+                                            : option[
+                                                field.linkTableValue as keyof typeof option
+                                              ]}
+                                        </button>
+                                      );
+                                    }
+                                  )
+                                ) : (
+                                  <div className="px-4 py-2 text-slate text-sm">
+                                    No options found
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                    </div>
+                      )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (field.modal) {
+                          openModal(field.modal, field.label);
+                        }
+                      }}
+                      className="px-4 py-3 w-fit border border-silver rounded-md hover:bg-platinum transition-colors text-charcoal text-sm font-medium cursor-pointer"
+                    >
+                      {field.buttonName || "Add"}
+                    </button>
+                  </div>
+                  {!field.placeholder && displayValue.length === 0 ? (
+                    <div className="w-full px-4 py-6 border border-silver rounded-lg bg-platinum/20 text-center">
+                      <p className="text-slate text-sm">
+                        {field.message ||
+                          field.placeholder ||
+                          "No items added yet"}
+                      </p>
+                    </div>
+                  ) : !field.placeholder && displayValue.length > 0 ? (
+                    <div className="space-y-2">
+                      {displayValue.map((item: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between px-4 py-3 border border-silver rounded-lg bg-white hover:bg-platinum/30 transition-colors group"
+                        >
+                          <div className="flex-1">
+                            <p className="text-charcoal font-medium text-sm">
+                              {typeof item === "string"
+                                ? item
+                                : Array.isArray(field.linkTableValue)
+                                ? field.linkTableValue
+                                    .map(
+                                      (value) =>
+                                        item[value as keyof typeof item]
+                                    )
+                                    .join(" ")
+                                : item[
+                                    field.linkTableValue as keyof typeof item
+                                  ]}
+                            </p>
+                            {typeof item === "object" && item.description && (
+                              <p className="text-slate text-xs mt-1">
+                                {item.description}
+                              </p>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newItems = displayValue.filter(
+                                (_: any, i: number) => i !== idx
+                              );
+                              onChange(newItems);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity ml-3 text-slate hover:text-red-500 cursor-pointer"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                  {renderError(field.label)}
+                </div>
+              );
+            }}
+          />
+        );
       default:
         return null;
     }

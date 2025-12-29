@@ -4,6 +4,7 @@ export const CompanyFormProps = [
     fields: [
       {
         nature: "half",
+        Title: 'Business Name',
         type: "text",
         label: "business_name",
         placeholder: "Enter business name",
@@ -12,10 +13,12 @@ export const CompanyFormProps = [
       {
         nature: "half",
         type: "dropdown",
-        label: "company_type",
+        label: "company_type_id",
+        Title: 'Company Type',
+        linkTable: "company_types",
+        linkTableValue: "type",
         placeholder: "Select company type",
         required: true,
-        option: ["Customer", "Prospect", "Vendor", "Subcontractor"],
       },
     ],
   },
@@ -23,14 +26,15 @@ export const CompanyFormProps = [
     sectionName: "Billing Contact",
     fields: [
       {
-        label: "primary_contact",
+        Title: 'Primary Contact',
+        label: "primary_contact_id",
         nature: "full",
         type: "list-with-add",
         placeholder: "Select a contact",
         message: "Select an existing contact or create a new one",
-        option: ["test1", "test2"],
         buttonName: "+",
         linkTable: "contacts",
+        linkTableValue: ["first_name", "last_name"],
         modal: {
           modalHeading: "Create New Contact",
           modalFields: [
@@ -91,6 +95,7 @@ export const CompanyFormProps = [
         nature: "full",
         type: "textarea",
         label: "billing_address",
+        Title: "Billing Address",
         placeholder: "Enter billing address",
         rows: 4,
       },
@@ -100,15 +105,18 @@ export const CompanyFormProps = [
     nature: "full",
     type: "list-with-add",
     label: "service_sites",
-    placeholder: "No service sites added yet",
-    buttonName: "Add Site",
+    Title: "Service Sites",
+    buttonName: "+ Add Site",
     linkTable: "sites",
+    linkTableValue: "site_name",
     message: "No service sites added yet",
     modal: {
       modalHeading: "Add Service Site",
       modalFields: [
         {
           label: "site_name",
+          Title: "Site Name",
+          required: true,
           nature: "full",
           type: "text",
           placeholder: "Enter site name",
@@ -117,6 +125,8 @@ export const CompanyFormProps = [
           label: "primary_contact",
           nature: "full",
           type: "dropdown",
+          Title: "Primary Contact",
+          required: true,
           placeholder: "Select a contact",
           option: ["test1", "test2"],
           buttonName: "+",
@@ -128,24 +138,28 @@ export const CompanyFormProps = [
                 fields: [
                   {
                     label: "First Name",
+                    Title: "First Name",
                     nature: "half",
                     type: "text",
                     placeholder: "Enter first name",
                   },
                   {
                     label: "Last Name",
+                    Title: "Last Name",
                     nature: "half",
                     type: "text",
                     placeholder: "Enter last name",
                   },
                   {
                     label: "Title",
+                    Title: "Title",
                     nature: "half",
                     type: "text",
                     placeholder: "Job title",
                   },
                   {
                     label: "Department",
+                    Title: "Department",
                     nature: "half",
                     type: "text",
                     placeholder: "Department",
@@ -157,12 +171,14 @@ export const CompanyFormProps = [
                 fields: [
                   {
                     label: "Email",
+                    Title: "Email",
                     nature: "half",
                     type: "email",
                     placeholder: "email@example.com",
                   },
                   {
                     label: "Phone",
+                    Title: "Phone",
                     nature: "half",
                     type: "text",
                     placeholder: "Primary phone number",
@@ -179,8 +195,10 @@ export const CompanyFormProps = [
         {
           label: "service_address",
           nature: "full",
+          Title: "Service Address",
           type: "text",
           placeholder: "Enter service address",
+          required: true,
         },
 
         {
@@ -190,25 +208,21 @@ export const CompanyFormProps = [
       ],
     },
   },
-  // {
-  //   nature: "full",
-  //   type: "dropdown",
-  //   label: "owner",
-  //   placeholder: "Select owner (defaults to you)",
-  //   option: [
-  //     "Me (Default)",
-  //     "Tim Wallick",
-  //     "Sarah Chen",
-  //     "Michael Torres",
-  //     "Emma Rodriguez",
-  //     "David Anderson",
-  //   ],
-  //   message: "If left blank, you will be set as the owner.",
-  // },
+  {
+    nature: "full",
+    type: "dropdown",
+    label: "owner_id",
+    Title: "Owner",
+    linkTable: "users",
+    linkTableValue: "full_name",
+    placeholder: "Select owner (defaults to you)",
+    message: "If left blank, you will be set as the owner.",
+  },
   {
     nature: "full",
     type: "textarea",
     label: "notes",
+    Title: "Notes",
     placeholder: "Add any additional notes about this company...",
     rows: 4,
   },
@@ -219,5 +233,5 @@ export const CompanyFormProps = [
 ];
 
 export const LinkTable = [
-  'contacts', 'users'
+  'contacts', 'users', 'company_types'
 ];

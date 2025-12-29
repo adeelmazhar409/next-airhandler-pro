@@ -177,6 +177,17 @@ export default function DynamicModal({
     closeNestedModal();
   };
 
+  const renderLabel = (field: FieldConfig) => {
+    return (
+      <label className="block text-sm font-medium text-charcoal mb-2">
+        {field.Title}
+        {field.required && (
+          <span className="text-red-500 ml-1 text-base align-super">*</span>
+        )}
+      </label>
+    );
+  };
+
   const renderField = (
     field: FieldConfig,
     fieldIndex: number,
@@ -197,9 +208,7 @@ export default function DynamicModal({
       case "email":
         return (
           <div key={fieldKey} className={width}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+            {renderLabel(field)}
             <input
               type={field.type}
               placeholder={field.placeholder}
@@ -213,9 +222,7 @@ export default function DynamicModal({
       case "textarea":
         return (
           <div key={fieldKey} className={width}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+            {renderLabel(field)}
             <textarea
               placeholder={field.placeholder}
               value={formData[field.label] || ""}
@@ -229,9 +236,7 @@ export default function DynamicModal({
       case "date":
         return (
           <div key={fieldKey} className={width}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+            {renderLabel(field)}
             <div className="relative">
               <input
                 type="date"
@@ -256,9 +261,7 @@ export default function DynamicModal({
 
         return (
           <div key={fieldKey} className={width}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+            {renderLabel(field)}
             <div className="flex gap-2">
               {/* Date Input */}
               <div className="relative flex-1">
@@ -362,9 +365,7 @@ export default function DynamicModal({
 
         return (
           <div key={fieldKey} className={width}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+            {renderLabel(field)}
             <div className="relative">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate" />
@@ -415,9 +416,7 @@ export default function DynamicModal({
 
         return (
           <div key={fieldKey} className={width}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+            {renderLabel(field)}
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <button
@@ -459,7 +458,6 @@ export default function DynamicModal({
                   onClick={() => openNestedModal(field.modal!, field.label)}
                   className="px-4 py-3 border border-silver rounded-lg hover:bg-platinum transition-colors flex items-center gap-2 text-charcoal font-medium whitespace-nowrap cursor-pointer"
                 >
-                  <Plus className="w-5 h-5" />
                   {field.buttonName}
                 </button>
               )}
@@ -473,9 +471,7 @@ export default function DynamicModal({
       case "file":
         return (
           <div key={fieldKey} className={width}>
-            <label className="block text-sm font-medium text-charcoal mb-2">
-              {field.label}
-            </label>
+              {renderLabel(field)}
             <div>
               <label className="w-full px-4 py-3 border border-silver rounded-lg cursor-pointer hover:bg-platinum transition-colors flex items-center justify-center text-slate">
                 <input
@@ -595,9 +591,7 @@ export default function DynamicModal({
             key={fieldKey}
             className="flex items-center justify-between py-2 w-full"
           >
-            <label className="text-sm font-medium text-charcoal">
-              {field.label}
-            </label>
+            {renderLabel(field)}
             <button
               type="button"
               onClick={() =>

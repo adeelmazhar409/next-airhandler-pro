@@ -112,6 +112,7 @@ export default function CompaniesContent() {
   // Early returns for forms
   if (companyFormToggle) {
     console.log('test render--------------', linkTableData, editingCompany)
+
     return (
       <CompanyForm
         onCancel={handleCancel}

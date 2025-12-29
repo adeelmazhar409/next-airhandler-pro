@@ -56,10 +56,39 @@ const generateMinuteOptions = () => {
   return minutes;
 };
 
+const getDisplayOptions = (
+  linkTableData: any[],
+  linkTable?: string
+) => {
+  if (!linkTableData || !linkTable) return [];
+
+  return linkTableData
+    .map(item => item?.[linkTable])
+    .filter(Boolean)
+    .flat();
+}
+
+const getDisplayValue = (
+  displayOptions: any[],
+  value: string,
+  linkTableValue: string | string[]
+) => {
+  const displayValue = displayOptions?.find(opt => opt?.id === value);
+
+  if (!displayValue) return "";
+
+  return Array.isArray(linkTableValue)
+    ? linkTableValue.map(k => displayValue[k]).join(" ")
+    : displayValue[linkTableValue];
+}
+
+
 export {
   getPasswordInfo,
   getStrengthLabel,
   getFieldWidth,
   generateHourOptions,
   generateMinuteOptions,
+  getDisplayOptions,
+  getDisplayValue,
 };

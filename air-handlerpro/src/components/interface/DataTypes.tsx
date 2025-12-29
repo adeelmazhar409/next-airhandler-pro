@@ -76,6 +76,7 @@ interface ModalSection {
 }
 
 interface FieldConfig {
+  Title: string;
   label: string;
   nature: string;
   type: string;
@@ -85,6 +86,7 @@ interface FieldConfig {
   minuteplaceholder?: string;
   option?: string[];
   linkTable?: string;
+  linkTableValue?: string | string[];
   box?: object[];
   optionDescription?: string[];
   optionColors?: Record<string, string>;
