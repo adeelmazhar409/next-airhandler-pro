@@ -1,6 +1,6 @@
 /**
- * Activities Service Layer - COMPLETE VERSION
- * Handles all business logic and Supabase calls for activities
+ * Activities Service Layer - FIXED
+ * Removed problematic joins
  */
 
 import { supabase } from "@/lib/supabase";
@@ -26,10 +26,8 @@ export interface Activity {
   priority: string;
   related_to_type: string;
   related_to_id?: string;
-    contact_id: string | null;
-    
+  contact_id: string | null;
   assigned_to: string | null;
-  assigned_to_id: string | null;
   due_date: string | null;
   due_time: string | null;
   completed_at: string | null;
@@ -38,21 +36,6 @@ export interface Activity {
   created_by: string;
   created_at: string;
   updated_at: string;
-  // Joined data
-  contact?: {
-    id: string;
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-  };
-  assigned_user?: {
-    id: string;
-    email?: string;
-  };
-  owner?: {
-    id: string;
-    email?: string;
-  };
 }
 
 export interface ApiResponse<T> {
@@ -62,14 +45,10 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-/**
- * Create a new activity
- */
 export async function createActivity(
   formData: ActivityFormData
 ): Promise<ApiResponse<Activity>> {
   try {
-    // Get the current authenticated user
     const {
       data: { user },
       error: authError,
@@ -79,26 +58,22 @@ export async function createActivity(
       throw new Error("You must be logged in to create an activity");
     }
 
-    // Prepare the data to insert
     const insertData = {
       subject: formData.subject,
       description: formData.description || null,
       activity_type: formData.activityType,
       priority: formData.priority || "Medium",
       related_to_type: formData.relatedTo,
- // This is the UUID of the related entity
-      contact: formData.contact || null,
-      assigned_to: formData.assignTo || user.id, // Default to current user
+      related_to_id: formData.relatedItem,
+      contact_id: formData.contact || null,
+      assigned_to: formData.assignTo || user.id,
       due_date: formData.dueDate || null,
       due_time: formData.dueTime || null,
       status: "Pending",
       owner_id: user.id,
-      created_by: user.id, // CRITICAL: Required for RLS
+      created_by: user.id,
     };
 
-    console.log("Inserting activity data:", insertData);
-
-    // Insert data directly into Supabase
     const { data, error } = await supabase
       .from("activities")
       .insert([insertData])
@@ -106,7 +81,6 @@ export async function createActivity(
       .single();
 
     if (error) {
-      console.error("Supabase insert error:", error);
       throw new Error(error.message || "Failed to create activity");
     }
 
@@ -116,7 +90,6 @@ export async function createActivity(
       message: "Activity created successfully",
     };
   } catch (error) {
-    console.error("Create activity error:", error);
     return {
       success: false,
       error:
@@ -125,45 +98,14 @@ export async function createActivity(
   }
 }
 
-/**
- * Fetch all activities with related data
- */
-export async function fetchActivities(
-  status?: string
-): Promise<ApiResponse<Activity[]>> {
+export async function fetchActivities(): Promise<ApiResponse<Activity[]>> {
   try {
-    let query = supabase
+    const { data, error } = await supabase
       .from("activities")
-      .select(
-        `
-        *,
-        contact:contact_id (
-          id,
-          first_name,
-          last_name,
-          email
-        ),
-        assigned_user:assigned_to (
-          id,
-          email
-        ),
-        owner:owner_id (
-          id,
-          email
-        )
-      `
-      )
+      .select("*")
       .order("created_at", { ascending: false });
 
-    // Filter by status if provided
-    if (status) {
-      query = query.eq("status", status);
-    }
-
-    const { data, error } = await query;
-
     if (error) {
-      console.error("Supabase fetch error:", error);
       throw new Error(error.message || "Failed to fetch activities");
     }
 
@@ -173,7 +115,6 @@ export async function fetchActivities(
       message: "Activities fetched successfully",
     };
   } catch (error) {
-    console.error("Fetch activities error:", error);
     return {
       success: false,
       error:
@@ -182,39 +123,17 @@ export async function fetchActivities(
   }
 }
 
-/**
- * Fetch a single activity by ID with related data
- */
 export async function fetchActivityById(
   activityId: string
 ): Promise<ApiResponse<Activity>> {
   try {
     const { data, error } = await supabase
       .from("activities")
-      .select(
-        `
-        *,
-        contact:contact_id (
-          id,
-          first_name,
-          last_name,
-          email
-        ),
-        assigned_user:assigned_to (
-          id,
-          email
-        ),
-        owner:owner_id (
-          id,
-          email
-        )
-      `
-      )
+      .select("*")
       .eq("id", activityId)
       .single();
 
     if (error) {
-      console.error("Supabase fetch single error:", error);
       throw new Error(error.message || "Failed to fetch activity");
     }
 
@@ -224,7 +143,6 @@ export async function fetchActivityById(
       message: "Activity fetched successfully",
     };
   } catch (error) {
-    console.error("Fetch activity error:", error);
     return {
       success: false,
       error:
@@ -233,9 +151,6 @@ export async function fetchActivityById(
   }
 }
 
-/**
- * Update an existing activity
- */
 export async function updateActivity(
   activityId: string,
   formData: Partial<ActivityFormData>
@@ -271,7 +186,6 @@ export async function updateActivity(
       .single();
 
     if (error) {
-      console.error("Supabase update error:", error);
       throw new Error(error.message || "Failed to update activity");
     }
 
@@ -281,7 +195,6 @@ export async function updateActivity(
       message: "Activity updated successfully",
     };
   } catch (error) {
-    console.error("Update activity error:", error);
     return {
       success: false,
       error:
@@ -290,47 +203,6 @@ export async function updateActivity(
   }
 }
 
-/**
- * Mark activity as completed
- */
-export async function completeActivity(
-  activityId: string
-): Promise<ApiResponse<Activity>> {
-  try {
-    const { data, error } = await supabase
-      .from("activities")
-      .update({
-        status: "Completed",
-        completed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", activityId)
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Supabase complete error:", error);
-      throw new Error(error.message || "Failed to complete activity");
-    }
-
-    return {
-      success: true,
-      data: data as Activity,
-      message: "Activity marked as completed",
-    };
-  } catch (error) {
-    console.error("Complete activity error:", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error ? error.message : "An unexpected error occurred",
-    };
-  }
-}
-
-/**
- * Delete an activity
- */
 export async function deleteActivity(
   activityId: string
 ): Promise<ApiResponse<void>> {
@@ -341,7 +213,6 @@ export async function deleteActivity(
       .eq("id", activityId);
 
     if (error) {
-      console.error("Supabase delete error:", error);
       throw new Error(error.message || "Failed to delete activity");
     }
 
@@ -350,7 +221,6 @@ export async function deleteActivity(
       message: "Activity deleted successfully",
     };
   } catch (error) {
-    console.error("Delete activity error:", error);
     return {
       success: false,
       error:

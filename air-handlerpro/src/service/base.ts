@@ -1,10 +1,11 @@
 /**
- * BASE SERVICE LAYER - FORM NAVIGATION BRAIN
+ * BASE SERVICE LAYER - COMPLETE FORM NAVIGATION BRAIN
  * Centralized handler for all CRUD operations across different forms
  *
- * Flow: Services (workorder.ts, jobwalks.ts, etc.) → base.ts → Components
+ * Flow: Components → base.ts → service APIs → Supabase
  */
 
+// Work Orders
 import {
   createWorkOrder,
   fetchWorkOrders,
@@ -15,6 +16,7 @@ import {
   WorkOrder,
 } from "./api/workorder";
 
+// Job Walks
 import {
   createJobWalk,
   fetchJobWalks,
@@ -25,8 +27,61 @@ import {
   JobWalk,
 } from "./api/jobwalks";
 
-// Types
-export type FormName = "workorder" | "jobwalk";
+// Activities
+import {
+  createActivity,
+  fetchActivities,
+  fetchActivityById,
+  updateActivity,
+  deleteActivity,
+  ActivityFormData,
+  Activity,
+} from "./api/activites";
+
+// Companies
+import {
+  createCompany,
+  fetchCompanies,
+  fetchCompanyById,
+  updateCompany,
+  deleteCompany,
+  CompanyFormData,
+} from "./api/companies";
+
+// Contacts
+import {
+  createContact,
+  fetchContacts,
+  fetchContactById,
+  updateContact,
+  deleteContact,
+  ContactFormData,
+  Contact,
+} from "./api/contact";
+
+// Service Sites
+import {
+  createServiceSite,
+  fetchServiceSites,
+  fetchServiceSiteById,
+  updateServiceSite,
+  deleteServiceSite,
+  ServiceSiteFormData,
+  ServiceSite,
+} from "./api/site";
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+export type FormName =
+  | "workorder"
+  | "jobwalk"
+  | "activity"
+  | "company"
+  | "contact"
+  | "site";
+
 export type OperationType =
   | "create"
   | "fetch"
@@ -50,6 +105,10 @@ export interface BaseResponse<T = any> {
   message?: string;
 }
 
+// ============================================================================
+// MAIN HANDLER FUNCTION
+// ============================================================================
+
 /**
  * Main handler function - routes requests to appropriate service
  */
@@ -67,10 +126,42 @@ export async function handleFormOperation(
           editData,
           deleteData,
           fetchId,
-        }); 
+        });
 
       case "jobwalk":
         return await handleJobWalkOperation(type, {
+          createData,
+          editData,
+          deleteData,
+          fetchId,
+        });
+
+      case "activity":
+        return await handleActivityOperation(type, {
+          createData,
+          editData,
+          deleteData,
+          fetchId,
+        });
+
+      case "company":
+        return await handleCompanyOperation(type, {
+          createData,
+          editData,
+          deleteData,
+          fetchId,
+        });
+
+      case "contact":
+        return await handleContactOperation(type, {
+          createData,
+          editData,
+          deleteData,
+          fetchId,
+        });
+
+      case "site":
+        return await handleSiteOperation(type, {
           createData,
           editData,
           deleteData,
@@ -92,9 +183,10 @@ export async function handleFormOperation(
   }
 }
 
-/**
- * Work Order Operations Handler
- */
+// ============================================================================
+// WORK ORDER OPERATIONS HANDLER
+// ============================================================================
+
 async function handleWorkOrderOperation(
   type: OperationType,
   data: {
@@ -140,9 +232,10 @@ async function handleWorkOrderOperation(
   }
 }
 
-/**
- * Job Walk Operations Handler
- */
+// ============================================================================
+// JOB WALK OPERATIONS HANDLER
+// ============================================================================
+
 async function handleJobWalkOperation(
   type: OperationType,
   data: {
@@ -182,6 +275,202 @@ async function handleJobWalkOperation(
         return { success: false, error: "Delete ID is required" };
       }
       return await deleteJobWalk(data.deleteData);
+
+    default:
+      return { success: false, error: `Unknown operation type: ${type}` };
+  }
+}
+
+// ============================================================================
+// ACTIVITY OPERATIONS HANDLER
+// ============================================================================
+
+async function handleActivityOperation(
+  type: OperationType,
+  data: {
+    createData?: any;
+    editData?: any;
+    deleteData?: any;
+    fetchId?: string;
+  }
+): Promise<BaseResponse> {
+  switch (type) {
+    case "create":
+      if (!data.createData) {
+        return { success: false, error: "Create data is required" };
+      }
+      return await createActivity(data.createData as ActivityFormData);
+
+    case "fetch":
+      return await fetchActivities();
+
+    case "fetchById":
+      if (!data.fetchId) {
+        return { success: false, error: "ID is required for fetchById" };
+      }
+      return await fetchActivityById(data.fetchId);
+
+    case "update":
+      if (!data.editData || !data.editData.id) {
+        return { success: false, error: "Edit data with ID is required" };
+      }
+      return await updateActivity(
+        data.editData.id,
+        data.editData.data as Partial<ActivityFormData>
+      );
+
+    case "delete":
+      if (!data.deleteData) {
+        return { success: false, error: "Delete ID is required" };
+      }
+      return await deleteActivity(data.deleteData);
+
+    default:
+      return { success: false, error: `Unknown operation type: ${type}` };
+  }
+}
+
+// ============================================================================
+// COMPANY OPERATIONS HANDLER
+// ============================================================================
+
+async function handleCompanyOperation(
+  type: OperationType,
+  data: {
+    createData?: any;
+    editData?: any;
+    deleteData?: any;
+    fetchId?: string;
+  }
+): Promise<BaseResponse> {
+  switch (type) {
+    case "create":
+      if (!data.createData) {
+        return { success: false, error: "Create data is required" };
+      }
+      return await createCompany(data.createData as CompanyFormData);
+
+    case "fetch":
+      return await fetchCompanies();
+
+    case "fetchById":
+      if (!data.fetchId) {
+        return { success: false, error: "ID is required for fetchById" };
+      }
+      return await fetchCompanyById(data.fetchId);
+
+    case "update":
+      if (!data.editData || !data.editData.id) {
+        return { success: false, error: "Edit data with ID is required" };
+      }
+      return await updateCompany(
+        data.editData.id,
+        data.editData.data as Partial<CompanyFormData>
+      );
+
+    case "delete":
+      if (!data.deleteData) {
+        return { success: false, error: "Delete ID is required" };
+      }
+      return await deleteCompany(data.deleteData);
+
+    default:
+      return { success: false, error: `Unknown operation type: ${type}` };
+  }
+}
+
+// ============================================================================
+// CONTACT OPERATIONS HANDLER
+// ============================================================================
+
+async function handleContactOperation(
+  type: OperationType,
+  data: {
+    createData?: any;
+    editData?: any;
+    deleteData?: any;
+    fetchId?: string;
+  }
+): Promise<BaseResponse> {
+  switch (type) {
+    case "create":
+      if (!data.createData) {
+        return { success: false, error: "Create data is required" };
+      }
+      return await createContact(data.createData as ContactFormData);
+
+    case "fetch":
+      return await fetchContacts();
+
+    case "fetchById":
+      if (!data.fetchId) {
+        return { success: false, error: "ID is required for fetchById" };
+      }
+      return await fetchContactById(data.fetchId);
+
+    case "update":
+      if (!data.editData || !data.editData.id) {
+        return { success: false, error: "Edit data with ID is required" };
+      }
+      return await updateContact(
+        data.editData.id,
+        data.editData.data as Partial<ContactFormData>
+      );
+
+    case "delete":
+      if (!data.deleteData) {
+        return { success: false, error: "Delete ID is required" };
+      }
+      return await deleteContact(data.deleteData);
+
+    default:
+      return { success: false, error: `Unknown operation type: ${type}` };
+  }
+}
+
+// ============================================================================
+// SERVICE SITE OPERATIONS HANDLER
+// ============================================================================
+
+async function handleSiteOperation(
+  type: OperationType,
+  data: {
+    createData?: any;
+    editData?: any;
+    deleteData?: any;
+    fetchId?: string;
+  }
+): Promise<BaseResponse> {
+  switch (type) {
+    case "create":
+      if (!data.createData) {
+        return { success: false, error: "Create data is required" };
+      }
+      return await createServiceSite(data.createData as ServiceSiteFormData);
+
+    case "fetch":
+      return await fetchServiceSites();
+
+    case "fetchById":
+      if (!data.fetchId) {
+        return { success: false, error: "ID is required for fetchById" };
+      }
+      return await fetchServiceSiteById(data.fetchId);
+
+    case "update":
+      if (!data.editData || !data.editData.id) {
+        return { success: false, error: "Edit data with ID is required" };
+      }
+      return await updateServiceSite(
+        data.editData.id,
+        data.editData.data as Partial<ServiceSiteFormData>
+      );
+
+    case "delete":
+      if (!data.deleteData) {
+        return { success: false, error: "Delete ID is required" };
+      }
+      return await deleteServiceSite(data.deleteData);
 
     default:
       return { success: false, error: `Unknown operation type: ${type}` };

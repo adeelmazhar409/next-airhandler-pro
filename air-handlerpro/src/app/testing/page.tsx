@@ -1,563 +1,252 @@
-// "use client";
-
-// import { fetchCompanies } from "@/service/api/companies";
-// import { fetchJobWalks } from "@/service/api/jobwalks";
-// import { fetchUsers } from "@/service/api/user";
-// import { fetchWorkOrders } from "@/service/api/workorder";
-
-// // const response = await fetchCompanies();
-// const response = await fetchJobWalks();
-// const response2 = await fetchWorkOrders();
-// const res = await fetchUsers();
-
-// export default function First() {
-//   // console.log("Jobwalks fetched:", response);
-//   //   console.log("Work Orders fetched:", response2);
-//   console.log("fetch users", res);
-// }
-
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  createWorkOrder,
-  fetchWorkOrders,
-} from "@/service/api/workorder"
-import {
-  createJobWalk,
-  fetchJobWalks,
-} from "@/service/api/jobwalks";
-import { supabase } from "@/lib/supabase";
+import { useState } from "react";
+import { toast } from "@/components/toast";
+import { confirm } from "@/components/confirm";
 
 export default function TestPage() {
-  const [activeTab, setActiveTab] = useState<"workorders" | "jobwalks">(
-    "workorders"
-  );
-  const [results, setResults] = useState<any>(null);
+  const [items, setItems] = useState([
+    { id: 1, name: "Work Order #001" },
+    { id: 2, name: "Work Order #002" },
+    { id: 3, name: "Work Order #003" },
+  ]);
+
   const [loading, setLoading] = useState(false);
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [sites, setSites] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
 
-  // Work Order Form State
-  const [woForm, setWoForm] = useState({
-    customerCompanyId: "",
-    customerSiteId: "",
-    workOrderNumber: "",
-    scheduledStart: "",
-    scheduledEnd: "",
-    description: "",
-    equipmentInformation: "",
-  });
-
-  // Job Walk Form State
-  const [jwForm, setJwForm] = useState({
-    customerCompanyId: "",
-    customerSiteId: "",
-    jobName: "",
-    dateOfWalk: "",
-    taskType: "",
-    jobNotes: "",
-    nextStep: "",
-    assignedTo: "",
-    photosCount: 0,
-  });
-
-  // Load dropdown data
-  useEffect(() => {
-    loadDropdownData();
-  }, []);
-
-  const loadDropdownData = async () => {
-    // Load companies
-    const { data: companiesData } = await supabase
-      .from("companies")
-      .select("id, business_name")
-      .order("business_name");
-    setCompanies(companiesData || []);
-
-    // Load sites
-    const { data: sitesData } = await supabase
-      .from("sites")
-      .select("id, site_name, service_address")
-      .order("site_name");
-    setSites(sitesData || []);
-
-    // Load users
-    const { data: usersData } = await supabase
-      .from("users")
-      .select("id, email, full_name")
-      .order("email");
-    setUsers(usersData || []);
+  // Test different toast types
+  const testSuccess = () => {
+    toast("✅ Success! Record saved");
   };
 
-  // ============================================================================
-  // WORK ORDER FUNCTIONS
-  // ============================================================================
-
-  const handleCreateWorkOrder = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const result = await createWorkOrder(woForm);
-    setResults(result);
-    setLoading(false);
-    if (result.success) {
-      setWoForm({
-        customerCompanyId: "",
-        customerSiteId: "",
-        workOrderNumber: "",
-        scheduledStart: "",
-        scheduledEnd: "",
-        description: "",
-        equipmentInformation: "",
-      });
-    }
+  const testError = () => {
+    toast("❌ Error: Failed to save");
   };
 
-  const handleFetchWorkOrders = async () => {
-    setLoading(true);
-    const result = await fetchWorkOrders();
-    setResults(result);
-    setLoading(false);
+  const testWarning = () => {
+    toast("⚠ Warning: Check your input");
   };
 
-  // ============================================================================
-  // JOB WALK FUNCTIONS
-  // ============================================================================
-
-  const handleCreateJobWalk = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const result = await createJobWalk(jwForm);
-    setResults(result);
-    setLoading(false);
-    if (result.success) {
-      setJwForm({
-        customerCompanyId: "",
-        customerSiteId: "",
-        jobName: "",
-        dateOfWalk: "",
-        taskType: "",
-        jobNotes: "",
-        nextStep: "",
-        assignedTo: "",
-        photosCount: 0,
-      });
-    }
+  const testInfo = () => {
+    toast("Loading your data...");
   };
 
-  const handleFetchJobWalks = async () => {
+  // Test with simulated API
+  const testApiCall = async () => {
     setLoading(true);
-    const result = await fetchJobWalks();
-    setResults(result);
-    setLoading(false);
+    toast("Saving changes...");
+
+    setTimeout(() => {
+      setLoading(false);
+      toast("✅ Changes saved successfully");
+    }, 2000);
+  };
+
+  // Test delete with confirmation
+  const handleDelete = (id: number, name: string) => {
+    confirm(`Are you sure you want to delete "${name}"?`, () => {
+      // This runs only if user clicks "Delete"
+      setItems(items.filter((item) => item.id !== id));
+      toast("✅ Deleted successfully!");
+    });
+  };
+
+  // Real-world example
+  const handleBulkDelete = () => {
+    confirm(`Delete all ${items.length} items?`, () => {
+      setItems([]);
+      toast("✅ All items deleted");
+    });
   };
 
   return (
-    <div className="p-8 max-w-6xl mx-auto text-black">
-      <h1 className="text-3xl font-bold text-charcoal mb-2">
-        Endpoint Test Page
-      </h1>
-      <p className="text-slate mb-6">Test Work Orders & Job Walks APIs</p>
+    <div className="p-8 max-w-4xl mx-auto text-charcoal">
+      <h1 className="text-4xl font-bold mb-2 text-charcoal">🧪 Toast & Confirm Test</h1>
+      <p className="text-gray-600 mb-8">Works anywhere - NO layout needed!</p>
 
-      {/* Tabs */}
-      <div className="flex gap-2 mb-6 border-b border-silver">
-        <button
-          onClick={() => setActiveTab("workorders")}
-          className={`px-4 py-2 font-medium transition-colors ${
-            activeTab === "workorders"
-              ? "text-cerulean border-b-2 border-cerulean"
-              : "text-slate hover:text-charcoal"
-          }`}
-        >
-          Work Orders
-        </button>
-        <button
-          onClick={() => setActiveTab("jobwalks")}
-          className={`px-4 py-2 font-medium transition-colors ${
-            activeTab === "jobwalks"
-              ? "text-cerulean border-b-2 border-cerulean"
-              : "text-slate hover:text-charcoal"
-          }`}
-        >
-          Job Walks
-        </button>
-      </div>
+      {/* TOAST TESTS */}
+      <section className="mb-12 border-2 border-gray-300 rounded-lg p-6">
+        <h2 className="text-2xl font-bold mb-4">🍞 Toast Notifications</h2>
 
-      {/* Work Orders Tab */}
-      {activeTab === "workorders" && (
-        <div className="grid grid-cols-2 gap-6">
-          {/* Create Form */}
-          <div className="border border-silver rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Create Work Order</h2>
-            <form onSubmit={handleCreateWorkOrder} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Customer Company *
-                </label>
-                <select
-                  required
-                  value={woForm.customerCompanyId}
-                  onChange={(e) =>
-                    setWoForm({ ...woForm, customerCompanyId: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                >
-                  <option value="">Select Company</option>
-                  {companies.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.business_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <button
+            onClick={testSuccess}
+            className="px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium"
+          >
+            ✅ Show Success
+          </button>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Service Site (Optional)
-                </label>
-                <select
-                  value={woForm.customerSiteId}
-                  onChange={(e) =>
-                    setWoForm({ ...woForm, customerSiteId: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                >
-                  <option value="">None</option>
-                  {sites.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.site_name} - {s.service_address}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          <button
+            onClick={testError}
+            className="px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium"
+          >
+            ❌ Show Error
+          </button>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Work Order Number
-                </label>
-                <input
-                  type="text"
-                  value={woForm.workOrderNumber}
-                  onChange={(e) =>
-                    setWoForm({ ...woForm, workOrderNumber: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                  placeholder="WO-2025-001"
-                />
-              </div>
+          <button
+            onClick={testWarning}
+            className="px-4 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 font-medium"
+          >
+            ⚠️ Show Warning
+          </button>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Scheduled Start
-                </label>
-                <input
-                  type="datetime-local"
-                  value={woForm.scheduledStart}
-                  onChange={(e) =>
-                    setWoForm({ ...woForm, scheduledStart: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                />
-              </div>
+          <button
+            onClick={testInfo}
+            className="px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
+          >
+            ℹ️ Show Info
+          </button>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Scheduled End
-                </label>
-                <input
-                  type="datetime-local"
-                  value={woForm.scheduledEnd}
-                  onChange={(e) =>
-                    setWoForm({ ...woForm, scheduledEnd: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={woForm.description}
-                  onChange={(e) =>
-                    setWoForm({ ...woForm, description: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                  rows={3}
-                  placeholder="AC unit not cooling properly..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Equipment Information
-                </label>
-                <textarea
-                  value={woForm.equipmentInformation}
-                  onChange={(e) =>
-                    setWoForm({
-                      ...woForm,
-                      equipmentInformation: e.target.value,
-                    })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                  rows={2}
-                  placeholder="Carrier 5-ton rooftop unit..."
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-cerulean text-white py-2 rounded hover:bg-slate transition-colors disabled:opacity-50"
-              >
-                {loading ? "Creating..." : "Create Work Order"}
-              </button>
-            </form>
-          </div>
-
-          {/* Fetch Button */}
-          <div className="border border-silver rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Fetch Work Orders</h2>
-            <button
-              onClick={handleFetchWorkOrders}
-              disabled={loading}
-              className="w-full bg-cerulean text-white py-2 rounded hover:bg-slate transition-colors disabled:opacity-50"
-            >
-              {loading ? "Loading..." : "Fetch All Work Orders"}
-            </button>
-          </div>
+          <button
+            onClick={testApiCall}
+            disabled={loading}
+            className="col-span-2 px-4 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 font-medium disabled:opacity-50"
+          >
+            🚀 Test API Call (with loading)
+          </button>
         </div>
-      )}
 
-      {/* Job Walks Tab */}
-      {activeTab === "jobwalks" && (
-        <div className="grid grid-cols-2 gap-6">
-          {/* Create Form */}
-          <div className="border border-silver rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Create Job Walk</h2>
-            <form onSubmit={handleCreateJobWalk} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Link to Customer (Optional)
-                </label>
-                <select
-                  value={jwForm.customerCompanyId}
-                  onChange={(e) =>
-                    setJwForm({ ...jwForm, customerCompanyId: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                >
-                  <option value="">None</option>
-                  {companies.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.business_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="font-bold text-blue-900 mb-2">Usage:</p>
+          <pre className="text-sm text-blue-800">
+            {`import { toast } from "@/components/Toast";
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Service Site (Optional)
-                </label>
-                <select
-                  value={jwForm.customerSiteId}
-                  onChange={(e) =>
-                    setJwForm({ ...jwForm, customerSiteId: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                >
-                  <option value="">None</option>
-                  {sites.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.site_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Job Name / Site Address *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={jwForm.jobName}
-                  onChange={(e) =>
-                    setJwForm({ ...jwForm, jobName: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                  placeholder="HVAC Assessment - 123 Main St"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Date of Walk *
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={jwForm.dateOfWalk}
-                  onChange={(e) =>
-                    setJwForm({ ...jwForm, dateOfWalk: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Task Type
-                </label>
-                <select
-                  value={jwForm.taskType}
-                  onChange={(e) =>
-                    setJwForm({ ...jwForm, taskType: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                >
-                  <option value="">Select Type</option>
-                  <option value="Assessment">Assessment</option>
-                  <option value="Repair">Repair</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Installation">Installation</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Job Notes / Observations
-                </label>
-                <textarea
-                  value={jwForm.jobNotes}
-                  onChange={(e) =>
-                    setJwForm({ ...jwForm, jobNotes: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                  rows={3}
-                  placeholder="Detailed notes from site visit..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Next Step / Action Needed
-                </label>
-                <input
-                  type="text"
-                  value={jwForm.nextStep}
-                  onChange={(e) =>
-                    setJwForm({ ...jwForm, nextStep: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                  placeholder="Schedule follow-up meeting..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Assign To
-                </label>
-                <select
-                  value={jwForm.assignedTo}
-                  onChange={(e) =>
-                    setJwForm({ ...jwForm, assignedTo: e.target.value })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                >
-                  <option value="">Unassigned</option>
-                  {users.map((u) => (
-                    <option key={u.id} value={u.id}>
-                      { u.email || u.full_name }
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Photos</label>
-                <input
-                  type="number"
-                  value={jwForm.photosCount}
-                  onChange={(e) =>
-                    setJwForm({
-                      ...jwForm,
-                      photosCount: parseInt(e.target.value) || 0,
-                    })
-                  }
-                  className="w-full border border-silver rounded px-3 py-2"
-                  min="0"
-                  placeholder="0"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-cerulean text-white py-2 rounded hover:bg-slate transition-colors disabled:opacity-50"
-              >
-                {loading ? "Creating..." : "Create Job Walk"}
-              </button>
-            </form>
-          </div>
-
-          {/* Fetch Button */}
-          <div className="border border-silver rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Fetch Job Walks</h2>
-            <button
-              onClick={handleFetchJobWalks}
-              disabled={loading}
-              className="w-full bg-cerulean text-white py-2 rounded hover:bg-slate transition-colors disabled:opacity-50"
-            >
-              {loading ? "Loading..." : "Fetch All Job Walks"}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Results Display */}
-      {results && (
-        <div className="mt-6 border border-silver rounded-lg p-6 bg-platinum/20">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">
-              {results.success ? "✅ Success" : "❌ Error"}
-            </h3>
-            <button
-              onClick={() => setResults(null)}
-              className="text-slate hover:text-charcoal"
-            >
-              Clear
-            </button>
-          </div>
-
-          {results.message && (
-            <p className="text-sm text-slate mb-2">{results.message}</p>
-          )}
-
-          {results.error && (
-            <p className="text-sm text-red-600 mb-2">{results.error}</p>
-          )}
-
-          <pre className="bg-white p-4 rounded border border-silver overflow-auto max-h-96 text-xs">
-            {JSON.stringify(results, null, 2)}
+toast("✅ Success!");
+toast("❌ Error!");
+toast("⚠ Warning!");
+toast("Loading...");`}
           </pre>
         </div>
-      )}
+      </section>
 
-      {/* Info Box */}
-      <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
-        <p className="text-sm text-charcoal">
-          <strong>Instructions:</strong> First run the SQL migration, then make
-          sure you have companies, sites, and users in your database. Test
-          creating and fetching both work orders and job walks.
-        </p>
-      </div>
+      {/* CONFIRM TESTS */}
+      <section className="text-charoal mb-12 border-2 border-gray-300 rounded-lg p-6" >
+        <h2 className="text-2xl font-bold mb-4">🗑️ Confirm Popup</h2>
+
+        <div className="space-y-3 mb-6">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+            >
+              <span className="font-medium text-gray-800">{item.name}</span>
+              <button
+                onClick={() => handleDelete(item.id, item.name)}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium"
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+
+          {items.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              No items left. Refresh page to reset.
+            </div>
+          )}
+
+          {items.length > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="w-full px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
+            >
+              Delete All ({items.length})
+            </button>
+          )}
+        </div>
+
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="font-bold text-red-900 mb-2">Usage:</p>
+          <pre className="text-sm text-red-800">
+            {`import { confirm } from "@/components/Confirm";
+
+confirm("Delete this?", () => {
+  // Runs if user clicks "Delete"
+  deleteItem(id);
+  toast("✅ Deleted!");
+});`}
+          </pre>
+        </div>
+      </section>
+
+      {/* REAL EXAMPLE */}
+      <section className="border-2 border-green-500 rounded-lg p-6 bg-green-50">
+        <h2 className="text-2xl font-bold mb-4 text-green-800">
+          💼 Real-World Example
+        </h2>
+
+        <pre className="bg-white p-4 rounded-lg border border-green-300 text-sm overflow-x-auto">
+          {`import { toast } from "@/components/Toast";
+import { confirm } from "@/components/Confirm";
+
+const handleDelete = async (id: string) => {
+  confirm("Are you sure you want to delete?", async () => {
+    toast("Deleting...");
+    
+    try {
+      await api.delete(id);
+      toast("✅ Deleted successfully!");
+    } catch (error) {
+      toast("❌ Error: " + error.message);
+    }
+  });
+};
+
+const handleSave = async () => {
+  toast("Saving...");
+  
+  try {
+    await api.save(data);
+    toast("✅ Saved successfully!");
+  } catch (error) {
+    toast("❌ Error: " + error.message);
+  }
+};`}
+        </pre>
+      </section>
+
+      {/* SETUP */}
+      <section className="mt-12 border-2 border-blue-500 rounded-lg p-6 bg-blue-50">
+        <h2 className="text-2xl font-bold mb-4 text-blue-800">
+          ⚙️ Setup (2 Steps!)
+        </h2>
+
+        <div className="space-y-4">
+          <div>
+            <p className="font-bold text-blue-900 mb-2">
+              Step 1: Add Components
+            </p>
+            <ul className="list-disc ml-6 text-blue-800">
+              <li>Toast.tsx → src/components/Toast.tsx</li>
+              <li>Confirm.tsx → src/components/Confirm.tsx</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-bold text-blue-900 mb-2">
+              Step 2: Add CSS to globals.css
+            </p>
+            <pre className="bg-white p-3 rounded border border-blue-300 text-xs">
+              {`@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.animate-fadeIn { animation: fadeIn 0.2s ease-out; }
+.animate-scaleIn { animation: scaleIn 0.2s ease-out; }`}
+            </pre>
+          </div>
+
+          <div className="bg-green-100 border border-green-400 rounded p-3">
+            <p className="font-bold text-green-900">✅ That's it!</p>
+            <p className="text-green-800 text-sm">
+              No need to add anything to layout. Just import and use!
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

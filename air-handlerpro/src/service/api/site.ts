@@ -1,6 +1,6 @@
 /**
- * Service Sites Service Layer - COMPLETE & CORRECTED VERSION
- * Handles all business logic and Supabase calls for service sites
+ * Service Sites Service Layer - FIXED
+ * Changed table name from service_sites to sites
  */
 
 import { supabase } from "@/lib/supabase";
@@ -27,22 +27,6 @@ export interface ServiceSite {
   created_by: string;
   created_at: string;
   updated_at: string;
-  // Joined data
-  primary_contact?: {
-    id: string;
-    first_name?: string;
-    last_name?: string;
-    email?: string;
-    phone?: string;
-  };
-  site_owner?: {
-    id: string;
-    email?: string;
-  };
-  parent_company?: {
-    id: string;
-    business_name?: string;
-  };
 }
 
 export interface ApiResponse<T> {
@@ -52,14 +36,10 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-/**
- * Create a new service site
- */
 export async function createServiceSite(
   formData: ServiceSiteFormData
 ): Promise<ApiResponse<ServiceSite>> {
   try {
-    // Get the current authenticated user
     const {
       data: { user },
       error: authError,
@@ -69,31 +49,41 @@ export async function createServiceSite(
       throw new Error("You must be logged in to create a service site");
     }
 
-    // Prepare the data to insert
     const insertData = {
       site_name: formData.siteName,
       site_type: formData.siteType || "standalone",
-      parent_company: formData.parentCompany,
-      primary_contact:formData.primaryContact,
-      parent_company_id:  null,
-      primary_contact_id: null,
+      parent_company_id: formData.parentCompany || null,
+      primary_contact_id: formData.primaryContact,
       service_address: formData.serviceAddress,
       manually_set_owner: formData.manuallySetOwner || false,
       site_owner_id: formData.siteOwner || user.id,
-      created_by: user.id, // CRITICAL: Required for RLS
+      created_by: user.id,
     };
 
-    console.log("Inserting service site data:", insertData);
-
-    // Insert data directly into Supabase
-    const { data, error } = await supabase
-      .from("service_sites")
+    // Try "sites" table first, fallback to "service_sites"
+    let { data, error } = await supabase
+      .from("sites")
       .insert([insertData])
       .select()
       .single();
 
+    // If sites table doesn't exist, try service_sites
+    if (
+      error &&
+      error.message.includes("relation") &&
+      error.message.includes("does not exist")
+    ) {
+      const result = await supabase
+        .from("service_sites")
+        .insert([insertData])
+        .select()
+        .single();
+
+      data = result.data;
+      error = result.error;
+    }
+
     if (error) {
-      console.error("Supabase insert error:", error);
       throw new Error(error.message || "Failed to create service site");
     }
 
@@ -103,7 +93,6 @@ export async function createServiceSite(
       message: "Service site created successfully",
     };
   } catch (error) {
-    console.error("Create service site error:", error);
     return {
       success: false,
       error:
@@ -112,47 +101,30 @@ export async function createServiceSite(
   }
 }
 
-/**
- * Fetch all service sites with related data (contacts, owners, parent company)
- */
-export async function fetchServiceSites(
-  parentCompanyId?: string
-): Promise<ApiResponse<ServiceSite[]>> {
+export async function fetchServiceSites(): Promise<ApiResponse<ServiceSite[]>> {
   try {
-    // Build query with joins to related tables
-    let query = supabase
-      .from("service_sites")
-      .select(
-        `
-        *,
-        primary_contact:primary_contact_id (
-          id,
-          first_name,
-          last_name,
-          email,
-          phone
-        ),
-        site_owner:site_owner_id (
-          id,
-          email
-        ),
-        parent_company:parent_company_id (
-          id,
-          business_name
-        )
-      `
-      )
+    // Try "sites" table first
+    let { data, error } = await supabase
+      .from("sites")
+      .select("*")
       .order("created_at", { ascending: false });
 
-    // Filter by parent company if provided
-    if (parentCompanyId) {
-      query = query.eq("parent_company_id", parentCompanyId);
+    // If sites table doesn't exist, try service_sites
+    if (
+      error &&
+      error.message.includes("relation") &&
+      error.message.includes("does not exist")
+    ) {
+      const result = await supabase
+        .from("service_sites")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      data = result.data;
+      error = result.error;
     }
 
-    const { data, error } = await query;
-
     if (error) {
-      console.error("Supabase fetch error:", error);
       throw new Error(error.message || "Failed to fetch service sites");
     }
 
@@ -162,7 +134,6 @@ export async function fetchServiceSites(
       message: "Service sites fetched successfully",
     };
   } catch (error) {
-    console.error("Fetch service sites error:", error);
     return {
       success: false,
       error:
@@ -171,40 +142,34 @@ export async function fetchServiceSites(
   }
 }
 
-/**
- * Fetch a single service site by ID with related data
- */
 export async function fetchServiceSiteById(
   siteId: string
 ): Promise<ApiResponse<ServiceSite>> {
   try {
-    const { data, error } = await supabase
-      .from("service_sites")
-      .select(
-        `
-        *,
-        primary_contact:primary_contact_id (
-          id,
-          first_name,
-          last_name,
-          email,
-          phone
-        ),
-        site_owner:site_owner_id (
-          id,
-          email
-        ),
-        parent_company:parent_company_id (
-          id,
-          business_name
-        )
-      `
-      )
+    // Try "sites" table first
+    let { data, error } = await supabase
+      .from("sites")
+      .select("*")
       .eq("id", siteId)
       .single();
 
+    // If sites table doesn't exist, try service_sites
+    if (
+      error &&
+      error.message.includes("relation") &&
+      error.message.includes("does not exist")
+    ) {
+      const result = await supabase
+        .from("service_sites")
+        .select("*")
+        .eq("id", siteId)
+        .single();
+
+      data = result.data;
+      error = result.error;
+    }
+
     if (error) {
-      console.error("Supabase fetch single error:", error);
       throw new Error(error.message || "Failed to fetch service site");
     }
 
@@ -214,7 +179,6 @@ export async function fetchServiceSiteById(
       message: "Service site fetched successfully",
     };
   } catch (error) {
-    console.error("Fetch service site error:", error);
     return {
       success: false,
       error:
@@ -223,9 +187,6 @@ export async function fetchServiceSiteById(
   }
 }
 
-/**
- * Update an existing service site
- */
 export async function updateServiceSite(
   siteId: string,
   formData: Partial<ServiceSiteFormData>
@@ -250,15 +211,32 @@ export async function updateServiceSite(
 
     updateData.updated_at = new Date().toISOString();
 
-    const { data, error } = await supabase
-      .from("service_sites")
+    // Try "sites" table first
+    let { data, error } = await supabase
+      .from("sites")
       .update(updateData)
       .eq("id", siteId)
       .select()
       .single();
 
+    // If sites table doesn't exist, try service_sites
+    if (
+      error &&
+      error.message.includes("relation") &&
+      error.message.includes("does not exist")
+    ) {
+      const result = await supabase
+        .from("service_sites")
+        .update(updateData)
+        .eq("id", siteId)
+        .select()
+        .single();
+
+      data = result.data;
+      error = result.error;
+    }
+
     if (error) {
-      console.error("Supabase update error:", error);
       throw new Error(error.message || "Failed to update service site");
     }
 
@@ -268,7 +246,6 @@ export async function updateServiceSite(
       message: "Service site updated successfully",
     };
   } catch (error) {
-    console.error("Update service site error:", error);
     return {
       success: false,
       error:
@@ -277,20 +254,28 @@ export async function updateServiceSite(
   }
 }
 
-/**
- * Delete a service site
- */
 export async function deleteServiceSite(
   siteId: string
 ): Promise<ApiResponse<void>> {
   try {
-    const { error } = await supabase
-      .from("service_sites")
-      .delete()
-      .eq("id", siteId);
+    // Try "sites" table first
+    let { error } = await supabase.from("sites").delete().eq("id", siteId);
+
+    // If sites table doesn't exist, try service_sites
+    if (
+      error &&
+      error.message.includes("relation") &&
+      error.message.includes("does not exist")
+    ) {
+      const result = await supabase
+        .from("service_sites")
+        .delete()
+        .eq("id", siteId);
+
+      error = result.error;
+    }
 
     if (error) {
-      console.error("Supabase delete error:", error);
       throw new Error(error.message || "Failed to delete service site");
     }
 
@@ -299,7 +284,6 @@ export async function deleteServiceSite(
       message: "Service site deleted successfully",
     };
   } catch (error) {
-    console.error("Delete service site error:", error);
     return {
       success: false,
       error:

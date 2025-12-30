@@ -1,6 +1,6 @@
 /**
- * Contacts Service Layer - COMPLETE VERSION
- * Handles all business logic and Supabase calls for contacts
+ * Contacts Service Layer - FIXED
+ * Removed problematic joins
  */
 
 import { supabase } from "@/lib/supabase";
@@ -38,19 +38,6 @@ export interface Contact {
   created_by: string;
   created_at: string;
   updated_at: string;
-  // Joined data
-  parent_company?: {
-    id: string;
-    business_name?: string;
-  };
-  service_site?: {
-    id: string;
-    site_name?: string;
-  };
-  owner?: {
-    id: string;
-    email?: string;
-  };
 }
 
 export interface ApiResponse<T> {
@@ -60,14 +47,10 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-/**
- * Create a new contact
- */
 export async function createContact(
   formData: ContactFormData
 ): Promise<ApiResponse<Contact>> {
   try {
-    // Get the current authenticated user
     const {
       data: { user },
       error: authError,
@@ -77,14 +60,13 @@ export async function createContact(
       throw new Error("You must be logged in to create a contact");
     }
 
-    // Prepare the data to insert
     const insertData = {
       first_name: formData.firstName,
       last_name: formData.lastName,
       title: formData.title || null,
       department: formData.department || null,
- parent_company:formData.parentCompany || null,
-      service_site: formData.serviceSite || null,
+      parent_company_id: formData.parentCompany || null,
+      service_site_id: formData.serviceSite || null,
       email: formData.email || null,
       phone: formData.phone || null,
       mobile_phone: formData.mobilePhone || null,
@@ -92,12 +74,9 @@ export async function createContact(
       contact_type: formData.contactType || "Primary Contact",
       contact_status: formData.contactStatus || "Active",
       owner_id: user.id,
-      created_by: user.id, // CRITICAL: Required for RLS
+      created_by: user.id,
     };
 
-    console.log("Inserting contact data:", insertData);
-
-    // Insert data directly into Supabase
     const { data, error } = await supabase
       .from("contacts")
       .insert([insertData])
@@ -105,7 +84,6 @@ export async function createContact(
       .single();
 
     if (error) {
-      console.error("Supabase insert error:", error);
       throw new Error(error.message || "Failed to create contact");
     }
 
@@ -115,7 +93,6 @@ export async function createContact(
       message: "Contact created successfully",
     };
   } catch (error) {
-    console.error("Create contact error:", error);
     return {
       success: false,
       error:
@@ -124,32 +101,14 @@ export async function createContact(
   }
 }
 
-// fetch Contacts data
-export async function fetchContacts(): Promise<any> {
+export async function fetchContacts(): Promise<ApiResponse<Contact[]>> {
   try {
     const { data, error } = await supabase
       .from("contacts")
-      .select(
-        `
-        *,
-        parent_company:parent_company_id (
-          id,
-          business_name
-        ),
-        service_site:service_site_id (
-          id,
-          site_name
-        ),
-        owner:owner_id (
-          id,
-          email
-        )
-      `
-      )
+      .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Supabase fetch error:", error);
       throw new Error(error.message || "Failed to fetch contacts");
     }
 
@@ -159,46 +118,25 @@ export async function fetchContacts(): Promise<any> {
       message: "Contacts fetched successfully",
     };
   } catch (error) {
-    console.error("Fetch contacts error:", error);
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "An unexpected error occurred",
+        error instanceof Error ? error.message : "An unexpect ed error occurred",
     };
   }
 }
 
-/**
- * Fetch a single contact by ID
- */
 export async function fetchContactById(
   contactId: string
 ): Promise<ApiResponse<Contact>> {
   try {
     const { data, error } = await supabase
       .from("contacts")
-      .select(
-        `
-        *,
-        parent_company:parent_company_id (
-          id,
-          business_name
-        ),
-        service_site:service_site_id (
-          id,
-          site_name
-        ),
-        owner:owner_id (
-          id,
-          email
-        )
-      `
-      )
+      .select("*")
       .eq("id", contactId)
       .single();
 
     if (error) {
-      console.error("Supabase fetch single error:", error);
       throw new Error(error.message || "Failed to fetch contact");
     }
 
@@ -208,7 +146,6 @@ export async function fetchContactById(
       message: "Contact fetched successfully",
     };
   } catch (error) {
-    console.error("Fetch contact error:", error);
     return {
       success: false,
       error:
@@ -217,9 +154,6 @@ export async function fetchContactById(
   }
 }
 
-/**
- * Update an existing contact
- */
 export async function updateContact(
   contactId: string,
   formData: Partial<ContactFormData>
@@ -259,7 +193,6 @@ export async function updateContact(
       .single();
 
     if (error) {
-      console.error("Supabase update error:", error);
       throw new Error(error.message || "Failed to update contact");
     }
 
@@ -269,7 +202,6 @@ export async function updateContact(
       message: "Contact updated successfully",
     };
   } catch (error) {
-    console.error("Update contact error:", error);
     return {
       success: false,
       error:
@@ -278,9 +210,6 @@ export async function updateContact(
   }
 }
 
-/**
- * Delete a contact
- */
 export async function deleteContact(
   contactId: string
 ): Promise<ApiResponse<void>> {
@@ -291,7 +220,6 @@ export async function deleteContact(
       .eq("id", contactId);
 
     if (error) {
-      console.error("Supabase delete error:", error);
       throw new Error(error.message || "Failed to delete contact");
     }
 
@@ -300,7 +228,6 @@ export async function deleteContact(
       message: "Contact deleted successfully",
     };
   } catch (error) {
-    console.error("Delete contact error:", error);
     return {
       success: false,
       error:
