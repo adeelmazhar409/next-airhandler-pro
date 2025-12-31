@@ -29,67 +29,11 @@ export const CompanyFormProps = [
         Title: 'Primary Contact',
         label: "primary_contact_id",
         nature: "full",
-        type: "list-with-add",
+        type: "list-with-search",
         placeholder: "Select a contact",
         message: "Select an existing contact or create a new one",
-        buttonName: "+",
         linkTable: "contacts",
         linkTableValue: ["first_name", "last_name"],
-        modal: {
-          modalHeading: "Create New Contact",
-          modalFields: [
-            {
-              sectionName: "Basic Information",
-              fields: [
-                {
-                  label: "First Name",
-                  nature: "half",
-                  type: "text",
-                  placeholder: "Enter first name",
-                },
-                {
-                  label: "Last Name",
-                  nature: "half",
-                  type: "text",
-                  placeholder: "Enter last name",
-                },
-                {
-                  label: "Title",
-                  nature: "half",
-                  type: "text",
-                  placeholder: "Job title",
-                },
-                {
-                  label: "Department",
-                  nature: "half",
-                  type: "text",
-                  placeholder: "Department",
-                },
-              ],
-            },
-            {
-              sectionName: "Contact Information",
-              fields: [
-                {
-                  label: "Email",
-                  nature: "half",
-                  type: "email",
-                  placeholder: "email@example.com",
-                },
-                {
-                  label: "Phone",
-                  nature: "half",
-                  type: "text",
-                  placeholder: "Primary phone number",
-                },
-              ],
-            },
-            {
-              sectionName: "button",
-              button: ["Cancel", "Create Contact"],
-            },
-          ],
-        },
       },
       {
         nature: "full",
@@ -103,110 +47,14 @@ export const CompanyFormProps = [
   },
   {
     nature: "full",
-    type: "list-with-add",
-    label: "service_sites",
+    type: "multi-select",
+    label: "sites",
     Title: "Service Sites",
-    buttonName: "+ Add Site",
+    placeholder: "Select service sites",
     linkTable: "sites",
-    linkTableValue: "site_name",
+    linkTableValue: ["site_name", "service_address", "site_type"],
     message: "No service sites added yet",
-    modal: {
-      modalHeading: "Add Service Site",
-      modalFields: [
-        {
-          label: "site_name",
-          Title: "Site Name",
-          required: true,
-          nature: "full",
-          type: "text",
-          placeholder: "Enter site name",
-        },
-        {
-          label: "primary_contact",
-          nature: "full",
-          type: "dropdown",
-          Title: "Primary Contact",
-          required: true,
-          placeholder: "Select a contact",
-          option: ["test1", "test2"],
-          buttonName: "+",
-          modal: {
-            modalHeading: "Create New Contact",
-            modalFields: [
-              {
-                sectionName: "Basic Information",
-                fields: [
-                  {
-                    label: "First Name",
-                    Title: "First Name",
-                    nature: "half",
-                    type: "text",
-                    placeholder: "Enter first name",
-                  },
-                  {
-                    label: "Last Name",
-                    Title: "Last Name",
-                    nature: "half",
-                    type: "text",
-                    placeholder: "Enter last name",
-                  },
-                  {
-                    label: "Title",
-                    Title: "Title",
-                    nature: "half",
-                    type: "text",
-                    placeholder: "Job title",
-                  },
-                  {
-                    label: "Department",
-                    Title: "Department",
-                    nature: "half",
-                    type: "text",
-                    placeholder: "Department",
-                  },
-                ],
-              },
-              {
-                sectionName: "Contact Information",
-                fields: [
-                  {
-                    label: "Email",
-                    Title: "Email",
-                    nature: "half",
-                    type: "email",
-                    placeholder: "email@example.com",
-                  },
-                  {
-                    label: "Phone",
-                    Title: "Phone",
-                    nature: "half",
-                    type: "text",
-                    placeholder: "Primary phone number",
-                  },
-                ],
-              },
-              {
-                sectionName: "button",
-                button: ["Cancel", "Create Contact"],
-              },
-            ],
-          },
-        },
-        {
-          label: "service_address",
-          nature: "full",
-          Title: "Service Address",
-          type: "text",
-          placeholder: "Enter service address",
-          required: true,
-        },
-
-        {
-          sectionName: "button",
-          button: ["Cancel", "Add Site"],
-        },
-      ],
-    },
+    
   },
   {
     nature: "full",
@@ -233,5 +81,5 @@ export const CompanyFormProps = [
 ];
 
 export const LinkTable = [
-  'contacts', 'users', 'company_types'
+  'contacts', 'users', 'company_types', 'sites'
 ];

@@ -70,7 +70,7 @@ const getDisplayOptions = (
 
 const getDisplayValue = (
   displayOptions: any[],
-  value: string,
+  value: string | any[],
   linkTableValue: string | string[]
 ) => {
   const displayValue = displayOptions?.find(opt => opt?.id === value);

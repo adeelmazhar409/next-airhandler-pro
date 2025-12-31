@@ -32,7 +32,8 @@ export async function fetchCompanies(): Promise<any> {
         sites(
           id,
           site_name,
-          service_address
+          service_address,
+          site_type
         ),
         owner_id
       `

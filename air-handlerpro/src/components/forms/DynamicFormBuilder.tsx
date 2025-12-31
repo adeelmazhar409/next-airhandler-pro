@@ -9,6 +9,9 @@ import {
   X,
   Clock,
   CloudCog,
+  MapPin,
+  Badge,
+  Building,
 } from "lucide-react";
 import { z } from "zod";
 import DynamicModal from "./DynamicModal";
@@ -35,16 +38,6 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
   onSubmit,
   onCancel,
 }) => {
-  const [formData, setFormData] = useState<Record<string, any>>(
-    editingData || {}
-  );
-
-  // Previous form data variables
-
-  // const [formData, setFormData] = useState<Record<string, any>>({});
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string>
-  >({});
   const [dropdownStates, setDropdownStates] = useState<Record<string, boolean>>(
     {}
   );
@@ -72,144 +65,258 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         } else if (isFieldConfig(item)) {
           const field = item as FieldConfig;
 
-          // Skip validation for certain field types
-          if (field.type === "toggle" || field.type === "checkbox-group") {
+          // Skip validation schema for toggle and checkbox-group
+          // but still include them in the form
+          if (field.type === "toggle") {
+            schemaFields[field.Title] = z.boolean().optional();
             return;
           }
 
-          // Only add validation if field is required
-          if (field.required) {
-            let fieldSchema: z.ZodTypeAny;
-
-            // Create schema based on field type with custom error messages
-            switch (field.type) {
-              case "text":
-                fieldSchema = z
-                  .string()
-                  .min(1, `${field.label} is required`)
-                  .refine(
-                    (val) => val === "" || /^[a-zA-Z ]+$/.test(val),
-                    "Please enter only text"
-                  );
-                break;
-
-              case "textarea":
-                fieldSchema = z
-                  .string()
-                  .min(1, `${field.label} is required`)
-                  .refine(
-                    (val) => val === "" || /^[a-zA-Z ]+$/.test(val),
-                    "Please enter only text"
-                  );
-                break;
-
-              case "url":
-                fieldSchema = z
-                  .string()
-                  .min(1, `${field.label} is required`)
-                  .refine(
-                    (val) =>
-                      val === "" ||
-                      /^(?!-)(?:[a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$/.test(val),
-                    "Please enter correct format Domain name"
-                  );
-                break;
-
-              case "email":
-                fieldSchema = z
-                  .string()
-                  .min(1, `${field.label} is required`)
-                  .refine(
-                    (val) =>
-                      val === "" ||
-                      /^(?!\.)(?!.*\.\.)([a-z0-9_'+\-\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\-]*\.)+[a-z]{2,}$/i.test(
-                        val
-                      ),
-                    `Please enter a valid email address`
-                  );
-                break;
-
-              case "number":
-                fieldSchema = z
-                  .string()
-                  .min(1, `${field.label} is required`)
-                  .regex(
-                    /^\d+(\.\d+)?$/,
-                    `${field.label} must be a valid number`
-                  );
-                break;
-
-              case "date":
-                fieldSchema = z.string().min(1, `${field.label} is required`);
-                break;
-
-              case "time":
-                fieldSchema = z.string().min(1, `${field.label} is required`);
-                break;
-
-              case "date&time":
-                fieldSchema = z.object({
-                  date: z.string().min(1, "Date is required"),
-                  hour: z.string().min(1, "Hour is required"),
-                  minute: z.string().min(1, "Minute is required"),
-                });
-                break;
-
-              case "file":
-                fieldSchema = z
-                  .array(z.any())
-                  .min(1, `${field.label} is required`);
-                break;
-
-              case "tag-input":
-                fieldSchema = z
-                  .array(z.string())
-                  .min(
-                    1,
-                    `At least one ${field.label.toLowerCase()} is required`
-                  );
-                break;
-
-              case "dropdown":
-              case "search-dropdown":
-              case "radio-dropdown":
-              case "stage-dropdown":
-                fieldSchema = z.string().min(1, `${field.label} is required`);
-                break;
-
-              case "toggle":
-                fieldSchema = z
-                  .boolean()
-                  .refine(
-                    (val) => val === true || val === false,
-                    "Please select a value"
-                  );
-                break;
-
-              case "checkbox-group":
-                fieldSchema = z
-                  .array(z.string())
-                  .min(1, `${field.label} is required`);
-                break;
-
-              case "list-with-add":
-                fieldSchema = z
-                  .array(z.any())
-                  .min(1, `${field.label} is required`);
-                break;
-
-              default:
-                fieldSchema = z.string().min(1, `${field.label} is required`);
-            }
-
-            schemaFields[field.label] = fieldSchema;
+          if (field.type === "checkbox-group") {
+            schemaFields[field.Title] = field.required
+              ? z.array(z.string()).min(1, `${field.Title} is required`)
+              : z.array(z.string()).optional();
+            return;
           }
+
+          let fieldSchema: z.ZodTypeAny;
+
+          // Create schema based on field type
+          switch (field.type) {
+            case "text":
+              fieldSchema = field.required
+                ? z
+                    .string()
+                    .min(1, `${field.Title} is required`)
+                    .refine(
+                      (val) => val === "" || /^[a-zA-Z ]+$/.test(val),
+                      "Please enter only text"
+                    )
+                : z
+                    .string()
+                    .optional()
+                    .refine(
+                      (val) => !val || /^[a-zA-Z ]+$/.test(val),
+                      "Please enter only text"
+                    );
+              break;
+
+            case "textarea":
+              fieldSchema = field.required
+                ? z
+                    .string()
+                    .min(1, `${field.Title} is required`)
+                    .refine(
+                      (val) => val === "" || /^[a-zA-Z,./ ]+$/.test(val),
+                      "Please enter only text"
+                    )
+                : z
+                    .string()
+                    .optional()
+                    .refine(
+                      (val) => !val || /^[a-zA-Z,./ ]+$/.test(val),
+                      "Please enter only text"
+                    );
+              break;
+
+            case "url":
+              fieldSchema = field.required
+                ? z
+                    .string()
+                    .min(1, `${field.Title} is required`)
+                    .refine(
+                      (val) =>
+                        val === "" ||
+                        /^(?!-)(?:[a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$/.test(
+                          val
+                        ),
+                      "Please enter correct format Domain name"
+                    )
+                : z
+                    .string()
+                    .optional()
+                    .refine(
+                      (val) =>
+                        !val ||
+                        /^(?!-)(?:[a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$/.test(
+                          val
+                        ),
+                      "Please enter correct format Domain name"
+                    );
+              break;
+
+            case "email":
+              fieldSchema = field.required
+                ? z
+                    .string()
+                    .min(1, `${field.Title} is required`)
+                    .refine(
+                      (val) =>
+                        val === "" ||
+                        /^(?!\.)(?!.*\.\.)([a-z0-9_'+\-\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\-]*\.)+[a-z]{2,}$/i.test(
+                          val
+                        ),
+                      "Please enter a valid email address"
+                    )
+                : z
+                    .string()
+                    .optional()
+                    .refine(
+                      (val) =>
+                        !val ||
+                        /^(?!\.)(?!.*\.\.)([a-z0-9_'+\-\.]*)[a-z0-9_+-]@([a-z0-9][a-z0-9\-]*\.)+[a-z]{2,}$/i.test(
+                          val
+                        ),
+                      "Please enter a valid email address"
+                    );
+              break;
+
+            case "number":
+              fieldSchema = field.required
+                ? z
+                    .string()
+                    .min(1, `${field.Title} is required`)
+                    .regex(
+                      /^\d+(\.\d+)?$/,
+                      `${field.label} must be a valid number`
+                    )
+                : z
+                    .string()
+                    .optional()
+                    .refine(
+                      (val) => !val || /^\d+(\.\d+)?$/.test(val),
+                      `${field.label} must be a valid number`
+                    );
+              break;
+
+            case "date":
+              fieldSchema = field.required
+                ? z.string().min(1, `${field.Title} is required`)
+                : z.string().optional();
+              break;
+
+            case "time":
+              fieldSchema = field.required
+                ? z.string().min(1, `${field.Title} is required`)
+                : z.string().optional();
+              break;
+
+            case "date&time":
+              fieldSchema = field.required
+                ? z.object({
+                    date: z.string().min(1, "Date is required"),
+                    hour: z.string().min(1, "Hour is required"),
+                    minute: z.string().min(1, "Minute is required"),
+                  })
+                : z
+                    .object({
+                      date: z.string().optional(),
+                      hour: z.string().optional(),
+                      minute: z.string().optional(),
+                    })
+                    .optional();
+              break;
+
+            case "file":
+              fieldSchema = field.required
+                ? z.array(z.any()).min(1, `${field.Title} is required`)
+                : z.array(z.any()).optional();
+              break;
+
+            case "tag-input":
+              fieldSchema = field.required
+                ? z
+                    .array(z.string())
+                    .min(
+                      1,
+                      `At least one ${field.Title.toLowerCase()} is required`
+                    )
+                : z.array(z.string()).optional();
+              break;
+
+            case "dropdown":
+            case "search-dropdown":
+            case "radio-dropdown":
+            case "stage-dropdown":
+            case "list-with-search":
+              fieldSchema = field.required
+                ? z.string().min(1, `${field.Title} is required`)
+                : z.string().optional();
+              break;
+
+            case "multi-select":
+              fieldSchema = field.required
+                ? z
+                    .array(z.object({ id: z.string() }))
+                    .min(1, `${field.Title} is required`)
+                : z.array(z.object({ id: z.string() })).optional();
+              break;
+
+            default:
+              fieldSchema = field.required
+                ? z.string().min(1, `${field.Title} is required`)
+                : z.string().optional();
+          }
+
+          schemaFields[field.Title] = fieldSchema;
         }
       });
     };
 
     processFields(config);
     return z.object(schemaFields);
+  };
+
+  // Create default values from config
+  const createDefaultValues = () => {
+    const defaults: Record<string, any> = {};
+
+    const processFields = (items: (FieldConfig | any)[]) => {
+      items.forEach((item) => {
+        if (isSectionConfig(item) && item.fields) {
+          processFields(item.fields);
+        } else if (isFieldConfig(item)) {
+          const field = item as FieldConfig;
+
+          // Set default values based on field type
+          switch (field.type) {
+            case "toggle":
+              defaults[field.label] = false;
+              break;
+
+            case "checkbox-group":
+            case "tag-input":
+            case "file":
+            case "list-with-add":
+            case "multi-select":
+              defaults[field.label] = [];
+              break;
+
+            case "date&time":
+              defaults[field.label] = { date: "", hour: "", minute: "" };
+              break;
+
+            case "text":
+            case "textarea":
+            case "email":
+            case "url":
+            case "number":
+            case "date":
+            case "time":
+            case "dropdown":
+            case "search-dropdown":
+            case "radio-dropdown":
+            case "stage-dropdown":
+            default:
+              defaults[field.label] = "";
+              break;
+          }
+        }
+      });
+    };
+
+    processFields(config);
+    return defaults;
   };
 
   // Initialize React Hook Form
@@ -222,12 +329,13 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     watch,
   } = useForm({
     resolver: zodResolver(createValidationSchema()),
-    defaultValues: editingData || {},
+    defaultValues: editingData || createDefaultValues(),
   });
 
+  console.log(createDefaultValues())
   // Watch all form values for debugging
   const formValues = watch();
-  
+
   useEffect(() => {
     if (editingData) {
       reset(editingData);
@@ -317,6 +425,13 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
 
   const renderError = (fieldLabel: string) => {
     const error = errors[fieldLabel];
+    if (Array.isArray(error)) {
+      return (
+        <p className="text-red-500 text-sm mt-1">
+          {error.find((err: any) => err.message)?.message as string}
+        </p>
+      );
+    }
     if (error) {
       return (
         <p className="text-red-500 text-sm mt-1">{error.message as string}</p>
@@ -330,10 +445,10 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     sectionIndex: number,
     fieldIndex: number
   ) => {
-    const fieldKey = `${sectionIndex}-${fieldIndex}-${field.label}`;
+    const fieldKey = `${sectionIndex}-${fieldIndex}-${field.Title}`;
     const isDropdownOpen = dropdownStates[fieldKey] || false;
     const searchTerm = searchTerms[fieldKey] || "";
-    const hasError = !!errors[field.label];
+    const hasError = !!errors[field.Title];
     const errorBorderClass = hasError ? "border-red-500" : "border-silver";
 
     switch (field.type) {
@@ -344,13 +459,13 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue=""
+            defaultValue={editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
-                data-field={field.label}
+                data-field={field.Title}
               >
                 {renderLabel(field)}
                 <input
@@ -360,7 +475,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                   onChange={onChange}
                   className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate`}
                 />
-                {renderError(field.label)}
+                {renderError(field.Title)}
                 {field.message && !hasError && (
                   <p className="text-gray-500 text-[12px] mt-2">
                     {field.message}
@@ -375,13 +490,13 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue=""
+            defaultValue={ editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
-                data-field={field.label}
+                data-field={field.Title}
               >
                 {renderLabel(field)}
                 <textarea
@@ -391,7 +506,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                   rows={field.rows || 4}
                   className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate resize-y`}
                 />
-                {renderError(field.label)}
+                {renderError(field.Title)}
               </div>
             )}
           />
@@ -401,13 +516,13 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue=""
+            defaultValue={ editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
-                data-field={field.label}
+                data-field={field.Title}
               >
                 {renderLabel(field)}
                 <div className="relative">
@@ -418,7 +533,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                     className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal cursor-pointer`}
                   />
                 </div>
-                {renderError(field.label)}
+                {renderError(field.Title)}
               </div>
             )}
           />
@@ -428,13 +543,13 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue=""
+            defaultValue={ editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
-                data-field={field.label}
+                data-field={field.Title}
               >
                 {renderLabel(field)}
                 <div className="relative">
@@ -445,7 +560,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                     className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal cursor-pointer`}
                   />
                 </div>
-                {renderError(field.label)}
+                {renderError(field.Title)}
               </div>
             )}
           />
@@ -455,16 +570,18 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue={{ date: "", hour: "", minute: "" }}
+            defaultValue={
+              editingData ? editingData[field.label] : { date: "", hour: "", minute: "" }
+            }
             render={({ field: { onChange, value } }) => {
               const currentValue = value || { date: "", hour: "", minute: "" };
 
               return (
                 <div
                   className={getFieldWidth(field.nature)}
-                  data-field={field.label}
+                  data-field={field.Title}
                 >
                   {renderLabel(field)}
                   <div className="flex gap-2">
@@ -515,7 +632,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                       <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate pointer-events-none" />
                     </div>
                   </div>
-                  {renderError(field.label)}
+                  {renderError(field.Title)}
                 </div>
               );
             }}
@@ -526,9 +643,9 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue=""
+            defaultValue={ editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => {
               const displayOptions = getDisplayOptions(
                 linkTableData || [],
@@ -543,7 +660,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
               return (
                 <div
                   className={getFieldWidth(field.nature)}
-                  data-field={field.label}
+                  data-field={field.Title}
                 >
                   {renderLabel(field)}
                   <div className="relative">
@@ -609,7 +726,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                       </div>
                     )}
                   </div>
-                  {renderError(field.label)}
+                  {renderError(field.Title)}
                 </div>
               );
             }}
@@ -620,9 +737,9 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue=""
+              defaultValue={ editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => {
               const displayOptions = getDisplayOptions(
                 linkTableData || [],
@@ -637,7 +754,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
               return (
                 <div
                   className={getFieldWidth(field.nature)}
-                  data-field={field.label}
+                  data-field={field.Title}
                 >
                   {renderLabel(field)}
                   <div className="relative">
@@ -682,7 +799,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                       </div>
                     )}
                   </div>
-                  {renderError(field.label)}
+                  {renderError(field.Title)}
                 </div>
               );
             }}
@@ -701,7 +818,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.label}
             control={control}
-            defaultValue=""
+            defaultValue={ editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
@@ -781,7 +898,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                     </div>
                   )}
                 </div>
-                {renderError(field.label)}
+                {renderError(field.Title)}
               </div>
             )}
           />
@@ -791,16 +908,16 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue={[]}
+            defaultValue={ editingData ? editingData[field.label] : []}
             render={({ field: { onChange, value } }) => {
               const files = (value as File[]) || [];
 
               return (
                 <div
                   className={getFieldWidth(field.nature)}
-                  data-field={field.label}
+                  data-field={field.Title}
                 >
                   {renderLabel(field)}
                   <div
@@ -848,7 +965,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                       ))}
                     </div>
                   )}
-                  {renderError(field.label)}
+                  {renderError(field.Title)}
                 </div>
               );
             }}
@@ -859,13 +976,13 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue={false}
+            defaultValue={editingData[field.label] || false}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
-                data-field={field.label}
+                data-field={field.Title}
               >
                 <div className="flex items-center justify-between">
                   {renderLabel(field)}
@@ -883,6 +1000,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                     />
                   </button>
                 </div>
+                {renderError(field.Title)}
               </div>
             )}
           />
@@ -894,16 +1012,16 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue={[]}
+            defaultValue={editingData[field.label] || []}
             render={({ field: { onChange, value } }) => {
               const tags = (value as string[]) || [];
 
               return (
                 <div
                   className={getFieldWidth(field.nature)}
-                  data-field={field.label}
+                  data-field={field.Title}
                 >
                   {renderLabel(field)}
                   <div className="flex gap-2">
@@ -972,7 +1090,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                       ))}
                     </div>
                   )}
-                  {renderError(field.label)}
+                  {renderError(field.Title)}
                 </div>
               );
             }}
@@ -983,16 +1101,16 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue={[]}
+            defaultValue={editingData[field.label] || []}
             render={({ field: { onChange, value } }) => {
               const selectedOptions = (value as string[]) || [];
 
               return (
                 <div
                   className={getFieldWidth(field.nature)}
-                  data-field={field.label}
+                  data-field={field.Title}
                 >
                   {renderLabel(field)}
                   <div className="space-y-2">
@@ -1041,6 +1159,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                       );
                     })}
                   </div>
+                  {renderError(field.Title)}
                 </div>
               );
             }}
@@ -1067,13 +1186,13 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue=""
+            defaultValue={editingData[field.label] || ""}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
-                data-field={field.label}
+                data-field={field.Title}
               >
                 {renderLabel(field)}
                 <div className="relative">
@@ -1121,19 +1240,19 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                     </div>
                   )}
                 </div>
-                {renderError(field.label)}
+                {renderError(field.Title)}
               </div>
             )}
           />
         );
 
-      case "list-with-add":
+      case "list-with-search":
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
-            defaultValue={[]}
+            defaultValue={ editingData ? editingData[field.label] : []}
             render={({ field: { onChange, value } }) => {
               const displayOptions = getDisplayOptions(
                 linkTableData || [],
@@ -1170,12 +1289,12 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
               return (
                 <div
                   className={getFieldWidth(field.nature)}
-                  data-field={field.label}
+                  data-field={field.Title}
                 >
                   {renderLabel(field)}
                   <div className="flex gap-2 items-center justify-end mb-2">
-                      {field.placeholder && (
-                    <div className="w-full flex flex-col items-start">
+                    {field.placeholder && (
+                      <div className="w-full flex flex-col items-start">
                         <div className="relative w-full">
                           <button
                             type="button"
@@ -1264,21 +1383,137 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                             </div>
                           )}
                         </div>
-                    </div>
-                      )}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (field.modal) {
-                          openModal(field.modal, field.label);
-                        }
-                      }}
-                      className="px-4 py-3 w-fit border border-silver rounded-md hover:bg-platinum transition-colors text-charcoal text-sm font-medium cursor-pointer"
-                    >
-                      {field.buttonName || "Add"}
-                    </button>
+                      </div>
+                    )}
+                    {field.buttonName && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (field.modal) {
+                            openModal(field.modal, field.label);
+                          }
+                        }}
+                        className="px-4 py-3 w-fit border border-silver rounded-md hover:bg-platinum transition-colors text-charcoal text-sm font-medium cursor-pointer"
+                      >
+                        {field.buttonName || "Add"}
+                      </button>
+                    )}
                   </div>
-                  {!field.placeholder && displayValue.length === 0 ? (
+                  {renderError(field.Title)}
+                </div>
+              );
+            }}
+          />
+        );
+
+      case "multi-select":
+        return (
+          <Controller
+            key={fieldKey}
+            name={field.Title}
+            control={control}
+            defaultValue={ editingData ? editingData[field.label] : []}
+            render={({ field: { onChange, value } }) => {
+              const displayOptions = getDisplayOptions(
+                linkTableData || [],
+                field.linkTable
+              );
+              const displayValue = getDisplayValue(
+                displayOptions,
+                value,
+                field.linkTableValue as string | string[]
+              );
+              const displayFilterOption = displayOptions.filter(
+                (item) => !value.some((obj: any) => obj.id === item.id)
+              );
+              console.log(errors);
+              return (
+                <div
+                  className={getFieldWidth(field.nature)}
+                  data-field={field.Title}
+                >
+                  {renderLabel(field)}
+                  <div className="flex gap-2 items-center justify-end mb-2">
+                    {field.placeholder && (
+                      <div className="w-full flex flex-col items-start">
+                        <div className="relative w-full">
+                          <button
+                            type="button"
+                            onClick={() => toggleDropdown(fieldKey)}
+                            className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
+                          >
+                            <span
+                              className={
+                                displayValue && displayValue.length > 0
+                                  ? "text-charcoal"
+                                  : "text-slate"
+                              }
+                            >
+                              {displayValue || field.placeholder}
+                            </span>
+                            <ChevronDown className="w-5 h-5 text-slate" />
+                          </button>
+                          {isDropdownOpen && (
+                            <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-hidden">
+                              {/* list of items */}
+                              <div className="overflow-y-auto max-h-48 py-2">
+                                {displayFilterOption.length > 0 ? (
+                                  displayFilterOption.map(
+                                    (option: any, idx: any) => {
+                                      return (
+                                        <button
+                                          key={idx}
+                                          type="button"
+                                          onClick={() => {
+                                            // FIXED: Call onChange to update form state
+                                            onChange([...value, option]);
+                                            toggleDropdown(fieldKey);
+                                          }}
+                                          className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm cursor-pointer"
+                                        >
+                                          {Array.isArray(field.linkTableValue)
+                                            ? field.linkTableValue
+                                                .map(
+                                                  (value) =>
+                                                    option[
+                                                      value as keyof typeof option
+                                                    ]
+                                                )
+                                                .join(" ")
+                                            : option[
+                                                field.linkTableValue as keyof typeof option
+                                              ]}
+                                        </button>
+                                      );
+                                    }
+                                  )
+                                ) : (
+                                  <div className="px-4 py-2 text-slate text-sm">
+                                    No options found
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {field.buttonName && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (field.modal) {
+                            openModal(field.modal, field.label);
+                          }
+                        }}
+                        className="px-4 py-3 w-fit border border-silver rounded-md hover:bg-platinum transition-colors text-charcoal text-sm font-medium cursor-pointer"
+                      >
+                        {field.buttonName || "Add"}
+                      </button>
+                    )}
+                  </div>
+                  {renderError(field.Title)}
+                  {Array.isArray(value) && value.length === 0 ? (
                     <div className="w-full px-4 py-6 border border-silver rounded-lg bg-platinum/20 text-center">
                       <p className="text-slate text-sm">
                         {field.message ||
@@ -1286,38 +1521,38 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                           "No items added yet"}
                       </p>
                     </div>
-                  ) : !field.placeholder && displayValue.length > 0 ? (
+                  ) : Array.isArray(value) && value.length > 0 ? (
                     <div className="space-y-2">
-                      {displayValue.map((item: any, idx: number) => (
+                      {value.map((item: any, idx: number) => (
                         <div
                           key={idx}
                           className="flex items-center justify-between px-4 py-3 border border-silver rounded-lg bg-white hover:bg-platinum/30 transition-colors group"
                         >
-                          <div className="flex-1">
-                            <p className="text-charcoal font-medium text-sm">
-                              {typeof item === "string"
-                                ? item
-                                : Array.isArray(field.linkTableValue)
-                                ? field.linkTableValue
-                                    .map(
-                                      (value) =>
-                                        item[value as keyof typeof item]
-                                    )
-                                    .join(" ")
-                                : item[
-                                    field.linkTableValue as keyof typeof item
-                                  ]}
-                            </p>
-                            {typeof item === "object" && item.description && (
-                              <p className="text-slate text-xs mt-1">
-                                {item.description}
+                          <div className="flex flex-row items-center justify-between w-full">
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center gap-2">
+                                <Building className="w-4 h-4 text-slate" />
+                                <p className="text-charcoal font-medium text-md">
+                                  {item.site_name}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-slate" />
+                                <p className="text-charcoal font-medium text-sm">
+                                  {item.service_address}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 bg-platinum rounded-full px-2 py-1 w-fit">
+                              <p className="text-charcoal font-medium text-sm">
+                                {item.site_type}
                               </p>
-                            )}
+                            </div>
                           </div>
                           <button
                             type="button"
                             onClick={() => {
-                              const newItems = displayValue.filter(
+                              const newItems = value.filter(
                                 (_: any, i: number) => i !== idx
                               );
                               onChange(newItems);
@@ -1330,7 +1565,6 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                       ))}
                     </div>
                   ) : null}
-                  {renderError(field.label)}
                 </div>
               );
             }}
