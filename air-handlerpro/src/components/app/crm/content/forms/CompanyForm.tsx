@@ -4,7 +4,6 @@ import { useState } from "react";
 import DynamicFormBuilder from "@/components/forms/DynamicFormBuilder";
 import { CompanyFormProps } from "@/components/forms/forms-instructions/CompanyProp";
 
-
 interface CompanyFormComponentProps {
   onCancel: () => void;
   onSubmit: (formData: any) => void;
@@ -20,26 +19,12 @@ export function CompanyForm({
 }: CompanyFormComponentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  
   const [error, setError] = useState<string | null>(null);
-
 
   const handleFormSubmit = async (formData: any) => {
     setIsSubmitting(true);
     setError(null);
-
-    try {
-      // DEBUG: Log what's coming from the form
-      console.log("Raw form data from DynamicFormBuilder:", formData);
-      onSubmit(formData);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred";
-      setError(errorMessage);
-      console.error("Form submission error:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
+    onSubmit(formData);
   };
 
   return (

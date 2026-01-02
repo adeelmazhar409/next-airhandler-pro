@@ -1,6 +1,6 @@
 // components/ServiceSiteCard.tsx
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   MapPin,
   Phone,
@@ -9,34 +9,51 @@ import {
   Building,
   Edit2,
   Globe,
+  Trash2,
+  Edit,
 } from "lucide-react";
+import { confirm } from "@/components/confirm";
 
 interface ServiceSiteCardProps {
-  siteName: string;
-  siteType: "hq" | "standalone" | "global" | string; // controls icon & badge style
-  siteTypeLabel: string; // e.g., "AirHandler Pro HQ"
-  address: string;
-  contactName: string;
-  contactPhone: string;
-  contactEmail: string;
-  ownerEmail: string;
+  siteData: any;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  isDeleting?: boolean;
 }
 
 const ServiceSiteCard: React.FC<ServiceSiteCardProps> = ({
-  siteName,
-  siteType,
-  siteTypeLabel,
-  address,
-  contactName,
-  contactPhone,
-  contactEmail,
-  ownerEmail,
+  siteData,
+  onEdit,
+  onDelete,
+  isDeleting = false,
 }) => {
   // Icon for site type
   const getSiteTypeIcon = () => {
-    if (siteType === "hq") return <Building className="w-4 h-4" />;
-    if (siteType === "global") return <Globe className="w-4 h-4" />;
+    if (siteData.site_type === "hq") return <Building className="w-4 h-4" />;
+    if (siteData.site_type === "global") return <Globe className="w-4 h-4" />;
     return <MapPin className="w-4 h-4" />;
+  };
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+  }, [isDropdownOpen]);
+
+  const handleEdit = () => {
+    setIsDropdownOpen(false);
+    onEdit?.();
+  };
+
+  const handleDeleteConfirm = () => {
+    confirm(`Are you sure you want to delete ${siteData.site_name}?`, () => {
+      onDelete?.();
+    });
   };
 
   return (
@@ -50,11 +67,36 @@ const ServiceSiteCard: React.FC<ServiceSiteCardProps> = ({
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-2">
           <MapPin className="w-5 h-5 text-gray-500" />
-          <h3 className="text-lg font-semibold text-gray-900">{siteName}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{siteData.site_name}</h3>
         </div>
-        <button className="text-gray-400 hover:text-gray-600 transition">
-          <Edit2 className="w-5 h-5" />
-        </button>
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="text-gray-400 hover:text-gray-600 transition cursor-pointer"
+          >
+            <Edit2 className="w-5 h-5" />
+          </button>
+
+          {/* Dropdown Menu */}
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+              <button
+                onClick={handleEdit}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 transition cursor-pointer"
+              >
+                <Edit className="w-4 h-4" />
+                Edit
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Site Type Badge */}
@@ -62,7 +104,7 @@ const ServiceSiteCard: React.FC<ServiceSiteCardProps> = ({
         <span className="text-xs text-gray-600">Site</span>
         <span className="flex items-center gap-1.5 px-3 py-1 bg-cerulean text-white text-xs font-medium rounded-full border border-gray-300">
           {getSiteTypeIcon()}
-          {siteTypeLabel}
+          {siteData.site_type}
         </span>
       </div>
 
@@ -73,7 +115,7 @@ const ServiceSiteCard: React.FC<ServiceSiteCardProps> = ({
         </p>
         <div className="flex items-start gap-2 mt-2 text-gray-700">
           <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-          <p className="text-sm">{address}</p>
+          <p className="text-sm">{siteData.service_address}</p>
         </div>
       </div>
 
@@ -85,15 +127,15 @@ const ServiceSiteCard: React.FC<ServiceSiteCardProps> = ({
         <div className="mt-2 space-y-2">
           <div className="flex items-center gap-2 text-gray-700">
             <User className="w-4 h-4 text-gray-500" />
-            <span className="text-sm font-medium">{contactName}</span>
+            <span className="text-sm font-medium">{siteData.primary_contact_name}</span>
           </div>
           <div className="flex items-center gap-2 text-gray-700">
             <Phone className="w-4 h-4 text-gray-500" />
-            <span className="text-sm">{contactPhone}</span>
+            <span className="text-sm">{siteData.primary_contact_phone}</span>
           </div>
           <div className="flex items-center gap-2 text-gray-700">
             <Mail className="w-4 h-4 text-gray-500" />
-            <span className="text-sm">{contactEmail}</span>
+            <span className="text-sm">{siteData.primary_contact_email}</span>
           </div>
         </div>
       </div>
@@ -103,10 +145,28 @@ const ServiceSiteCard: React.FC<ServiceSiteCardProps> = ({
         <div className="flex items-center gap-2 text-gray-700">
           <User className="w-4 h-4 text-gray-500" />
           <span className="text-sm">
-            Owner: <span className="font-medium">{ownerEmail}</span>
+            Owner: <span className="font-medium">{siteData.owner_name}</span>
           </span>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {isDeleting && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Delete Service Site</h2>
+            <p className="text-gray-700 mb-6">Are you sure you want to delete this service site?</p>
+            <div className="flex justify-end gap-2">
+              <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition">
+                Cancel
+              </button>
+              <button className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition cursor-pointer" onClick={() => onDelete?.()}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

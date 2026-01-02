@@ -1,15 +1,7 @@
 // Companies data endpoints
+import { CompanyFormProps } from "@/components/forms/forms-instructions/CompanyProp";
+import { mapTitlesToLabels } from "@/components/utility/HelperFunctions";
 import { supabase } from "@/lib/supabase";
-
-export interface CompanyFormData {
-  businessName: string;
-  companyType: string;
-  primaryContact: string;
-  billingAddress: string;
-  serviceSites?: string[]; // Array of site IDs
-}
-
-
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -38,7 +30,7 @@ export async function fetchCompanies(): Promise<any> {
         owner_id
       `
     );
-    console.log(companies)
+
     if (error) {
       throw new Error(error.message || "Failed to fetch companies");
     }
@@ -59,7 +51,7 @@ export async function fetchCompanies(): Promise<any> {
 }
 // Create Company
 export async function createCompany(
-  formData: CompanyFormData
+  formData: any
 ): Promise<ApiResponse<any>> {
   try {
     // Get the current authenticated user
@@ -72,23 +64,38 @@ export async function createCompany(
       throw new Error("You must be logged in to create a company");
     }
 
-    // Prepare the data to insert
-    const insertData = {
-      business_name: formData.businessName,
-      company_type: formData.companyType,
-      primary_contact: formData.primaryContact,
-      billing_address: formData.billingAddress,
-      owner_id: user.id,
-      created_by: user.id,
-    };
+    const insertData = mapTitlesToLabels(formData, CompanyFormProps);
 
     // Insert data directly into Supabase
     const { data, error } = await supabase
       .from("companies")
-      .insert([insertData])
+      .insert({
+        business_name: insertData.business_name,
+        company_type_id: insertData.company_type_id,
+        billing_address: insertData.billing_address,
+        notes: insertData.notes,
+        primary_contact_id: insertData.primary_contact_id,
+        owner_id: insertData.owner_id,
+        created_by: user.id,
+      })
       .select()
       .single();
 
+    // one-to-many relationships
+    insertData.sites.forEach(async (site: any) => {
+      const { data: siteData, error: siteError } = await supabase
+        .from("sites")
+        .insert({
+          company_id: data.id,
+        })
+        .eq("id", site)
+        .select()
+        .single();
+      
+      if (siteError) {
+        throw new Error(siteError.message || "Failed to create site");
+      }
+    });
     if (error) {
       throw new Error(error.message || "Failed to create company");
     }
@@ -154,28 +161,42 @@ export async function fetchCompanyById(
 // Update Company by ID
 export async function updateCompany(
   companyId: string,
-  formData: Partial<CompanyFormData>
+  formData: Partial<any>
 ): Promise<ApiResponse<any>> {
   try {
-    const updateData: any = {};
+    const updateData = mapTitlesToLabels(formData, CompanyFormProps);
 
-    if (formData.businessName !== undefined)
-      updateData.business_name = formData.businessName;
-    if (formData.companyType !== undefined)
-      updateData.company_type = formData.companyType;
-    if (formData.primaryContact !== undefined)
-      updateData.primary_contact = formData.primaryContact;
-    if (formData.billingAddress !== undefined)
-      updateData.billing_address = formData.billingAddress;
-
-    updateData.updated_at = new Date().toISOString();
-
+    console.log(updateData, companyId)
     const { data, error } = await supabase
       .from("companies")
-      .update(updateData)
+      .update({
+        business_name: updateData.business_name,
+        company_type_id: updateData.company_type_id,
+        billing_address: updateData.billing_address,
+        notes: updateData.notes,
+        primary_contact_id: updateData.primary_contact_id,
+        owner_id: updateData.owner_id,
+      })
       .eq("id", companyId)
       .select()
       .single();
+    
+    // one-to-many relationships
+    updateData.sites.forEach(async (site: any) => {
+      const { data: siteData, error: siteError } = await supabase
+        .from("sites")
+        .update({
+          company_id: companyId
+        })
+        .eq("id", site)
+        .select()
+        .single();
+      
+      if (siteError) {
+        throw new Error(siteError.message || "Failed to update site");
+      }
+    });
+    
 
     if (error) {
       throw new Error(error.message || "Failed to update company");

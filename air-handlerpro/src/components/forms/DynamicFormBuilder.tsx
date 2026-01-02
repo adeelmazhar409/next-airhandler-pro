@@ -31,7 +31,7 @@ import {
 } from "../utility/HelperFunctions";
 import { inspect } from "util";
 
-const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
+const DynamicFormBuilder: React.FC<any> = ({
   linkTableData,
   editingData,
   config,
@@ -54,7 +54,6 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     config: null,
     parentFieldLabel: null,
   });
-
   const createValidationSchema = () => {
     const schemaFields: Record<string, z.ZodTypeAny> = {};
 
@@ -318,7 +317,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     processFields(config);
     return defaults;
   };
-
+  console.log(createDefaultValues());
   // Initialize React Hook Form
   const {
     control,
@@ -332,7 +331,6 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     defaultValues: editingData || createDefaultValues(),
   });
 
-  console.log(createDefaultValues())
   // Watch all form values for debugging
   const formValues = watch();
 
@@ -385,8 +383,10 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
   };
 
   const onFormSubmit = (data: any) => {
-    console.log("Form submitted with data:", data);
     if (onSubmit) {
+      if (editingData) {
+        data.id = editingData.id;
+      }
       onSubmit(data);
     }
   };
@@ -452,6 +452,8 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
     const errorBorderClass = hasError ? "border-red-500" : "border-silver";
 
     switch (field.type) {
+      case "hidden":
+        return null;
       case "text":
       case "number":
       case "email":
@@ -465,7 +467,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
-                data-field={field.Title}
+                data-field={field.label}
               >
                 {renderLabel(field)}
                 <input
@@ -492,7 +494,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={ editingData ? editingData[field.label] : ""}
+            defaultValue={editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
@@ -518,7 +520,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={ editingData ? editingData[field.label] : ""}
+            defaultValue={editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
@@ -545,7 +547,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={ editingData ? editingData[field.label] : ""}
+            defaultValue={editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
@@ -573,7 +575,9 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             name={field.Title}
             control={control}
             defaultValue={
-              editingData ? editingData[field.label] : { date: "", hour: "", minute: "" }
+              editingData
+                ? editingData[field.label]
+                : { date: "", hour: "", minute: "" }
             }
             render={({ field: { onChange, value } }) => {
               const currentValue = value || { date: "", hour: "", minute: "" };
@@ -645,7 +649,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={ editingData ? editingData[field.label] : ""}
+            defaultValue={editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => {
               const displayOptions = getDisplayOptions(
                 linkTableData || [],
@@ -656,7 +660,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                 value,
                 field.linkTableValue as string | string[]
               );
-
+              console.log(displayValue);
               return (
                 <div
                   className={getFieldWidth(field.nature)}
@@ -670,7 +674,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                       className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
                     >
                       <span className={value ? "text-charcoal" : "text-slate"}>
-                        {value || field.placeholder}
+                        {displayValue || field.placeholder}
                       </span>
                       <ChevronDown className="w-5 h-5 text-slate" />
                     </button>
@@ -739,7 +743,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-              defaultValue={ editingData ? editingData[field.label] : ""}
+            defaultValue={editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => {
               const displayOptions = getDisplayOptions(
                 linkTableData || [],
@@ -818,7 +822,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.label}
             control={control}
-            defaultValue={ editingData ? editingData[field.label] : ""}
+            defaultValue={editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
@@ -910,7 +914,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={ editingData ? editingData[field.label] : []}
+            defaultValue={editingData ? editingData[field.label] : []}
             render={({ field: { onChange, value } }) => {
               const files = (value as File[]) || [];
 
@@ -978,28 +982,36 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={editingData[field.label] || false}
+            defaultValue={editingData ? editingData[field.label] : false}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
                 data-field={field.Title}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between border border-silver rounded-lg p-4">
                   {renderLabel(field)}
+
                   <button
                     type="button"
                     onClick={() => onChange(!value)}
-                    className={`relative w-14 h-6 rounded-full transition-colors cursor-pointer ${
-                      value ? "bg-cerulean" : "bg-silver"
-                    }`}
+                    className={`relative w-14 h-6 rounded-full transition-colors duration-300 cursor-pointer
+      ${value ? "bg-cerulean" : "bg-silver"}
+    `}
                   >
+                    {/* Toggle Knob */}
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        value ? "translate-x-6" : "translate-x-1"
-                      }`}
+                      className={`absolute top-1 left-1 h-4 w-4 rounded-full bg-white transition-transform duration-300
+        ${value ? "translate-x-8" : "translate-x-0"}
+      `}
                     />
                   </button>
                 </div>
+                {field.message && !hasError && (
+                  <p className="text-gray-500 text-[12px] mt-2">
+                    {field.message}
+                  </p>
+                )}
+
                 {renderError(field.Title)}
               </div>
             )}
@@ -1014,7 +1026,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={editingData[field.label] || []}
+            defaultValue={editingData? editingData[field.label] : []}
             render={({ field: { onChange, value } }) => {
               const tags = (value as string[]) || [];
 
@@ -1103,7 +1115,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={editingData[field.label] || []}
+            defaultValue={editingData? editingData[field.label] : []}
             render={({ field: { onChange, value } }) => {
               const selectedOptions = (value as string[]) || [];
 
@@ -1188,7 +1200,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={editingData[field.label] || ""}
+            defaultValue={editingData? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
@@ -1252,7 +1264,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={ editingData ? editingData[field.label] : []}
+            defaultValue={editingData ? editingData[field.label] : []}
             render={({ field: { onChange, value } }) => {
               const displayOptions = getDisplayOptions(
                 linkTableData || [],
@@ -1412,7 +1424,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={ editingData ? editingData[field.label] : []}
+            defaultValue={editingData ? editingData[field.label] : []}
             render={({ field: { onChange, value } }) => {
               const displayOptions = getDisplayOptions(
                 linkTableData || [],
@@ -1426,7 +1438,6 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
               const displayFilterOption = displayOptions.filter(
                 (item) => !value.some((obj: any) => obj.id === item.id)
               );
-              console.log(errors);
               return (
                 <div
                   className={getFieldWidth(field.nature)}
@@ -1578,7 +1589,7 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
   return (
     <>
       <form onSubmit={rhfHandleSubmit(onFormSubmit)} className="space-y-8">
-        {config.map((item, itemIndex) => {
+        {config.map((item: any, itemIndex: any) => {
           if (isFieldConfig(item)) {
             return renderField(item, itemIndex, 0);
           }

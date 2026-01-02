@@ -16,13 +16,12 @@ import CompaniesContent from "./content/CompaniesContent";
 import { InputField } from "@/components/interface/DataTypes";
 import { Deal } from "@/components/app/UI-components/table";
 import DealDetailPage from "./content/DealDetailPage";
+import SitesContent from "./content/SitesContent";
 
 export default function CRMDashboard() {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [showDealDetail, setShowDealDetail] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
-  const [selectedType, setSelectedType] = useState("");
-  // const [searchValue, setSearchValue] = useState("");
 
   // Handle showing deal detail
   const handleShowDealDetail = (deal: Deal) => {
@@ -42,6 +41,7 @@ export default function CRMDashboard() {
     { name: "Activities", value: "activities" },
     { name: "Contacts", value: "contacts" },
     { name: "Companies", value: "companies" },
+    { name: "Sites", value: "sites" },
   ];
 
   const topStats = [
@@ -71,15 +71,16 @@ export default function CRMDashboard() {
     switch (activeTab) {
       case "Dashboard":
         return <DashboardContent />;
-        case "pipeline":
-          return <PipelineContent onDealClick={handleShowDealDetail} />;
-          case "activities":
-            return <ActivitiesContent />;
-            case "contacts":
-              return <ContactsContent />;
-              case "companies":
-        console.log("testing render-----------------")
+      case "pipeline":
+        return <PipelineContent onDealClick={handleShowDealDetail} />;
+      case "activities":
+        return <ActivitiesContent />;
+      case "contacts":
+        return <ContactsContent />;
+      case "companies":
         return <CompaniesContent />;
+      case "sites":
+        return <SitesContent />
       default:
         return <DashboardContent />;
     }

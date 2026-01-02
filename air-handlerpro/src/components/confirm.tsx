@@ -45,13 +45,13 @@ function ConfirmComponent({
           <div className="flex gap-3 justify-end">
             <button
               onClick={handleCancel}
-              className="px-4 py-2 border border-gray-300 text-charcoal rounded hover:bg-gray-100"
+              className="px-4 py-2 border border-gray-300 text-charcoal rounded hover:bg-gray-100 cursor-pointer"
             >
               Cancel
             </button>
             <button
               onClick={handleConfirm}
-              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 cursor-pointer"
             >
               Delete
             </button>

@@ -37,7 +37,12 @@ export default function ContactsPage() {
 
   if (formToggle) {
     return (
-      <CreateContactForm onCancel={handleCancel} onSubmit={handleSubmit} />
+      <CreateContactForm
+        onCancel={handleCancel}
+        onSubmit={handleSubmit}
+        linkTableData={[]}
+        editingContact={null}
+      />
     );
   }
 

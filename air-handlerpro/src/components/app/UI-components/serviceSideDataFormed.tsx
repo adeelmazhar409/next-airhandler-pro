@@ -1,61 +1,78 @@
-// app/page.tsx or any component
+"use client";
 
 import ServiceSiteCard from "@/components/app/UI-components/serviceSideCardData";
-// data/serviceSites.ts (or directly in your page)
 
-export const serviceSitesData = [
-  {
-    siteName: "Air handler Pro Location #2",
-    siteType: "hq",
-    siteTypeLabel: "AirHandler Pro HQ",
-    address: "184625 Long Street Orlando, FL 32901",
-    contactName: "Meghan Germany",
-    contactPhone: "472-028-0092",
-    contactEmail: "meghan@thisisfake.com",
-    ownerEmail: "timwallick@gmail.com",
-  },
-  {
-    siteName: "Stan Lee's Service Site",
-    siteType: "standalone",
-    siteTypeLabel: "Standalone",
-    address: "15488 Orange Dr Apopka, FL 32756",
-    contactName: "Stan Lee",
-    contactPhone: "407-555-1249",
-    contactEmail: "stan.lee@stanlees.com",
-    ownerEmail: "timwallick@gmail.com",
-  },
-  {
-    siteName: "Test SH Network Site w/ parent",
-    siteType: "global",
-    siteTypeLabel: "SH Network Global",
-    address: "65654 Street Lane orlando, FL 35654",
-    contactName: "Mason Keith",
-    contactPhone: "407-458-5548",
-    contactEmail: "mason@gmail.com",
-    ownerEmail: "timwallick@gmail.com",
-  },
-  {
-    siteName: "Test SH Network Site w/ parent",
-    siteType: "global",
-    siteTypeLabel: "SH Network Global",
-    address: "65654 Street Lane orlando, FL 35654",
-    contactName: "Mason Keith",
-    contactPhone: "407-458-5548",
-    contactEmail: "mason@gmail.com",
-    ownerEmail: "timwallick@gmail.com",
-  },    
-];
-
-export default function ServiceSitesGrid() {
+function LoadingSkeleton() {
   return (
-    <div className="">
-      <h2 className="text-2xl font-bold text-gray-900 mb-8">Service Sites</h2>
+    <div className="flex gap-3 flex-wrap">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="w-full max-w-sm h-64 bg-gray-200 animate-pulse rounded-lg"
+        />
+      ))}
+    </div>
+  );
+}
 
-      <div className="flex gap-3 flex-wrap">
-        {serviceSitesData.map((site, index) => (
-          <ServiceSiteCard key={index} {...site} />
-        ))}
-      </div>
+export default function ServiceSitesGrid({
+  onEditSite,
+  loading,
+  error,
+  serviceSites,
+  handleDeleteSite,
+}: {
+  onEditSite?: (site: any) => void;
+  loading?: boolean;
+  error?: string | null;
+  serviceSites?: any[];
+  handleDeleteSite?: (siteId: string, siteName: string) => void;
+}) {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-8">
+        Service Sites
+      </h2>
+
+      {loading && <LoadingSkeleton />}
+
+      {error && (
+        <div className="text-center py-12">
+          <p className="text-gray-500">{error}</p>
+        </div>
+      )}
+
+      {!loading && !error && serviceSites?.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No service sites found.</p>
+        </div>
+      )}
+
+      {!loading && !error && serviceSites && serviceSites.length > 0 && (
+        <div className="flex gap-3 flex-wrap">
+          {serviceSites?.map((site) => {
+
+            return (
+              <ServiceSiteCard
+                key={site.id}
+                siteData={site}
+                onEdit={() => {
+                  if (onEditSite) {
+                    onEditSite(site.id);
+                  }
+                }}
+                onDelete={() =>
+                  handleDeleteSite &&
+                  handleDeleteSite(
+                    site.id,
+                    site.site_name || "this site"
+                  )
+                }
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

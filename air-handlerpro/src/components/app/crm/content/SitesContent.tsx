@@ -2,30 +2,27 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Actbox from "../../UI-components/Actbox";
-import { BuildingIcon } from "../../../icons/icons";
+import { SiteIcon } from "../../../icons/icons";
 import Button from "../../UI-components/button";
-import CustomerAccountsGrid from "../../UI-components/companySideDataFormed";
-import { CompanyForm } from "./forms/CompanyForm";
-import {
-  createCompany,
-  deleteCompany,
-  fetchCompanies,
-  updateCompany,
-} from "@/service/api/companies";
-import { companyLinkTable } from "@/components/forms/forms-instructions/CompanyProp";
+import ServiceSitesGrid from "../../UI-components/serviceSideDataFormed";
+import { SiteForm } from "./forms/SiteForm";
 import { supabase } from "@/lib/supabase";
-import { buildFinalCompanyObject } from "@/components/utility/HelperFunctions";
+import {
+  buildFinalSiteObject,
+} from "@/components/utility/HelperFunctions";
+import { createServiceSite, deleteServiceSite, fetchServiceSites, updateServiceSite } from "@/service/api/site";
+import { siteLinkTable } from "@/components/forms/forms-instructions/SiteProp";
 
-export default function CompaniesContent() {
+export default function SitesContent() {
   const [view, setView] = useState<"companies" | "sites">("companies");
-  const [companyFormToggle, setCompanyFormToggle] = useState(false);
-  const [editingCompany, setEditingCompany] = useState<any | null>(null);
+  const [siteFormToggle, setSiteFormToggle] = useState(false);
   const [loading, setLoading] = useState(true); // Start as true
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [companyData, setCompanyData] = useState<any | null>(null);
+  const [sites, setSites] = useState<any[]>([]);
+  const [siteData, setSiteData] = useState<any | null>(null);
   const [linkTableData, setLinkTableData] = useState<any[]>([]);
+  const [editingSite, setEditingSite] = useState<any | null>(null);
 
   // Memoized fetch functions to avoid recreating on every render
   const fetchAllData = useCallback(async () => {
@@ -34,16 +31,16 @@ export default function CompaniesContent() {
 
     try {
       // Fetch companies
-      const companiesResponse = await fetchCompanies();
+      const serviceSitesResponse = await fetchServiceSites();
 
-      if (!companiesResponse.success) {
-        setError(companiesResponse.error || "Failed to load companies");
+      if (!serviceSitesResponse.success) {
+        setError(serviceSitesResponse.error || "Failed to load service sites");
       } else {
-        setCompanyData(companiesResponse.data);
+        setSiteData(serviceSitesResponse.data);
       }
 
       // Fetch link table data in parallel
-      const promises = companyLinkTable.map(async (table) => {
+      const promises = siteLinkTable.map(async (table) => {
         const { data, error } = await supabase.from(table).select("*");
         if (error) {
           console.error(`Error fetching ${table}:`, error);
@@ -53,9 +50,12 @@ export default function CompaniesContent() {
       });
       const results = await Promise.all(promises);
 
-      const viewData = buildFinalCompanyObject(companiesResponse.data, results);
+      const sitesViewData = buildFinalSiteObject(
+        serviceSitesResponse.data || [],
+        results
+      );
 
-      setCompanies(viewData || []);
+      setSites(sitesViewData || []);
       setLinkTableData(results);
     } catch (err: any) {
       console.error("Error loading data:", err);
@@ -70,38 +70,36 @@ export default function CompaniesContent() {
     setRefreshKey((prev) => prev + 1);
   };
 
-  // Delete company
-  const handleDeleteCompany = async (companyId: string) => {
+  const handleDeleteSite = async (siteId: string) => {
     try {
-      await deleteCompany(companyId);
+      await deleteServiceSite(siteId);
       triggerRefresh();
     } catch (err) {
-      console.error("Error deleting company:", err);
+      console.error("Error deleting site:", err);
     }
   };
 
-  // Form handlers
-  const handleCreateCompany = () => {
-    setEditingCompany(null);
-    setCompanyFormToggle(true);
+  const handleEditSite = (site: any) => {
+    setEditingSite(siteData.find((s: any) => s.id === site));
+    setSiteFormToggle(true);
   };
 
-  const handleEditCompany = (company: any) => {
-    setEditingCompany(companyData.find((c: any) => c.id === company));
-    setCompanyFormToggle(true);
+  const handleCreateSite = () => {
+    setSiteFormToggle(true);
   };
 
   const handleCancel = () => {
-    setCompanyFormToggle(false);
-    setEditingCompany(null);
+    setSiteFormToggle(false);
+    setEditingSite(null);
   };
 
   const handleSubmit = (formData: any) => {
     formData.id
-      ? updateCompany(formData.id, formData)
-      : createCompany(formData);
-    setCompanyFormToggle(false);
-    setEditingCompany(null);
+      ? updateServiceSite(formData.id, formData)
+      : createServiceSite(formData);
+    console.log(formData);
+    setSiteFormToggle(false);
+    setEditingSite(null);
     triggerRefresh(); // Refresh data after submit
   };
 
@@ -111,33 +109,35 @@ export default function CompaniesContent() {
   }, [refreshKey, fetchAllData]);
 
   // Early returns for forms
-  if (companyFormToggle) {
+  if (siteFormToggle) {
     return (
-      <CompanyForm
+      <SiteForm
         onCancel={handleCancel}
         onSubmit={handleSubmit}
         linkTableData={linkTableData}
-        editingCompany={editingCompany}
+        editingSite={editingSite}
       />
     );
   }
 
-  const companyValue = {
+  const siteValue = {
     header: false,
-    value: "Companies",
-    icon: <BuildingIcon />,
+    value: "Sites",
+    icon: <SiteIcon />,
     description:
-      "Companies help you organize your contacts and deals by grouping them under a single entity.",
+      "Sites help you manage locations associated with your companies and streamline service operations.",
   };
+
+  const hasServiceData = true; // Adjust based on actual data if needed
 
   return (
     <div className="">
       <div className="flex gap-2 mb-6 justify-between">
         <div className="flex gap-2">
           <button
-            onClick={() => setView("companies")}
+            onClick={() => setView("sites")}
             className={`flex items-center gap-2 px-4 py-2 border border-black font-medium transition-colors rounded-md cursor-pointer ${
-              view === "companies"
+              view === "sites"
                 ? "bg-charcoal text-white"
                 : "bg-white text-charcoal hover:bg-charcoal/30"
             }`}
@@ -152,29 +152,29 @@ export default function CompaniesContent() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
               />
             </svg>
-            Companies
+            Sites
           </button>
         </div>
 
         <div className="flex gap-2">
-          <Button onClick={handleCreateCompany} value="Add Companies" />
+          <Button onClick={handleCreateSite} value="Add Sites" />
         </div>
       </div>
 
-      {companies.length > 0 ? (
-        <CustomerAccountsGrid
+      {hasServiceData ? (
+        <ServiceSitesGrid
           key={refreshKey}
           loading={loading}
           error={error}
-          companies={companies}
-          handleDeleteCompany={handleDeleteCompany}
-          onEditCompany={handleEditCompany}
+          serviceSites={sites}
+          handleDeleteSite={handleDeleteSite}
+          onEditSite={handleEditSite}
         />
       ) : (
-        <Actbox {...companyValue} />
+        <Actbox {...siteValue} />
       )}
     </div>
   );

@@ -5,27 +5,31 @@ export const CreateNewContactFormProps = [
       {
         nature: "half",
         type: "text",
-        label: "First Name",
+        label: "first_name",
+        Title: "First Name",
         placeholder: "Enter first name",
         required: true,
       },
       {
         nature: "half",
         type: "text",
-        label: "Last Name",
+        label: "last_name",
+        Title: "Last Name",
         placeholder: "Enter last name",
         required: true,
       },
       {
         nature: "half",
         type: "text",
-        label: "Title",
+        label: "title",
+        Title: "Title",
         placeholder: "Job title",
       },
       {
         nature: "half",
         type: "text",
-        label: "Department",
+        label: "department",
+        Title: "Department",
         placeholder: "Department",
       },
     ],
@@ -36,7 +40,8 @@ export const CreateNewContactFormProps = [
       {
         nature: "half",
         type: "dropdown",
-        label: "Parent Company",
+        label: "parent_company_id",
+        Title: "Parent Company",
         placeholder: "None",
         option: [
           "ABC Corporation",
@@ -48,7 +53,8 @@ export const CreateNewContactFormProps = [
       {
         nature: "half",
         type: "dropdown",
-        label: "Service Site",
+        label: "service_site_id",
+        Title: "Service Site",
         placeholder: "None",
         option: ["Main Office", "Branch A", "Branch B", "Warehouse"],
       },
@@ -60,25 +66,29 @@ export const CreateNewContactFormProps = [
       {
         nature: "half",
         type: "email",
-        label: "Email",
+        label: "email",
+        Title: "Email",
         placeholder: "email@example.com",
       },
       {
         nature: "half",
         type: "text",
-        label: "Phone",
+        label: "phone",
+        Title: "Phone",
         placeholder: "Primary phone number",
       },
       {
         nature: "half",
         type: "text",
-        label: "Mobile Phone",
+        label: "mobile_phone",
+        Title: "Mobile Phone",
         placeholder: "Mobile phone number",
       },
       {
         nature: "half",
         type: "text",
-        label: "Work Phone",
+        label: "work_phone",
+        Title: "Work Phone",
         placeholder: "Work phone number",
       },
     ],
@@ -89,7 +99,8 @@ export const CreateNewContactFormProps = [
       {
         nature: "third",
         type: "dropdown",
-        label: "Contact Type",
+        label: "contact_type",
+        Title: "Contact Type",
         placeholder: "Primary Contact",
         option: [
           "Primary Contact",
@@ -111,7 +122,8 @@ export const CreateNewContactFormProps = [
       {
         nature: "third",
         type: "radio-dropdown",
-        label: "Contact Status",
+        label: "contact_status",
+        Title: "Contact Status",
         placeholder: "Active",
         option: [
           "Active",
@@ -124,7 +136,8 @@ export const CreateNewContactFormProps = [
       {
         nature: "third",
         type: "dropdown",
-        label: "Preferred Contact Method",
+        label: "preferred_contact_method",
+        Title: "Preferred Contact Method",
         placeholder: "Email",
         option: ["Email", "Phone", "Mobile", "LinkedIn", "Mail"],
       },
@@ -136,7 +149,8 @@ export const CreateNewContactFormProps = [
       {
         nature: "full",
         type: "tag-input",
-        label: "Tags",
+        label: "tags",
+        Title: "Tags",
         placeholder: "Add a tag",
         buttonName: "Add",
       },
@@ -148,7 +162,8 @@ export const CreateNewContactFormProps = [
       {
         nature: "full",
         type: "checkbox-group",
-        label: "Communication Preferences",
+        label: "communication_preferences",
+        Title: "Communication Preferences",
         box: [
           { label: "Email opt-out", value: "email-opt-out" },
           { label: "SMS opt-out", value: "sms-opt-out" },
@@ -173,4 +188,8 @@ export const CreateNewContactFormProps = [
     sectionName: "button",
     button: ["Cancel", "Create Contact"],
   },
+];
+
+export const contactLinkTable = [
+  'companies', 'sites', 'users'
 ];
