@@ -70,6 +70,17 @@ import {
   ServiceSite,
 } from "./api/site";
 
+// Maintenance Estimates
+import {
+  createMaintenanceEstimate,
+  fetchMaintenanceEstimates,
+  fetchMaintenanceEstimateById,
+  updateMaintenanceEstimate,
+  deleteMaintenanceEstimate,
+  MaintenanceEstimateFormData,
+  MaintenanceEstimate,
+} from "./api/maintenanceEstimate";
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -80,7 +91,8 @@ export type FormName =
   | "activity"
   | "company"
   | "contact"
-  | "site";
+  | "site"
+  | "maintenanceEstimate";
 
 export type OperationType =
   | "create"
@@ -162,6 +174,14 @@ export async function handleFormOperation(
 
       case "site":
         return await handleSiteOperation(type, {
+          createData,
+          editData,
+          deleteData,
+          fetchId,
+        });
+
+      case "maintenanceEstimate":
+        return await handleMaintenanceEstimateOperation(type, {
           createData,
           editData,
           deleteData,
@@ -471,6 +491,57 @@ async function handleSiteOperation(
         return { success: false, error: "Delete ID is required" };
       }
       return await deleteServiceSite(data.deleteData);
+
+    default:
+      return { success: false, error: `Unknown operation type: ${type}` };
+  }
+}
+
+// ============================================================================
+// MAINTENANCE ESTIMATE OPERATIONS HANDLER
+// ============================================================================
+
+async function handleMaintenanceEstimateOperation(
+  type: OperationType,
+  data: {
+    createData?: any;
+    editData?: any;
+    deleteData?: any;
+    fetchId?: string;
+  }
+): Promise<BaseResponse> {
+  switch (type) {
+    case "create":
+      if (!data.createData) {
+        return { success: false, error: "Create data is required" };
+      }
+      return await createMaintenanceEstimate(
+        data.createData as MaintenanceEstimateFormData
+      );
+
+    case "fetch":
+      return await fetchMaintenanceEstimates();
+
+    case "fetchById":
+      if (!data.fetchId) {
+        return { success: false, error: "ID is required for fetchById" };
+      }
+      return await fetchMaintenanceEstimateById(data.fetchId);
+
+    case "update":
+      if (!data.editData || !data.editData.id) {
+        return { success: false, error: "Edit data with ID is required" };
+      }
+      return await updateMaintenanceEstimate(
+        data.editData.id,
+        data.editData.data as Partial<MaintenanceEstimateFormData>
+      );
+
+    case "delete":
+      if (!data.deleteData) {
+        return { success: false, error: "Delete ID is required" };
+      }
+      return await deleteMaintenanceEstimate(data.deleteData);
 
     default:
       return { success: false, error: `Unknown operation type: ${type}` };
