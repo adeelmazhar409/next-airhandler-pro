@@ -1,6 +1,10 @@
 import { ChatIcon, DeleteIcon, LeftArrowIcon } from "@/components/icons/icons";
 
-export const HeaderAndChatTab = () => (
+interface HeaderAndChatTabProps {
+  onClear?: () => void;
+}
+
+export const HeaderAndChatTab = ({ onClear }: HeaderAndChatTabProps) => (
   <div>
     <div className="bg-white border border-silver px-4 py-3">
       <div className="flex items-center justify-between">
@@ -10,16 +14,21 @@ export const HeaderAndChatTab = () => (
               AI Estimate Builder
             </h1>
             <p className="text-xs text-slate">
-              Create and review your maintenance estimate
+              Create maintenance estimates with AI assistance
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-1.5 text-xs text-slate hover:text-cerulean transition-colors">
-            <DeleteIcon />
-            Clear Chat
-          </button>
+          {onClear && (
+            <button
+              onClick={onClear}
+              className="flex items-center gap-1.5 text-xs text-slate hover:text-cerulean transition-colors"
+            >
+              <DeleteIcon />
+              Clear Chat
+            </button>
+          )}
           <button className="flex items-center gap-1.5 text-xs text-slate hover:text-cerulean transition-colors">
             <LeftArrowIcon />
             Back to Estimates
