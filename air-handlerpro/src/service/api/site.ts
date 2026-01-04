@@ -4,30 +4,9 @@
  */
 
 import { supabase } from "@/lib/supabase";
+import { mapTitlesToLabels } from "@/components/utility/HelperFunctions";
+import { SiteFormProps } from "@/components/forms/forms-instructions/SiteProp";
 
-export interface ServiceSiteFormData {
-  siteName: string;
-  siteType?: string;
-  parentCompany?: string | null;
-  primaryContact: string;
-  serviceAddress: string;
-  manuallySetOwner?: boolean;
-  siteOwner?: string | null;
-}
-
-export interface ServiceSite {
-  id: string;
-  site_name: string;
-  site_type: string;
-  parent_company_id: string | null;
-  primary_contact_id: string;
-  service_address: string;
-  site_owner_id: string;
-  manually_set_owner: boolean;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-}
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -37,8 +16,8 @@ export interface ApiResponse<T> {
 }
 
 export async function createServiceSite(
-  formData: ServiceSiteFormData
-): Promise<ApiResponse<ServiceSite>> {
+  formData: any
+): Promise<ApiResponse<any>> {
   try {
     const {
       data: { user },
@@ -49,16 +28,7 @@ export async function createServiceSite(
       throw new Error("You must be logged in to create a service site");
     }
 
-    const insertData = {
-      site_name: formData.siteName,
-      site_type: formData.siteType || "standalone",
-      parent_company_id: formData.parentCompany || null,
-      primary_contact_id: formData.primaryContact,
-      service_address: formData.serviceAddress,
-      manually_set_owner: formData.manuallySetOwner || false,
-      site_owner_id: formData.siteOwner || user.id,
-      created_by: user.id,
-    };
+    const insertData = mapTitlesToLabels(formData, SiteFormProps);
 
     // Try "sites" table first, fallback to "service_sites"
     let { data, error } = await supabase
@@ -67,21 +37,6 @@ export async function createServiceSite(
       .select()
       .single();
 
-    // If sites table doesn't exist, try service_sites
-    if (
-      error &&
-      error.message.includes("relation") &&
-      error.message.includes("does not exist")
-    ) {
-      const result = await supabase
-        .from("service_sites")
-        .insert([insertData])
-        .select()
-        .single();
-
-      data = result.data;
-      error = result.error;
-    }
 
     if (error) {
       throw new Error(error.message || "Failed to create service site");
@@ -89,7 +44,7 @@ export async function createServiceSite(
 
     return {
       success: true,
-      data: data as ServiceSite,
+      data: data as any,
       message: "Service site created successfully",
     };
   } catch (error) {
@@ -101,7 +56,7 @@ export async function createServiceSite(
   }
 }
 
-export async function fetchServiceSites(): Promise<ApiResponse<ServiceSite[]>> {
+export async function fetchServiceSites(): Promise<ApiResponse<any[]>> {
   try {
     // Try "sites" table first
     let { data, error } = await supabase
@@ -130,7 +85,7 @@ export async function fetchServiceSites(): Promise<ApiResponse<ServiceSite[]>> {
 
     return {
       success: true,
-      data: (data || []) as ServiceSite[],
+      data: (data || []) as any[],
       message: "Service sites fetched successfully",
     };
   } catch (error) {
@@ -144,7 +99,7 @@ export async function fetchServiceSites(): Promise<ApiResponse<ServiceSite[]>> {
 
 export async function fetchServiceSiteById(
   siteId: string
-): Promise<ApiResponse<ServiceSite>> {
+): Promise<ApiResponse<any>> {
   try {
     // Try "sites" table first
     let { data, error } = await supabase
@@ -175,7 +130,7 @@ export async function fetchServiceSiteById(
 
     return {
       success: true,
-      data: data as ServiceSite,
+      data: data as any,
       message: "Service site fetched successfully",
     };
   } catch (error) {
@@ -189,27 +144,11 @@ export async function fetchServiceSiteById(
 
 export async function updateServiceSite(
   siteId: string,
-  formData: Partial<ServiceSiteFormData>
-): Promise<ApiResponse<ServiceSite>> {
+  formData: Partial<any>
+): Promise<ApiResponse<any>> {
   try {
-    const updateData: any = {};
 
-    if (formData.siteName !== undefined)
-      updateData.site_name = formData.siteName;
-    if (formData.siteType !== undefined)
-      updateData.site_type = formData.siteType;
-    if (formData.parentCompany !== undefined)
-      updateData.parent_company_id = formData.parentCompany;
-    if (formData.primaryContact !== undefined)
-      updateData.primary_contact_id = formData.primaryContact;
-    if (formData.serviceAddress !== undefined)
-      updateData.service_address = formData.serviceAddress;
-    if (formData.manuallySetOwner !== undefined)
-      updateData.manually_set_owner = formData.manuallySetOwner;
-    if (formData.siteOwner !== undefined)
-      updateData.site_owner_id = formData.siteOwner;
-
-    updateData.updated_at = new Date().toISOString();
+    const updateData = mapTitlesToLabels(formData, SiteFormProps);
 
     // Try "sites" table first
     let { data, error } = await supabase
@@ -219,22 +158,6 @@ export async function updateServiceSite(
       .select()
       .single();
 
-    // If sites table doesn't exist, try service_sites
-    if (
-      error &&
-      error.message.includes("relation") &&
-      error.message.includes("does not exist")
-    ) {
-      const result = await supabase
-        .from("service_sites")
-        .update(updateData)
-        .eq("id", siteId)
-        .select()
-        .single();
-
-      data = result.data;
-      error = result.error;
-    }
 
     if (error) {
       throw new Error(error.message || "Failed to update service site");
@@ -242,7 +165,7 @@ export async function updateServiceSite(
 
     return {
       success: true,
-      data: data as ServiceSite,
+      data: data as any,
       message: "Service site updated successfully",
     };
   } catch (error) {

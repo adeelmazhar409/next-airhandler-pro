@@ -1,5 +1,11 @@
 export const CompanyFormProps = [
   {
+    Title: 'id',
+    label: "id",
+    nature: "hidden",
+    type: "hidden",
+  },
+  {
     sectionName: "Company Information",
     fields: [
       {
@@ -80,6 +86,6 @@ export const CompanyFormProps = [
   },
 ];
 
-export const LinkTable = [
+export const companyLinkTable = [
   'contacts', 'users', 'company_types', 'sites'
 ];

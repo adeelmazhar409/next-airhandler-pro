@@ -8,11 +8,15 @@ import { createContact } from "@/service/api/contact";
 interface CreateContactFormComponentProps {
   onCancel: () => void;
   onSubmit: (formData: any) => void;
+  linkTableData: any[];
+  editingContact: any;
 }
 
 export function CreateContactForm({
   onCancel,
   onSubmit,
+  linkTableData,
+  editingContact,
 }: CreateContactFormComponentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,57 +24,7 @@ export function CreateContactForm({
   const handleFormSubmit = async (formData: any) => {
     setIsSubmitting(true);
     setError(null);
-
-    try {
-      // DEBUG: Log what's coming from the form
-      console.log("Raw form data from DynamicFormBuilder:", formData);
-
-      // Transform the form data to match the API expected format
-      const transformedData = {
-        firstName: formData["First Name"] || "",
-        lastName: formData["Last Name"] || "",
-        title: formData["Title"] || null,
-        department: formData["Department"] || null,
-        parentCompany: formData["Parent Company"] || null,
-        serviceSite: formData["Service Site"] || null,
-        email: formData["Email"] || null,
-        phone: formData["Phone"] || null,
-        mobilePhone: formData["Mobile Phone"] || null,
-        workPhone: formData["Work Phone"] || null,
-        contactType: formData["Contact Type"] || "Primary Contact",
-        contactStatus: formData["Contact Status"] || "Active",
-      };
-
-      console.log("Transformed data being sent to API:", transformedData);
-
-      // Validate required fields
-      if (!transformedData.firstName) {
-        throw new Error("First Name is required");
-      }
-      if (!transformedData.lastName) {
-        throw new Error("Last Name is required");
-      }
-
-      // Call the service function
-      const result = await createContact(transformedData);
-
-      if (!result.success) {
-        throw new Error(result.error || "Failed to create contact");
-      }
-
-      console.log("Success:", result.message);
-      console.log("Created contact data:", result.data);
-
-      // Call parent's onSubmit handler
-      onSubmit(result.data);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred";
-      setError(errorMessage);
-      console.error("Form submission error:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
+    onSubmit(formData);
   };
 
   return (
@@ -117,6 +71,8 @@ export function CreateContactForm({
           config={CreateNewContactFormProps}
           onSubmit={handleFormSubmit}
           onCancel={onCancel}
+          linkTableData={linkTableData}
+          editingData={editingContact}
         />
 
         {isSubmitting && (

@@ -58,7 +58,7 @@ export default function CustomerAccountsGrid({
                 companyData={company}
                 onEdit={() => {
                   if (onEditCompany) {
-                    onEditCompany(company);
+                    onEditCompany(company.id);
                   }
                 }}
                 onDelete={() =>

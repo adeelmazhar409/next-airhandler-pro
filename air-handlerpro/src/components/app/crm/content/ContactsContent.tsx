@@ -1,73 +1,126 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import StatsCard from "../../UI-components/StatsCard";
 import { ContactsIcon, NocontactIcon } from "../../../icons/icons";
 import Actbox from "../../UI-components/Actbox";
 import { useState } from "react";
-import { CreateContactForm } from "../../contacts/CreateContactForm";
 import ContactsExample from "../../UI-components/ContactPageDataFormed";
 import Button from "../../UI-components/button";
+import {
+  createContact,
+  deleteContact,
+  fetchContacts,
+  updateContact,
+} from "@/service/api/contact";
+import { buildFinalContactObject } from "@/components/utility/HelperFunctions";
+import { contactLinkTable } from "@/components/forms/forms-instructions/ContactProp";
+import { supabase } from "@/lib/supabase";
+import { CreateContactForm } from "../../contacts/CreateContactForm";
+
 export default function ContactsContent() {
-  const value = {
-    header: false,
-    value: "Contacts",
-    icon: <NocontactIcon />,
-    description: "Manage your customer and prospect relationships here.",
+  const [contactFormToggle, setContactFormToggle] = useState(false);
+  const [loading, setLoading] = useState(true); // Start as true
+  const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [contacts, setContacts] = useState<any[]>([]);
+  const [contactData, setContactData] = useState<any | null>(null);
+  const [linkTableData, setLinkTableData] = useState<any[]>([]);
+  const [editingContact, setEditingContact] = useState<any | null>(null);
+
+  // Memoized fetch functions to avoid recreating on every render
+  const fetchAllData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Fetch companies
+      const contactsResponse = await fetchContacts();
+
+      if (!contactsResponse.success) {
+        setError(contactsResponse.error || "Failed to load contacts");
+      } else {
+        setContactData(contactsResponse.data);
+      }
+
+      // Fetch link table data in parallel
+      const promises = contactLinkTable.map(async (table: any) => {
+        const { data, error } = await supabase.from(table).select("*");
+        if (error) {
+          console.error(`Error fetching ${table}:`, error);
+          return { [table]: [] }; // Return empty on error
+        }
+        return { [table]: data };
+      });
+      const results = await Promise.all(promises);
+
+      const contactsViewData = buildFinalContactObject(
+        contactsResponse.data || [],
+        results
+      );
+
+      setContacts(contactsViewData || []);
+      setLinkTableData(results);
+    } catch (err: any) {
+      console.error("Error loading data:", err);
+      setError("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Trigger refresh
+  const triggerRefresh = () => {
+    setRefreshKey((prev) => prev + 1);
   };
 
- 
-
-    const [searchValue, setSearchValue] = useState("");
-    const [selectedType, setSelectedType] = useState("");
-    const [formToggle, setFormToggle] = useState(false);
-  
-    const handleCreateContact = () => {
-      setFormToggle(true);
-    };
-  
-    const handleCancel = () => {
-      setFormToggle(false);
-    };
-  
-    const handleSubmit = (formData: any) => {
-      console.log("Form submitted:", formData);
-      // Handle form submission logic
-      // After successful submission, you might want to close the form:
-      // setFormToggle(false);
-    };
-  
-    if (formToggle) {
-      return (
-        <CreateContactForm onCancel={handleCancel} onSubmit={handleSubmit} />
-      );
+  const handleDeleteContact = async (contactId: string) => {
+    try {
+      await deleteContact(contactId);
+      triggerRefresh();
+    } catch (err) {
+      console.error("Error deleting contact:", err);
     }
-  
+  };
 
-  const cards = [
-    {
-      title: "total contacts",
-      value: 2,
-      icon: <ContactsIcon />,
-      hoverable: false,
-    },
-    {
-      title: "Active Contacts",
-      value: 1,
-      icon: <ContactsIcon />,
-      hoverable: false,
-    },
-    {
-      title: "Prospects",
-      value: 0,
-      icon: <ContactsIcon />,
-      hoverable: false,
-    },
-    {
-      title: "Customers",
-      value: 1,
-      icon: <ContactsIcon />,
-      hoverable: false,
-    },
-  ];
+  const handleEditContact = (contact: any) => {
+    setEditingContact(contactData.find((c: any) => c.id === contact));
+    setContactFormToggle(true);
+  };
+
+  const handleCreateContact = () => {
+    setContactFormToggle(true);
+  };
+
+  const handleCancel = () => {
+    setContactFormToggle(false);
+    setEditingContact(null);
+  };
+
+  const handleSubmit = (formData: any) => {
+    formData.id
+      ? updateContact(formData.id, formData)
+      : createContact(formData);
+    console.log(formData);
+    setContactFormToggle(false);
+    setEditingContact(null);
+    triggerRefresh(); // Refresh data after submit
+  };
+
+  // Load data on mount and refresh
+  useEffect(() => {
+    fetchAllData();
+  }, [refreshKey, fetchAllData]);
+
+  // Early returns for forms
+  if (contactFormToggle) {
+    return (
+      <CreateContactForm
+        onCancel={handleCancel}
+        onSubmit={handleSubmit}
+        linkTableData={linkTableData}
+        editingContact={editingContact}
+      />
+    );
+  }
 
   const data = true;
 
@@ -126,22 +179,16 @@ export default function ContactsContent() {
           {/* Empty State */}
 
           {data ? (
-            <ContactsExample />
+            <ContactsExample
+              key={refreshKey}
+              loading={loading}
+              error={error}
+              contacts={contacts}
+              handleDeleteContact={handleDeleteContact}
+              onEditContact={handleEditContact}
+            />
           ) : (
-            <div className="text-center py-8">
-              <div className="mx-auto w-16 h-16 mb-4 text-silver">
-                <NocontactIcon />
-              </div>
-              <h3 className="text-sm font-semibold text-charcoal mb-1">
-                No contacts yet
-              </h3>
-              <p className="text-xs text-slate mb-4">
-                Get started by adding your first contact
-              </p>
-
-              {/* Centered New Contact Button */}
-              <Button onClick={handleCreateContact} value="Create contact" />
-            </div>
+            <div>No data</div>
           )}
         </div>
       </div>

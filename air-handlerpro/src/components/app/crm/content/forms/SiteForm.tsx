@@ -8,64 +8,23 @@ import { createServiceSite } from "@/service/api/site";
 interface SiteFormComponentProps {
   onCancel: () => void;
   onSubmit: (formData: any) => void;
+  linkTableData: any[];
+  editingSite: any | null;
 }
 
-export function SiteForm({ onCancel, onSubmit }: SiteFormComponentProps) {
+export function SiteForm({
+  onCancel,
+  onSubmit,
+  linkTableData,
+  editingSite,
+}: SiteFormComponentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleFormSubmit = async (formData: any) => {
     setIsSubmitting(true);
     setError(null);
-
-    try {
-      // DEBUG: Log what's coming from the form
-      console.log("Raw form data from DynamicFormBuilder:", formData);
-
-      // Transform the form data to match the API expected format
-      // DynamicFormBuilder uses the 'label' property as keys
-      const transformedData = {
-        siteName: formData["Site Name"] || "",
-        parentCompany: formData["Parent Company"] || null,
-        primaryContact: formData["Primary Contact"] || "",
-        serviceAddress: formData["Service Address"] || "",
-        manuallySetOwner: formData["Manually Set Owner"] || false,
-        siteOwner: formData["Site Owner"] || null,
-      };
-
-      console.log("Transformed data being sent to API:", transformedData);
-
-      // Validate required fields
-      if (!transformedData.siteName) {
-        throw new Error("Site Name is required");
-      }
-      if (!transformedData.primaryContact) {
-        throw new Error("Primary Contact is required");
-      }
-      if (!transformedData.serviceAddress) {
-        throw new Error("Service Address is required");
-      }
-
-      // Call the service function with transformed data
-      const result = await createServiceSite(transformedData);
-
-      if (!result.success) {
-        throw new Error(result.error || "Failed to create service site");
-      }
-
-      console.log("Success:", result.message);
-      console.log("Created site data:", result.data);
-
-      // Call the parent's onSubmit handler with the created site data
-      onSubmit(result.data);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred";
-      setError(errorMessage);
-      console.error("Form submission error:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
+    onSubmit(formData);
   };
 
   return (
@@ -117,6 +76,8 @@ export function SiteForm({ onCancel, onSubmit }: SiteFormComponentProps) {
           config={SiteFormProps}
           onSubmit={handleFormSubmit}
           onCancel={onCancel}
+          linkTableData={linkTableData}
+          editingData={editingSite}
         />
 
         {/* Loading Overlay */}

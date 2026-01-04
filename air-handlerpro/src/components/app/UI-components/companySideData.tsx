@@ -3,6 +3,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { confirm } from "@/components/confirm";
 import {
   Building,
   MapPin,
@@ -58,6 +59,12 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
     onDelete?.();
   };
 
+  const handleDeleteConfirm = () => {
+    confirm(`Are you sure you want to delete ${companyData.business_name}?`, () => {
+      handleDelete();
+    });
+  };
+
   return (
     <div
       className={`bg-white rounded-xl border border-gray-200 p-6 w-full max-w-sm
@@ -79,7 +86,7 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="text-gray-400 hover:text-gray-600 transition"
+            className="text-gray-400 hover:text-gray-600 transition cursor-pointer"
           >
             <Edit2 className="w-5 h-5" />
           </button>
@@ -89,14 +96,14 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
             <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
               <button
                 onClick={handleEdit}
-                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 transition"
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 transition cursor-pointer"
               >
                 <Edit className="w-4 h-4" />
                 Edit
               </button>
               <button
-                onClick={handleDelete}
-                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition"
+                onClick={handleDeleteConfirm}
+                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition cursor-pointer"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete
@@ -109,12 +116,12 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
       {/* Badges */}
       <div className="flex items-center gap-3 mb-5">
         <span className="px-4 py-1.5 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-          {companyData.company_type}
+          {companyData.type}
         </span>
         <span className="flex items-center gap-1.5 px-4 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full border border-gray-300">
           <Users className="w-4 h-4" />
-          {companyData.sites_count}{" "}
-          {companyData.sites_count === 1 ? "Site" : "Sites"}
+          {companyData.sites.length}{" "}
+          {companyData.sites.length === 1 ? "Site" : "Sites"}
         </span>
       </div>
 
@@ -127,8 +134,8 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
           <div className="flex items-center gap-3">
             <User className="w-4 h-4 text-gray-500" />
             <span className="text-sm font-medium text-gray-900">
-              {companyData.primary_contact?.first_name}{" "}
-              {companyData.primary_contact?.last_name}
+              {companyData.first_name}{" "}
+              {companyData.last_name}
             </span>
           </div>
           <div className="flex items-start gap-3">
@@ -140,13 +147,13 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
           <div className="flex items-center gap-3">
             <Phone className="w-4 h-4 text-gray-500" />
             <span className="text-sm text-gray-700">
-              {companyData.primary_contact?.phone}
+              {companyData.phone}
             </span>
           </div>
           <div className="flex items-center gap-3">
             <Mail className="w-4 h-4 text-gray-500" />
             <span className="text-sm text-gray-700">
-              {companyData.primary_contact?.email}
+              {companyData.email}
             </span>
           </div>
         </div>
@@ -159,15 +166,15 @@ const CustomerAccountCard: React.FC<CustomerAccountCardProps> = ({
           <span className="text-sm text-gray-700">
             Owner:{" "}
             <span className="font-medium">
-              {companyData.owner?.email || companyData.created_by || "N/A"}
+              {companyData.full_name || "N/A"}
             </span>
           </span>
         </div>
       </div>
 
       {/* View Sites Button */}
-      <button className="w-full py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition">
-        View Sites ({companyData.sites_count || 0})
+      <button className="w-full py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition cursor-pointer">
+        View Sites ({companyData.sites.length || 0})
       </button>
     </div>
   );
