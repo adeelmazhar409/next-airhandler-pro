@@ -1,8 +1,6 @@
 /**
- * BASE SERVICE LAYER - COMPLETE FORM NAVIGATION BRAIN
- * Centralized handler for all CRUD operations across different forms
- *
- * Flow: Components → base.ts → service APIs → Supabase
+ * UNIVERSAL BASE FUNCTION - ONE FUNCTION TO RULE THEM ALL
+ * Single function call for all CRUD operations
  */
 
 // Work Orders
@@ -85,7 +83,7 @@ import {
 // TYPES
 // ============================================================================
 
-export type FormName =
+export type TableName =
   | "workorder"
   | "jobwalk"
   | "activity"
@@ -94,21 +92,7 @@ export type FormName =
   | "site"
   | "maintenanceEstimate";
 
-export type OperationType =
-  | "create"
-  | "fetch"
-  | "fetchById"
-  | "update"
-  | "delete";
-
-export interface BaseRequest<T = any> {
-  name: FormName;
-  type: OperationType;
-  createData?: T;
-  editData?: { id: string; data: T };
-  deleteData?: string; // ID to delete
-  fetchId?: string; // ID to fetch single record
-}
+export type Action = "create" | "fetch" | "fetchById" | "update" | "delete";
 
 export interface BaseResponse<T = any> {
   success: boolean;
@@ -118,84 +102,76 @@ export interface BaseResponse<T = any> {
 }
 
 // ============================================================================
-// MAIN HANDLER FUNCTION
+// UNIVERSAL BASE FUNCTION - METHOD 1: Simple Parameters
 // ============================================================================
 
 /**
- * Main handler function - routes requests to appropriate service
+ * Universal base function - handles ALL operations with one call
+ *
+ * @param action - What to do: "create", "fetch", "fetchById", "update", "delete"
+ * @param table - Which table: "workorder", "company", etc.
+ * @param dataOrId - Data for create/update, or ID for fetchById/delete
+ * @param updateData - (Optional) For update operation only
+ *
+ * @example
+ * // Create
+ * await base("create", "maintenanceEstimate", formData);
+ *
+ * // Fetch all
+ * await base("fetch", "company");
+ *
+ * // Fetch by ID
+ * await base("fetchById", "workorder", "uuid-123");
+ *
+ * // Update
+ * await base("update", "contact", "uuid-123", updateData);
+ *
+ * // Delete
+ * await base("delete", "jobwalk", "uuid-123");
  */
-export async function handleFormOperation(
-  request: BaseRequest
+export async function base(
+  action: Action,
+  table: TableName,
+  dataOrId?: any,
+  updateData?: any
 ): Promise<BaseResponse> {
-  const { name, type, createData, editData, deleteData, fetchId } = request;
-
   try {
-    // Route based on form name
-    switch (name) {
-      case "workorder":
-        return await handleWorkOrderOperation(type, {
-          createData,
-          editData,
-          deleteData,
-          fetchId,
-        });
+    switch (action) {
+      case "create":
+        if (!dataOrId) {
+          return { success: false, error: "Data is required for create" };
+        }
+        return await handleCreate(table, dataOrId);
 
-      case "jobwalk":
-        return await handleJobWalkOperation(type, {
-          createData,
-          editData,
-          deleteData,
-          fetchId,
-        });
+      case "fetch":
+        return await handleFetch(table);
 
-      case "activity":
-        return await handleActivityOperation(type, {
-          createData,
-          editData,
-          deleteData,
-          fetchId,
-        });
+      case "fetchById":
+        if (!dataOrId) {
+          return { success: false, error: "ID is required for fetchById" };
+        }
+        return await handleFetchById(table, dataOrId);
 
-      case "company":
-        return await handleCompanyOperation(type, {
-          createData,
-          editData,
-          deleteData,
-          fetchId,
-        });
+      case "update":
+        if (!dataOrId || !updateData) {
+          return {
+            success: false,
+            error: "ID and data are required for update",
+          };
+        }
+        return await handleUpdate(table, dataOrId, updateData);
 
-      case "contact":
-        return await handleContactOperation(type, {
-          createData,
-          editData,
-          deleteData,
-          fetchId,
-        });
-
-      case "site":
-        return await handleSiteOperation(type, {
-          createData,
-          editData,
-          deleteData,
-          fetchId,
-        });
-
-      case "maintenanceEstimate":
-        return await handleMaintenanceEstimateOperation(type, {
-          createData,
-          editData,
-          deleteData,
-          fetchId,
-        });
+      case "delete":
+        if (!dataOrId) {
+          return { success: false, error: "ID is required for delete" };
+        }
+        return await handleDelete(table, dataOrId);
 
       default:
-        return {
-          success: false,
-          error: `Unknown form name: ${name}`,
-        };
+        return { success: false, error: `Unknown action: ${action}` };
     }
   } catch (error) {
-    console.error("Base handler error:", error);
+    console.error("Base function error:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",
@@ -204,402 +180,242 @@ export async function handleFormOperation(
 }
 
 // ============================================================================
-// WORK ORDER OPERATIONS HANDLER
+// UNIVERSAL BASE FUNCTION - METHOD 2: Object Parameter (Even Cleaner!)
 // ============================================================================
 
-async function handleWorkOrderOperation(
-  type: OperationType,
-  data: {
-    createData?: any;
-    editData?: any;
-    deleteData?: any;
-    fetchId?: string;
-  }
-): Promise<BaseResponse> {
-  switch (type) {
-    case "create":
-      if (!data.createData) {
-        return { success: false, error: "Create data is required" };
-      }
-      return await createWorkOrder(data.createData as WorkOrderFormData);
+interface BaseRequest {
+  action: Action;
+  table: TableName;
+  data?: any;
+  id?: string;
+}
 
-    case "fetch":
-      return await fetchWorkOrders();
+/**
+ * Universal base function - object parameter version
+ *
+ * @example
+ * // Create
+ * await baseCall({ action: "create", table: "maintenanceEstimate", data: formData });
+ *
+ * // Fetch all
+ * await baseCall({ action: "fetch", table: "company" });
+ *
+ * // Fetch by ID
+ * await baseCall({ action: "fetchById", table: "workorder", id: "uuid-123" });
+ *
+ * // Update
+ * await baseCall({ action: "update", table: "contact", id: "uuid-123", data: updateData });
+ *
+ * // Delete
+ * await baseCall({ action: "delete", table: "jobwalk", id: "uuid-123" });
+ */
+export async function baseCall(request: BaseRequest): Promise<BaseResponse> {
+  const { action, table, data, id } = request;
 
-    case "fetchById":
-      if (!data.fetchId) {
-        return { success: false, error: "ID is required for fetchById" };
-      }
-      return await fetchWorkOrderById(data.fetchId);
+  try {
+    switch (action) {
+      case "create":
+        if (!data) {
+          return { success: false, error: "Data is required for create" };
+        }
+        return await handleCreate(table, data);
 
-    case "update":
-      if (!data.editData || !data.editData.id) {
-        return { success: false, error: "Edit data with ID is required" };
-      }
-      return await updateWorkOrder(
-        data.editData.id,
-        data.editData.data as Partial<WorkOrderFormData>
-      );
+      case "fetch":
+        return await handleFetch(table);
 
-    case "delete":
-      if (!data.deleteData) {
-        return { success: false, error: "Delete ID is required" };
-      }
-      return await deleteWorkOrder(data.deleteData);
+      case "fetchById":
+        if (!id) {
+          return { success: false, error: "ID is required for fetchById" };
+        }
+        return await handleFetchById(table, id);
 
-    default:
-      return { success: false, error: `Unknown operation type: ${type}` };
+      case "update":
+        if (!id || !data) {
+          return {
+            success: false,
+            error: "ID and data are required for update",
+          };
+        }
+        return await handleUpdate(table, id, data);
+
+      case "delete":
+        if (!id) {
+          return { success: false, error: "ID is required for delete" };
+        }
+        return await handleDelete(table, id);
+
+      default:
+        return { success: false, error: `Unknown action: ${action}` };
+    }
+  } catch (error) {
+    console.error("BaseCall function error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    };
   }
 }
 
 // ============================================================================
-// JOB WALK OPERATIONS HANDLER
+// HELPER FUNCTIONS - ROUTE TO CORRECT API
 // ============================================================================
 
-async function handleJobWalkOperation(
-  type: OperationType,
-  data: {
-    createData?: any;
-    editData?: any;
-    deleteData?: any;
-    fetchId?: string;
-  }
+async function handleCreate(
+  table: TableName,
+  data: any
 ): Promise<BaseResponse> {
-  switch (type) {
-    case "create":
-      if (!data.createData) {
-        return { success: false, error: "Create data is required" };
-      }
-      return await createJobWalk(data.createData as JobWalkFormData);
-
-    case "fetch":
-      return await fetchJobWalks();
-
-    case "fetchById":
-      if (!data.fetchId) {
-        return { success: false, error: "ID is required for fetchById" };
-      }
-      return await fetchJobWalkById(data.fetchId);
-
-    case "update":
-      if (!data.editData || !data.editData.id) {
-        return { success: false, error: "Edit data with ID is required" };
-      }
-      return await updateJobWalk(
-        data.editData.id,
-        data.editData.data as Partial<JobWalkFormData>
-      );
-
-    case "delete":
-      if (!data.deleteData) {
-        return { success: false, error: "Delete ID is required" };
-      }
-      return await deleteJobWalk(data.deleteData);
-
-    default:
-      return { success: false, error: `Unknown operation type: ${type}` };
-  }
-}
-
-// ============================================================================
-// ACTIVITY OPERATIONS HANDLER
-// ============================================================================
-
-async function handleActivityOperation(
-  type: OperationType,
-  data: {
-    createData?: any;
-    editData?: any;
-    deleteData?: any;
-    fetchId?: string;
-  }
-): Promise<BaseResponse> {
-  switch (type) {
-    case "create":
-      if (!data.createData) {
-        return { success: false, error: "Create data is required" };
-      }
-      return await createActivity(data.createData as ActivityFormData);
-
-    case "fetch":
-      return await fetchActivities();
-
-    case "fetchById":
-      if (!data.fetchId) {
-        return { success: false, error: "ID is required for fetchById" };
-      }
-      return await fetchActivityById(data.fetchId);
-
-    case "update":
-      if (!data.editData || !data.editData.id) {
-        return { success: false, error: "Edit data with ID is required" };
-      }
-      return await updateActivity(
-        data.editData.id,
-        data.editData.data as Partial<ActivityFormData>
-      );
-
-    case "delete":
-      if (!data.deleteData) {
-        return { success: false, error: "Delete ID is required" };
-      }
-      return await deleteActivity(data.deleteData);
-
-    default:
-      return { success: false, error: `Unknown operation type: ${type}` };
-  }
-}
-
-// ============================================================================
-// COMPANY OPERATIONS HANDLER
-// ============================================================================
-
-async function handleCompanyOperation(
-  type: OperationType,
-  data: {
-    createData?: any;
-    editData?: any;
-    deleteData?: any;
-    fetchId?: string;
-  }
-): Promise<BaseResponse> {
-  switch (type) {
-    case "create":
-      if (!data.createData) {
-        return { success: false, error: "Create data is required" };
-      }
-      return await createCompany(data.createData as CompanyFormData);
-
-    case "fetch":
-      return await fetchCompanies();
-
-    case "fetchById":
-      if (!data.fetchId) {
-        return { success: false, error: "ID is required for fetchById" };
-      }
-      return await fetchCompanyById(data.fetchId);
-
-    case "update":
-      if (!data.editData || !data.editData.id) {
-        return { success: false, error: "Edit data with ID is required" };
-      }
-      return await updateCompany(
-        data.editData.id,
-        data.editData.data as Partial<CompanyFormData>
-      );
-
-    case "delete":
-      if (!data.deleteData) {
-        return { success: false, error: "Delete ID is required" };
-      }
-      return await deleteCompany(data.deleteData);
-
-    default:
-      return { success: false, error: `Unknown operation type: ${type}` };
-  }
-}
-
-// ============================================================================
-// CONTACT OPERATIONS HANDLER
-// ============================================================================
-
-async function handleContactOperation(
-  type: OperationType,
-  data: {
-    createData?: any;
-    editData?: any;
-    deleteData?: any;
-    fetchId?: string;
-  }
-): Promise<BaseResponse> {
-  switch (type) {
-    case "create":
-      if (!data.createData) {
-        return { success: false, error: "Create data is required" };
-      }
-      return await createContact(data.createData as ContactFormData);
-
-    case "fetch":
-      return await fetchContacts();
-
-    case "fetchById":
-      if (!data.fetchId) {
-        return { success: false, error: "ID is required for fetchById" };
-      }
-      return await fetchContactById(data.fetchId);
-
-    case "update":
-      if (!data.editData || !data.editData.id) {
-        return { success: false, error: "Edit data with ID is required" };
-      }
-      return await updateContact(
-        data.editData.id,
-        data.editData.data as Partial<ContactFormData>
-      );
-
-    case "delete":
-      if (!data.deleteData) {
-        return { success: false, error: "Delete ID is required" };
-      }
-      return await deleteContact(data.deleteData);
-
-    default:
-      return { success: false, error: `Unknown operation type: ${type}` };
-  }
-}
-
-// ============================================================================
-// SERVICE SITE OPERATIONS HANDLER
-// ============================================================================
-
-async function handleSiteOperation(
-  type: OperationType,
-  data: {
-    createData?: any;
-    editData?: any;
-    deleteData?: any;
-    fetchId?: string;
-  }
-): Promise<BaseResponse> {
-  switch (type) {
-    case "create":
-      if (!data.createData) {
-        return { success: false, error: "Create data is required" };
-      }
-      return await createServiceSite(data.createData as ServiceSiteFormData);
-
-    case "fetch":
-      return await fetchServiceSites();
-
-    case "fetchById":
-      if (!data.fetchId) {
-        return { success: false, error: "ID is required for fetchById" };
-      }
-      return await fetchServiceSiteById(data.fetchId);
-
-    case "update":
-      if (!data.editData || !data.editData.id) {
-        return { success: false, error: "Edit data with ID is required" };
-      }
-      return await updateServiceSite(
-        data.editData.id,
-        data.editData.data as Partial<ServiceSiteFormData>
-      );
-
-    case "delete":
-      if (!data.deleteData) {
-        return { success: false, error: "Delete ID is required" };
-      }
-      return await deleteServiceSite(data.deleteData);
-
-    default:
-      return { success: false, error: `Unknown operation type: ${type}` };
-  }
-}
-
-// ============================================================================
-// MAINTENANCE ESTIMATE OPERATIONS HANDLER
-// ============================================================================
-
-async function handleMaintenanceEstimateOperation(
-  type: OperationType,
-  data: {
-    createData?: any;
-    editData?: any;
-    deleteData?: any;
-    fetchId?: string;
-  }
-): Promise<BaseResponse> {
-  switch (type) {
-    case "create":
-      if (!data.createData) {
-        return { success: false, error: "Create data is required" };
-      }
+  switch (table) {
+    case "workorder":
+      return await createWorkOrder(data as WorkOrderFormData);
+    case "jobwalk":
+      return await createJobWalk(data as JobWalkFormData);
+    case "activity":
+      return await createActivity(data as ActivityFormData);
+    case "company":
+      return await createCompany(data as CompanyFormData);
+    case "contact":
+      return await createContact(data as ContactFormData);
+    case "site":
+      return await createServiceSite(data as ServiceSiteFormData);
+    case "maintenanceEstimate":
       return await createMaintenanceEstimate(
-        data.createData as MaintenanceEstimateFormData
+        data as MaintenanceEstimateFormData
       );
-
-    case "fetch":
-      return await fetchMaintenanceEstimates();
-
-    case "fetchById":
-      if (!data.fetchId) {
-        return { success: false, error: "ID is required for fetchById" };
-      }
-      return await fetchMaintenanceEstimateById(data.fetchId);
-
-    case "update":
-      if (!data.editData || !data.editData.id) {
-        return { success: false, error: "Edit data with ID is required" };
-      }
-      return await updateMaintenanceEstimate(
-        data.editData.id,
-        data.editData.data as Partial<MaintenanceEstimateFormData>
-      );
-
-    case "delete":
-      if (!data.deleteData) {
-        return { success: false, error: "Delete ID is required" };
-      }
-      return await deleteMaintenanceEstimate(data.deleteData);
-
     default:
-      return { success: false, error: `Unknown operation type: ${type}` };
+      return { success: false, error: `Unknown table: ${table}` };
   }
 }
 
-// ============================================================================
-// CONVENIENCE WRAPPERS - Simplified API for common operations
-// ============================================================================
-
-/**
- * Quick create wrapper
- */
-export async function baseCreate<T>(
-  name: FormName,
-  data: T
-): Promise<BaseResponse> {
-  return handleFormOperation({ name, type: "create", createData: data });
+async function handleFetch(table: TableName): Promise<BaseResponse> {
+  switch (table) {
+    case "workorder":
+      return await fetchWorkOrders();
+    case "jobwalk":
+      return await fetchJobWalks();
+    case "activity":
+      return await fetchActivities();
+    case "company":
+      return await fetchCompanies();
+    case "contact":
+      return await fetchContacts();
+    case "site":
+      return await fetchServiceSites();
+    case "maintenanceEstimate":
+      return await fetchMaintenanceEstimates();
+    default:
+      return { success: false, error: `Unknown table: ${table}` };
+  }
 }
 
-/**
- * Quick fetch all wrapper
- */
-export async function baseFetch(name: FormName): Promise<BaseResponse> {
-  return handleFormOperation({ name, type: "fetch" });
-}
-
-/**
- * Quick fetch by ID wrapper
- */
-export async function baseFetchById(
-  name: FormName,
+async function handleFetchById(
+  table: TableName,
   id: string
 ): Promise<BaseResponse> {
-  return handleFormOperation({ name, type: "fetchById", fetchId: id });
+  switch (table) {
+    case "workorder":
+      return await fetchWorkOrderById(id);
+    case "jobwalk":
+      return await fetchJobWalkById(id);
+    case "activity":
+      return await fetchActivityById(id);
+    case "company":
+      return await fetchCompanyById(id);
+    case "contact":
+      return await fetchContactById(id);
+    case "site":
+      return await fetchServiceSiteById(id);
+    case "maintenanceEstimate":
+      return await fetchMaintenanceEstimateById(id);
+    default:
+      return { success: false, error: `Unknown table: ${table}` };
+  }
 }
 
-/**
- * Quick update wrapper
- */
+async function handleUpdate(
+  table: TableName,
+  id: string,
+  data: any
+): Promise<BaseResponse> {
+  switch (table) {
+    case "workorder":
+      return await updateWorkOrder(id, data as Partial<WorkOrderFormData>);
+    case "jobwalk":
+      return await updateJobWalk(id, data as Partial<JobWalkFormData>);
+    case "activity":
+      return await updateActivity(id, data as Partial<ActivityFormData>);
+    case "company":
+      return await updateCompany(id, data as Partial<CompanyFormData>);
+    case "contact":
+      return await updateContact(id, data as Partial<ContactFormData>);
+    case "site":
+      return await updateServiceSite(id, data as Partial<ServiceSiteFormData>);
+    case "maintenanceEstimate":
+      return await updateMaintenanceEstimate(
+        id,
+        data as Partial<MaintenanceEstimateFormData>
+      );
+    default:
+      return { success: false, error: `Unknown table: ${table}` };
+  }
+}
+
+async function handleDelete(
+  table: TableName,
+  id: string
+): Promise<BaseResponse> {
+  switch (table) {
+    case "workorder":
+      return await deleteWorkOrder(id);
+    case "jobwalk":
+      return await deleteJobWalk(id);
+    case "activity":
+      return await deleteActivity(id);
+    case "company":
+      return await deleteCompany(id);
+    case "contact":
+      return await deleteContact(id);
+    case "site":
+      return await deleteServiceSite(id);
+    case "maintenanceEstimate":
+      return await deleteMaintenanceEstimate(id);
+    default:
+      return { success: false, error: `Unknown table: ${table}` };
+  }
+}
+
+// ============================================================================
+// KEEP OLD FUNCTIONS FOR BACKWARD COMPATIBILITY (Optional)
+// ============================================================================
+
+export async function baseCreate<T>(
+  name: TableName,
+  data: T
+): Promise<BaseResponse> {
+  return base("create", name, data);
+}
+
+export async function baseFetch(name: TableName): Promise<BaseResponse> {
+  return base("fetch", name);
+}
+
+export async function baseFetchById(
+  name: TableName,
+  id: string
+): Promise<BaseResponse> {
+  return base("fetchById", name, id);
+}
+
 export async function baseUpdate<T>(
-  name: FormName,
+  name: TableName,
   id: string,
   data: T
 ): Promise<BaseResponse> {
-  return handleFormOperation({
-    name,
-    type: "update",
-    editData: { id, data },
-  });
+  return base("update", name, id, data);
 }
 
-/**
- * Quick delete wrapper
- */
 export async function baseDelete(
-  name: FormName,
+  name: TableName,
   id: string
 ): Promise<BaseResponse> {
-  return handleFormOperation({ name, type: "delete", deleteData: id });
+  return base("delete", name, id);
 }

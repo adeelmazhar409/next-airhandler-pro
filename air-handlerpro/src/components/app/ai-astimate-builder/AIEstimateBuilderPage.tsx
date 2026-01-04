@@ -6,7 +6,7 @@ import { ChatInput } from "./content/ChatInput";
 import { EstimatePreview } from "./content/EstimatePreview";
 import { Message } from "@/components/interface/DataTypes";
 import { MessageBubble } from "./content/Messages";
-import { baseCreate, baseFetch } from "@/service/base";
+import { base } from "@/service/base";
 import { toast } from "@/components/toast";
 
 interface Company {
@@ -97,7 +97,7 @@ export default function AIEstimateBuilder() {
   // Search companies in database
   const searchCompanies = async (searchTerm: string) => {
     try {
-      const result = await baseFetch("company");
+      const result = await base("fetch", "company");
       if (result.success && result.data) {
         const allCompanies = result.data as Company[];
         const filtered = allCompanies.filter((company) =>
@@ -115,7 +115,7 @@ export default function AIEstimateBuilder() {
   // Fetch sites for a company
   const fetchCompanySites = async (companyId: string) => {
     try {
-      const result = await baseFetch("site");
+      const result = await base("fetch", "site");
       if (result.success && result.data) {
         const allSites = result.data as Site[];
         // Note: You'll need to filter by company if your sites table has company relationship
@@ -427,7 +427,8 @@ Everything look correct? Reply "yes" to create the estimate or "no" to start ove
         if (input === "yes") {
           // Create the estimate!
           try {
-            const result = await baseCreate(
+            const result = await base(
+              "create",
               "maintenanceEstimate",
               estimateData
             );
