@@ -43,7 +43,7 @@ import {
   fetchCompanyById,
   updateCompany,
   deleteCompany,
-  CompanyFormData,
+
 } from "./api/companies";
 
 // Contacts
@@ -64,8 +64,7 @@ import {
   fetchServiceSiteById,
   updateServiceSite,
   deleteServiceSite,
-  ServiceSiteFormData,
-  ServiceSite,
+
 } from "./api/site";
 
 // Maintenance Estimates
@@ -272,11 +271,11 @@ async function handleCreate(
     case "activity":
       return await createActivity(data as ActivityFormData);
     case "company":
-      return await createCompany(data as CompanyFormData);
+      return await createCompany(data as any);
     case "contact":
       return await createContact(data as ContactFormData);
     case "site":
-      return await createServiceSite(data as ServiceSiteFormData);
+      return await createServiceSite(data as any);
     case "maintenanceEstimate":
       return await createMaintenanceEstimate(
         data as MaintenanceEstimateFormData
@@ -344,11 +343,11 @@ async function handleUpdate(
     case "activity":
       return await updateActivity(id, data as Partial<ActivityFormData>);
     case "company":
-      return await updateCompany(id, data as Partial<CompanyFormData>);
+      return await updateCompany(id, data as Partial<any>);
     case "contact":
       return await updateContact(id, data as Partial<ContactFormData>);
     case "site":
-      return await updateServiceSite(id, data as Partial<ServiceSiteFormData>);
+      return await updateServiceSite(id, data as Partial<any>);
     case "maintenanceEstimate":
       return await updateMaintenanceEstimate(
         id,

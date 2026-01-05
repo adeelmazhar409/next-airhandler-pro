@@ -43,12 +43,8 @@ export const CreateNewContactFormProps = [
         label: "parent_company_id",
         Title: "Parent Company",
         placeholder: "None",
-        option: [
-          "ABC Corporation",
-          "XYZ Industries",
-          "Tech Solutions Inc",
-          "Green Energy Co",
-        ],
+        linkTable: "companies",
+        linkTableValue: "business_name",
       },
       {
         nature: "half",
@@ -56,7 +52,8 @@ export const CreateNewContactFormProps = [
         label: "service_site_id",
         Title: "Service Site",
         placeholder: "None",
-        option: ["Main Office", "Branch A", "Branch B", "Warehouse"],
+        linkTable: "sites",
+        linkTableValue: "site_name",
       },
     ],
   },
@@ -102,22 +99,8 @@ export const CreateNewContactFormProps = [
         label: "contact_type",
         Title: "Contact Type",
         placeholder: "Primary Contact",
-        option: [
-          "Primary Contact",
-          "Secondary Contact",
-          "Decision Maker",
-          "Influencer",
-          "Technical Contact",
-          "Financial Contact",
-        ],
-        optionDescription: [
-          "Main point of contact",
-          "Alternative contact person",
-          "Has authority to make purchasing decisions",
-          "Influences purchasing decisions",
-          "Technical expert or implementer",
-          "Handles financial aspects",
-        ],
+        linkTable: "contact_types",
+        linkTableValue: "type",
       },
       {
         nature: "third",
@@ -125,13 +108,8 @@ export const CreateNewContactFormProps = [
         label: "contact_status",
         Title: "Contact Status",
         placeholder: "Active",
-        option: [
-          "Active",
-          "Prospect",
-          "Customer",
-          "Inactive",
-          "Former Customer",
-        ],
+        linkTable: "contact_status",
+        linkTableValue: "status",
       },
       {
         nature: "third",
@@ -139,7 +117,8 @@ export const CreateNewContactFormProps = [
         label: "preferred_contact_method",
         Title: "Preferred Contact Method",
         placeholder: "Email",
-        option: ["Email", "Phone", "Mobile", "LinkedIn", "Mail"],
+        linkTable: "contact_method",
+        linkTableValue: "method",
       },
     ],
   },
@@ -179,6 +158,7 @@ export const CreateNewContactFormProps = [
         nature: "full",
         type: "textarea",
         label: "Notes",
+        Title: "Notes",
         placeholder: "Add notes about this contact...",
         rows: 4,
       },
@@ -191,5 +171,10 @@ export const CreateNewContactFormProps = [
 ];
 
 export const contactLinkTable = [
-  'companies', 'sites', 'users'
+  "companies",
+  "sites",
+  "users",
+  "contact_types",
+  "contact_status",
+  "contact_method"
 ];

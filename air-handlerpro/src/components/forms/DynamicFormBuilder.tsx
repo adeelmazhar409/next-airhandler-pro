@@ -317,7 +317,7 @@ const DynamicFormBuilder: React.FC<any> = ({
     processFields(config);
     return defaults;
   };
-  console.log(createDefaultValues());
+  console.log(createDefaultValues(), linkTableData);
   // Initialize React Hook Form
   const {
     control,
@@ -713,12 +713,15 @@ const DynamicFormBuilder: React.FC<any> = ({
                                   ? field.linkTableValue
                                       .map(
                                         (value) =>
-                                          option[value as keyof typeof option]
+                                          option?.[
+                                            value as keyof typeof option
+                                          ] || ""
                                       )
+                                      .filter(Boolean)
                                       .join(" ")
-                                  : option[
+                                  : option?.[
                                       field.linkTableValue as keyof typeof option
-                                    ]}
+                                    ] || ""}
                               </button>
                             ))
                           ) : (
@@ -791,12 +794,15 @@ const DynamicFormBuilder: React.FC<any> = ({
                                 ? field.linkTableValue
                                     .map(
                                       (value) =>
-                                        option[value as keyof typeof option]
+                                        option?.[
+                                          value as keyof typeof option
+                                        ] || ""
                                     )
+                                    .filter(Boolean)
                                     .join(" ")
-                                : option[
+                                : option?.[
                                     field.linkTableValue as keyof typeof option
-                                  ]}
+                                  ] || ""}
                             </button>
                           ))}
                         </div>
@@ -1026,7 +1032,7 @@ const DynamicFormBuilder: React.FC<any> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={editingData? editingData[field.label] : []}
+            defaultValue={editingData ? editingData[field.label] : []}
             render={({ field: { onChange, value } }) => {
               const tags = (value as string[]) || [];
 
@@ -1115,7 +1121,7 @@ const DynamicFormBuilder: React.FC<any> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={editingData? editingData[field.label] : []}
+            defaultValue={editingData ? editingData[field.label] : []}
             render={({ field: { onChange, value } }) => {
               const selectedOptions = (value as string[]) || [];
 
@@ -1200,7 +1206,7 @@ const DynamicFormBuilder: React.FC<any> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={editingData? editingData[field.label] : ""}
+            defaultValue={editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => (
               <div
                 className={getFieldWidth(field.nature)}
@@ -1284,13 +1290,14 @@ const DynamicFormBuilder: React.FC<any> = ({
                   // Search in the display value(s)
                   if (Array.isArray(field.linkTableValue)) {
                     return field.linkTableValue.some((key) =>
-                      String(option[key as keyof typeof option])
+                      String(option?.[key as keyof typeof option] || "")
                         .toLowerCase()
                         .includes(searchLower)
                     );
                   } else {
                     return String(
-                      option[field.linkTableValue as keyof typeof option]
+                      option?.[field.linkTableValue as keyof typeof option] ||
+                        ""
                     )
                       .toLowerCase()
                       .includes(searchLower);
@@ -1374,14 +1381,14 @@ const DynamicFormBuilder: React.FC<any> = ({
                                             ? field.linkTableValue
                                                 .map(
                                                   (value) =>
-                                                    option[
+                                                    option?.[
                                                       value as keyof typeof option
-                                                    ]
+                                                    ] || ""
                                                 )
                                                 .join(" ")
-                                            : option[
+                                            : option?.[
                                                 field.linkTableValue as keyof typeof option
-                                              ]}
+                                              ] || ""}
                                         </button>
                                       );
                                     }
@@ -1486,14 +1493,14 @@ const DynamicFormBuilder: React.FC<any> = ({
                                             ? field.linkTableValue
                                                 .map(
                                                   (value) =>
-                                                    option[
+                                                    option?.[
                                                       value as keyof typeof option
-                                                    ]
+                                                    ] || ""
                                                 )
                                                 .join(" ")
-                                            : option[
+                                            : option?.[
                                                 field.linkTableValue as keyof typeof option
-                                              ]}
+                                              ] || ""}
                                         </button>
                                       );
                                     }
@@ -1544,19 +1551,19 @@ const DynamicFormBuilder: React.FC<any> = ({
                               <div className="flex items-center gap-2">
                                 <Building className="w-4 h-4 text-slate" />
                                 <p className="text-charcoal font-medium text-md">
-                                  {item.site_name}
+                                  {item.site_name || "N/A"}
                                 </p>
                               </div>
                               <div className="flex items-center gap-2">
                                 <MapPin className="w-4 h-4 text-slate" />
                                 <p className="text-charcoal font-medium text-sm">
-                                  {item.service_address}
+                                  {item.service_address || "N/A"}
                                 </p>
                               </div>
                             </div>
                             <div className="flex items-center gap-2 bg-platinum rounded-full px-2 py-1 w-fit">
                               <p className="text-charcoal font-medium text-sm">
-                                {item.site_type}
+                                {item.site_type || "N/A"}
                               </p>
                             </div>
                           </div>
@@ -1581,6 +1588,7 @@ const DynamicFormBuilder: React.FC<any> = ({
             }}
           />
         );
+     
       default:
         return null;
     }

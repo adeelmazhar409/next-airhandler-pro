@@ -75,8 +75,11 @@ const getDisplayValue = (
   if (!displayValue) return "";
 
   return Array.isArray(linkTableValue)
-    ? linkTableValue.map((k) => displayValue[k]).join(" ")
-    : displayValue[linkTableValue];
+    ? linkTableValue
+        .map((k) => displayValue[k] || "")
+        .filter(Boolean)
+        .join(" ")
+    : displayValue[linkTableValue] || "";
 };
 
 function buildFinalCompanyObject(company: any[], relatedTables: any[]) {
@@ -90,11 +93,15 @@ function buildFinalCompanyObject(company: any[], relatedTables: any[]) {
 
     const sites = relatedTables.find((t) => t.sites)?.sites || [];
 
-    const primaryContact = contacts.find((c: any) => c.id === com.primary_contact_id);
+    const primaryContact = contacts.find(
+      (c: any) => c.id === com.primary_contact_id
+    );
 
     const owner = users.find((u: any) => u.id === com.owner_id);
 
-    const companyType = companyTypes.find((t: any) => t.id === com.company_type_id);
+    const companyType = companyTypes.find(
+      (t: any) => t.id === com.company_type_id
+    );
 
     const companySites = sites
       .filter((s: any) => s.company_id === com.id)
@@ -127,7 +134,7 @@ function buildFinalCompanyObject(company: any[], relatedTables: any[]) {
 }
 
 function buildFinalSiteObject(site: any[], relatedTables: any[]) {
-  const finalSiteObject = site.map((sit) => {   
+  const finalSiteObject = site.map((sit) => {
     const contacts = relatedTables.find((t) => t.contacts)?.contacts || [];
     const users = relatedTables.find((t) => t.users)?.users || [];
     const owner = users.find((u: any) => u.id === sit.site_owner_id);
@@ -138,20 +145,26 @@ function buildFinalSiteObject(site: any[], relatedTables: any[]) {
       service_address: sit.service_address,
       site_type: sit.site_type,
       primary_contact_name: (() => {
-        const primaryContact = contacts.find((c: any) => c.id === sit.primary_contact_id);
+        const primaryContact = contacts.find(
+          (c: any) => c.id === sit.primary_contact_id
+        );
         if (!primaryContact) return null;
         const firstName = primaryContact.first_name ?? "";
         const lastName = primaryContact.last_name ?? "";
         const name = (firstName + " " + lastName).trim();
         return name.length > 0 ? name : null;
       })(),
-      primary_contact_phone: contacts.find((c: any) => c.id === sit.primary_contact_id)?.phone ?? null,
-      primary_contact_email: contacts.find((c: any) => c.id === sit.primary_contact_id)?.email ?? null,
+      primary_contact_phone:
+        contacts.find((c: any) => c.id === sit.primary_contact_id)?.phone ??
+        null,
+      primary_contact_email:
+        contacts.find((c: any) => c.id === sit.primary_contact_id)?.email ??
+        null,
       owner_name: owner?.full_name ?? null,
     };
   });
   return finalSiteObject;
-}   
+}
 
 function buildTitleLabelMap(formProps: any[]) {
   const map: Record<string, string> = {};
@@ -208,7 +221,6 @@ function mapTitlesToLabels(data: any, formProps: any[]) {
 
   return result;
 }
-
 
 export {
   getPasswordInfo,
