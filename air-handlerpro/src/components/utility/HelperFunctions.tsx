@@ -172,17 +172,34 @@ function buildTitleLabelMap(formProps: any[]) {
 }
 
 function buildFinalContactObject(contact: any[], relatedTables: any[]) {
+
   const finalContactObject = contact.map((con) => {
     const companies = relatedTables.find((t) => t.companies)?.companies || [];
     const sites = relatedTables.find((t) => t.sites)?.sites || [];
     const users = relatedTables.find((t) => t.users)?.users || [];
+    const contactStatus = relatedTables.find((t) => t.contact_status)?.contact_status || [];
+    const contactType = relatedTables.find((t) => t.contact_types)?.contact_types || [];
     const owner = users.find((u: any) => u.id === con.owner_id);
     const company = companies.find((c: any) => c.id === con.parent_company_id);
     const site = sites.find((s: any) => s.id === con.service_site_id);
+    const contactStatusValue = contactStatus.find((s: any) => s.id === con.contact_status_id);
+    const contactTypeValue = contactType.find((t: any) => t.id === con.contact_type_id);
+
     return {
       id: con.id,
       first_name: con.first_name,
       last_name: con.last_name,
+      title: con.title,
+      department: con.department,
+      email: con.email,
+      phone: con.phone,
+      mobile_phone: con.mobile_phone,
+      work_phone: con.work_phone,
+      contact_type: contactTypeValue?.type ?? null,
+      contact_status: contactStatusValue?.status ?? null,
+      owner_name: owner?.full_name ?? null,
+      company_name: company?.business_name ?? null,
+      site_name: site?.site_name ?? null,
     };
   });
   return finalContactObject;

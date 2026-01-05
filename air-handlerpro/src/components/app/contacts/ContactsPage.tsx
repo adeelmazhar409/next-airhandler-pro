@@ -14,34 +14,119 @@ import {
 } from "@/components/icons/icons";
 import { InputField } from "@/components/interface/DataTypes";
 import { CreateContactForm } from "./CreateContactForm";
+import React, { useCallback, useEffect } from "react";
+import {
+  createContact,
+  deleteContact,
+  fetchContacts,
+  updateContact,
+} from "@/service/api/contact";
+import { buildFinalContactObject } from "@/components/utility/HelperFunctions";
+import { contactLinkTable } from "@/components/forms/forms-instructions/ContactProp";
+import { supabase } from "@/lib/supabase";
 
 export default function ContactsPage() {
   const [searchValue, setSearchValue] = useState("");
   const [selectedType, setSelectedType] = useState("");
-  const [formToggle, setFormToggle] = useState(false);
+  const [contactFormToggle, setContactFormToggle] = useState(false);
+  const [loading, setLoading] = useState(true); // Start as true
+  const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [contacts, setContacts] = useState<any[]>([]);
+  const [contactData, setContactData] = useState<any | null>(null);
+  const [linkTableData, setLinkTableData] = useState<any[]>([]);
+  const [editingContact, setEditingContact] = useState<any | null>(null);
+
+  // Memoized fetch functions to avoid recreating on every render
+  const fetchAllData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Fetch companies
+      const contactsResponse = await fetchContacts();
+
+      if (!contactsResponse.success) {
+        setError(contactsResponse.error || "Failed to load contacts");
+      } else {
+        setContactData(contactsResponse.data);
+      }
+
+      // Fetch link table data in parallel
+      const promises = contactLinkTable.map(async (table: any) => {
+        const { data, error } = await supabase.from(table).select("*");
+        if (error) {
+          console.error(`Error fetching ${table}:`, error);
+          return { [table]: [] }; // Return empty on error
+        }
+        return { [table]: data };
+      });
+      const results = await Promise.all(promises);
+      const contactsViewData = buildFinalContactObject(
+        contactsResponse.data || [],
+        results
+      );
+
+      setContacts(contactsViewData || []);
+      setLinkTableData(results);
+    } catch (err: any) {
+      console.error("Error loading data:", err);
+      setError("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Trigger refresh
+  const triggerRefresh = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
+
+  const handleDeleteContact = async (contactId: string) => {
+    try {
+      await deleteContact(contactId);
+      triggerRefresh();
+    } catch (err) {
+      console.error("Error deleting contact:", err);
+    }
+  };
+
+  const handleEditContact = (contact: any) => {
+    setEditingContact(contactData.find((c: any) => c.id === contact));
+    setContactFormToggle(true);
+  };
 
   const handleCreateContact = () => {
-    setFormToggle(true);
+    setContactFormToggle(true);
   };
 
   const handleCancel = () => {
-    setFormToggle(false);
+    setContactFormToggle(false);
+    setEditingContact(null);
   };
 
   const handleSubmit = (formData: any) => {
-    console.log("Form submitted:", formData);
-    // Handle form submission logic
-    // After successful submission, you might want to close the form:
-    // setFormToggle(false);
+    formData.id
+      ? updateContact(formData.id, formData)
+      : createContact(formData);
+    console.log(formData);
+    setContactFormToggle(false);
+    setEditingContact(null);
+    triggerRefresh(); // Refresh data after submit
   };
 
-  if (formToggle) {
+  // Load data on mount and refresh
+  useEffect(() => {
+    fetchAllData();
+  }, [refreshKey, fetchAllData]);
+
+  if (contactFormToggle) {
     return (
       <CreateContactForm
         onCancel={handleCancel}
         onSubmit={handleSubmit}
-        linkTableData={[]}
-        editingContact={null}
+        linkTableData={linkTableData}
+        editingContact={editingContact}
       />
     );
   }
@@ -143,7 +228,14 @@ export default function ContactsPage() {
 
       {/* Empty State */}
       {data ? (
-        <ContactsExample />
+        <ContactsExample
+          key={refreshKey}
+          loading={loading}
+          error={error}
+          contacts={contacts}
+          handleDeleteContact={handleDeleteContact}
+          onEditContact={handleEditContact}
+        />
       ) : (
         <>
           <div className="mb-6">
