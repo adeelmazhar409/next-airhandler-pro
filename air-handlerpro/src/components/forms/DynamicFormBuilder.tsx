@@ -413,7 +413,11 @@ const DynamicFormBuilder: React.FC<any> = ({
 
   const renderLabel = (field: FieldConfig) => {
     return (
-      <label className="block text-sm font-medium text-charcoal mb-2">
+      <label
+        className={`block text-sm font-medium text-charcoal mb-2 ${
+          field.required! ? "" : "mt-2"
+        }`}
+      >
         {field.Title}
         {field.required && (
           <span className="text-red-500 ml-1 text-base align-super">*</span>
@@ -547,23 +551,33 @@ const DynamicFormBuilder: React.FC<any> = ({
             name={field.Title}
             control={control}
             defaultValue={editingData ? editingData[field.label] : ""}
-            render={({ field: { onChange, value } }) => (
-              <div
-                className={getFieldWidth(field.nature)}
-                data-field={field.Title}
-              >
-                {renderLabel(field)}
-                <div className="relative">
-                  <input
-                    type="time"
-                    value={value || ""}
-                    onChange={onChange}
-                    className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal cursor-pointer`}
-                  />
+            render={({ field: { onChange, value } }) => {
+              const isDisabled = field.activeDependence
+                ? formValues[field.activeDependence!]
+                  ? false
+                  : true
+                : false;
+              return (
+                <div
+                  className={getFieldWidth(field.nature)}
+                  data-field={field.Title}
+                >
+                  {renderLabel(field)}
+                  <div className="relative">
+                    <input
+                      type="time"
+                      value={value || ""}
+                      onChange={onChange}
+                      className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal cursor-pointer ${
+                        isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                      disabled={isDisabled}
+                    />
+                  </div>
+                  {renderError(field.Title)}
                 </div>
-                {renderError(field.Title)}
-              </div>
-            )}
+              );
+            }}
           />
         );
 
@@ -747,16 +761,48 @@ const DynamicFormBuilder: React.FC<any> = ({
             control={control}
             defaultValue={editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => {
-              const displayOptions = getDisplayOptions(
-                linkTableData || [],
-                field.linkTable
-              );
+              const isDisabled = field.activeDependence
+                ? formValues[field.activeDependence!]
+                  ? false
+                  : true
+                : false;
 
-              const displayValue = getDisplayValue(
-                displayOptions,
-                value,
-                field.linkTableValue as string | string[]
-              );
+              const displayOptions = field.dataDependence
+                ? getDisplayOptions(
+                    linkTableData || [],
+                    field.dataDependence.dataMapping.find(
+                      (option) =>
+                        option.value === formValues[field.dataDependence!.field]
+                    )?.linkTable
+                  )
+                : getDisplayOptions(linkTableData || [], field.linkTable);
+
+              // field.Title === "Related Item" &&
+              //   console.log("displayOptions", displayOptions, value);
+
+              const linkTableValue =
+                field.dataDependence &&
+                field.dataDependence.dataMapping.find(
+                  (option) =>
+                    option.value === formValues[field.dataDependence!.field]
+                )?.linkTableValue;
+
+              const displayValue = field.dataDependence
+                ? getDisplayValue(
+                    displayOptions,
+                    value,
+                    linkTableValue as string | string[]
+                  )
+                : field.linkTable
+                ? getDisplayValue(
+                    displayOptions,
+                    value,
+                    field.linkTableValue as string | string[]
+                  )
+                : field.nativeOption?.find((option) => option.value === value)
+                    ?.label || "";
+
+              const nativeOptions = field.nativeOption || [];
 
               return (
                 <div
@@ -768,7 +814,10 @@ const DynamicFormBuilder: React.FC<any> = ({
                     <button
                       type="button"
                       onClick={() => toggleDropdown(fieldKey)}
-                      className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
+                      disabled={isDisabled}
+                      className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer ${
+                        isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                     >
                       <span className={value ? "text-charcoal" : "text-slate"}>
                         {displayValue || field.placeholder}
@@ -789,18 +838,25 @@ const DynamicFormBuilder: React.FC<any> = ({
                               }}
                               className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm cursor-pointer"
                             >
-                              {Array.isArray(field.linkTableValue)
-                                ? field.linkTableValue
+                              {Array.isArray(
+                                field.dataDependence
+                                  ? linkTableValue
+                                  : field.linkTableValue
+                              )
+                                ? (field.dataDependence
+                                    ? (linkTableValue as any)
+                                    : (field.linkTableValue as string[])
+                                  )
                                     .map(
-                                      (value) =>
-                                        option?.[
-                                          value as keyof typeof option
-                                        ] || ""
+                                      (value: any) =>
+                                        option[value as keyof typeof option]
                                     )
                                     .filter(Boolean)
                                     .join(" ")
-                                : option?.[
-                                    field.linkTableValue as keyof typeof option
+                                : option[
+                                    field.dataDependence
+                                      ? (linkTableValue as string)
+                                      : (field.linkTableValue as string)
                                   ]}
                               <p className="text-xs text-slate/50">
                                 {
@@ -809,6 +865,19 @@ const DynamicFormBuilder: React.FC<any> = ({
                                   ]
                                 }
                               </p>
+                            </button>
+                          ))}
+                          {nativeOptions?.map((option, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => {
+                                onChange(option.value);
+                                toggleDropdown(fieldKey);
+                              }}
+                              className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm cursor-pointer"
+                            >
+                              {option.label}
                             </button>
                           ))}
                         </div>
@@ -834,15 +903,19 @@ const DynamicFormBuilder: React.FC<any> = ({
                 linkTableData || [],
                 field.linkTable
               );
-
-              const displayValue = getDisplayValue(
-                displayOptions,
-                value,
-                field.linkTableValue as string | string[]
-              );
+              const nativeOptions = field.nativeOption || [];
+              const displayValue = field.linkTable
+                ? getDisplayValue(
+                    displayOptions,
+                    value,
+                    field.linkTableValue as string | string[]
+                  )
+                : field.nativeOption?.find((option) => option.value === value)
+                    ?.label || "";
 
               const selectedColor =
                 displayOptions.find((option) => option.id === value)?.status ||
+                nativeOptions.find((option) => option.value === value)?.label ||
                 "bg-slate";
 
               return (
@@ -908,6 +981,30 @@ const DynamicFormBuilder: React.FC<any> = ({
                                       ]}
                                 </div>
                               </div>
+                            </button>
+                          ))}
+                          {nativeOptions?.map((option, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => {
+                                onChange(option.value);
+                                toggleDropdown(fieldKey);
+                              }}
+                              className="flex items-center justify-between gap-3 p-3 w-full hover:bg-platinum rounded-lg cursor-pointer transition-colors"
+                            >
+                              <span
+                                className={`w-4 h-4 rounded-full ${
+                                  field.radioColor?.[option.value]
+                                }`}
+                              ></span>
+                              <span
+                                className={`${
+                                  value ? "text-charcoal" : "text-slate"
+                                } flex-1 self-left text-left`}
+                              >
+                                {option.label}
+                              </span>
                             </button>
                           ))}
                         </div>

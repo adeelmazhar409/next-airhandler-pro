@@ -218,6 +218,34 @@ function buildFinalContactObject(contact: any[], relatedTables: any[]) {
   return finalContactObject;
 }
 
+function buildFinalActivityObject(activity: any[], relatedTables: any[]) {
+  const finalActivityObject = activity.map((act) => {
+    const contacts = relatedTables.find((t) => t.contacts)?.contacts || [];
+    const users = relatedTables.find((t) => t.users)?.users || [];
+    const owner = users.find((u: any) => u.id === act.owner_id);
+    const contact = contacts.find((c: any) => c.id === act.contact_id);
+    return {
+      id: act.id,
+      subject: act.subject,
+      description: act.description,
+      activity_type: act.activity_type,
+      priority: act.priority,
+      related_to_type: act.related_to_type,
+      related_to_id: act.related_to_id,
+      contact_name: contact?.first_name + " " + contact?.last_name || null,
+      owner_name: owner?.full_name || null,
+      contact_phone: contact?.phone || null,
+      contact_email: contact?.email || null,
+      due_date: act.due_date,
+      due_time: act.due_time,
+      status: act.status,
+      created_at: act.created_at,
+      updated_at: act.updated_at,
+    };
+  });
+  return finalActivityObject;
+}
+
 function mapTitlesToLabels(data: any, formProps: any[]) {
   const titleLabelMap = buildTitleLabelMap(formProps);
 
@@ -251,5 +279,6 @@ export {
   buildFinalSiteObject,
   buildTitleLabelMap,
   buildFinalContactObject,
+  buildFinalActivityObject,
   mapTitlesToLabels,
 };

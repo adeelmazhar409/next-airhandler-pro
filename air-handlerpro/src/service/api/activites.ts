@@ -4,39 +4,8 @@
  */
 
 import { supabase } from "@/lib/supabase";
-
-export interface ActivityFormData {
-  subject: string;
-  activityType: string;
-  priority?: string;
-  relatedTo: string;
-  relatedItem: string;
-  dueDate?: string;
-  dueTime?: string;
-  contact?: string | null;
-  assignTo?: string | null;
-  description?: string;
-}
-
-export interface Activity {
-  id: string;
-  subject: string;
-  description: string | null;
-  activity_type: string;
-  priority: string;
-  related_to_type: string;
-  related_to_id?: string;
-  contact_id: string | null;
-  assigned_to: string | null;
-  due_date: string | null;
-  due_time: string | null;
-  completed_at: string | null;
-  status: string;
-  owner_id: string;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-}
+import { ActivityFormProps } from "@/components/forms/forms-instructions/ActivityProp";
+import { mapTitlesToLabels } from "@/components/utility/HelperFunctions";
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -46,8 +15,8 @@ export interface ApiResponse<T> {
 }
 
 export async function createActivity(
-  formData: ActivityFormData
-): Promise<ApiResponse<Activity>> {
+  formData: any
+): Promise<ApiResponse<any>> {
   try {
     const {
       data: { user },
@@ -58,35 +27,33 @@ export async function createActivity(
       throw new Error("You must be logged in to create an activity");
     }
 
-    const insertData = {
-      subject: formData.subject,
-      description: formData.description || null,
-      activity_type: formData.activityType,
-      priority: formData.priority || "Medium",
-      related_to_type: formData.relatedTo,
-      related_to_id: formData.relatedItem,
-      contact_id: formData.contact || null,
-      assigned_to: formData.assignTo || user.id,
-      due_date: formData.dueDate || null,
-      due_time: formData.dueTime || null,
-      status: "Pending",
-      owner_id: user.id,
-      created_by: user.id,
-    };
+    const insertData = mapTitlesToLabels(formData, ActivityFormProps);
+
+    // extract assigned_to from insertData and remove it from the record to avoid duplicate fields
+    let assigned_to: any = insertData.assigned_to;
+    // remove assigned_to from insertData for insert
+    const { assigned_to: _removed, ...selectedData } = insertData;
+
+    console.log(insertData);
 
     const { data, error } = await supabase
       .from("activities")
-      .insert([insertData])
+      .insert([{
+        ...selectedData,
+        created_by: user.id,
+        assigned_to_id: assigned_to ? assigned_to : user.id
+      }])
       .select()
       .single();
 
+    console.log(error);
     if (error) {
       throw new Error(error.message || "Failed to create activity");
     }
 
     return {
       success: true,
-      data: data as Activity,
+      data: data as any,
       message: "Activity created successfully",
     };
   } catch (error) {
@@ -98,7 +65,7 @@ export async function createActivity(
   }
 }
 
-export async function fetchActivities(): Promise<ApiResponse<Activity[]>> {
+export async function fetchActivities(): Promise<ApiResponse<any[]>> {
   try {
     const { data, error } = await supabase
       .from("activities")
@@ -111,7 +78,7 @@ export async function fetchActivities(): Promise<ApiResponse<Activity[]>> {
 
     return {
       success: true,
-      data: (data || []) as Activity[],
+      data: (data || []) as any[],
       message: "Activities fetched successfully",
     };
   } catch (error) {
@@ -125,7 +92,7 @@ export async function fetchActivities(): Promise<ApiResponse<Activity[]>> {
 
 export async function fetchActivityById(
   activityId: string
-): Promise<ApiResponse<Activity>> {
+): Promise<ApiResponse<any>> {
   try {
     const { data, error } = await supabase
       .from("activities")
@@ -139,7 +106,7 @@ export async function fetchActivityById(
 
     return {
       success: true,
-      data: data as Activity,
+      data: data as any,
       message: "Activity fetched successfully",
     };
   } catch (error) {
@@ -153,8 +120,8 @@ export async function fetchActivityById(
 
 export async function updateActivity(
   activityId: string,
-  formData: Partial<ActivityFormData>
-): Promise<ApiResponse<Activity>> {
+  formData: Partial<any>
+): Promise<ApiResponse<any>> {
   try {
     const updateData: any = {};
 
@@ -191,7 +158,7 @@ export async function updateActivity(
 
     return {
       success: true,
-      data: data as Activity,
+      data: data as any,
       message: "Activity updated successfully",
     };
   } catch (error) {
