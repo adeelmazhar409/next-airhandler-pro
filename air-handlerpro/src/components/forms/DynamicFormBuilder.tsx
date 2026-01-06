@@ -1374,7 +1374,7 @@ const DynamicFormBuilder: React.FC<any> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={editingData ? editingData[field.label] : []}
+            defaultValue={editingData ? editingData[field.label] : ''}
             render={({ field: { onChange, value } }) => {
               const displayOptions = getDisplayOptions(
                 linkTableData || [],

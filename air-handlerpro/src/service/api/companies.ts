@@ -65,7 +65,7 @@ export async function createCompany(
     }
 
     const insertData = mapTitlesToLabels(formData, CompanyFormProps);
-
+    console.log(insertData)
     // Insert data directly into Supabase
     const { data, error } = await supabase
       .from("companies")
