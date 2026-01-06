@@ -1,44 +1,6 @@
-/**
- * Contacts Service Layer - FIXED
- * Removed problematic joins
- */
-
 import { supabase } from "@/lib/supabase";
-
-export interface ContactFormData {
-  firstName: string;
-  lastName: string;
-  title?: string;
-  department?: string;
-  parentCompany?: string | null;
-  serviceSite?: string | null;
-  email?: string;
-  phone?: string;
-  mobilePhone?: string;
-  workPhone?: string;
-  contactType?: string;
-  contactStatus?: string;
-}
-
-export interface Contact {
-  id: string;
-  first_name: string;
-  last_name: string;
-  title: string | null;
-  department: string | null;
-  parent_company_id?: string | null;
-  service_site_id?: string | null;
-  email: string | null;
-  phone: string | null;
-  mobile_phone: string | null;
-  work_phone: string | null;
-  contact_type: string;
-  contact_status: string;
-  owner_id: string;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-}
+import { mapTitlesToLabels } from "@/components/utility/HelperFunctions";
+import { ContactProp } from "@/components/forms/forms-instructions/ContactProp";
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -47,9 +9,7 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-export async function createContact(
-  formData: ContactFormData
-): Promise<ApiResponse<Contact>> {
+export async function createContact(formData: any): Promise<ApiResponse<any>> {
   try {
     const {
       data: { user },
@@ -60,26 +20,12 @@ export async function createContact(
       throw new Error("You must be logged in to create a contact");
     }
 
-    const insertData = {
-      first_name: formData.firstName,
-      last_name: formData.lastName,
-      title: formData.title || null,
-      department: formData.department || null,
-      parent_company_id: formData.parentCompany || null,
-      service_site_id: formData.serviceSite || null,
-      email: formData.email || null,
-      phone: formData.phone || null,
-      mobile_phone: formData.mobilePhone || null,
-      work_phone: formData.workPhone || null,
-      contact_type: formData.contactType || "Primary Contact",
-      contact_status: formData.contactStatus || "Active",
-      owner_id: user.id,
-      created_by: user.id,
-    };
+    const insertData = mapTitlesToLabels(formData, ContactProp);
 
+    console.log(insertData);
     const { data, error } = await supabase
       .from("contacts")
-      .insert([insertData])
+      .insert([{ ...insertData, created_by: user.id }])
       .select()
       .single();
 
@@ -89,7 +35,7 @@ export async function createContact(
 
     return {
       success: true,
-      data: data as Contact,
+      data: data as any,
       message: "Contact created successfully",
     };
   } catch (error) {
@@ -101,7 +47,7 @@ export async function createContact(
   }
 }
 
-export async function fetchContacts(): Promise<ApiResponse<Contact[]>> {
+export async function fetchContacts(): Promise<ApiResponse<any[]>> {
   try {
     const { data, error } = await supabase
       .from("contacts")
@@ -114,21 +60,23 @@ export async function fetchContacts(): Promise<ApiResponse<Contact[]>> {
 
     return {
       success: true,
-      data: (data || []) as Contact[],
+      data: (data || []) as any[],
       message: "Contacts fetched successfully",
     };
   } catch (error) {
     return {
       success: false,
       error:
-        error instanceof Error ? error.message : "An unexpect ed error occurred",
+        error instanceof Error
+          ? error.message
+          : "An unexpect ed error occurred",
     };
   }
 }
 
 export async function fetchContactById(
   contactId: string
-): Promise<ApiResponse<Contact>> {
+): Promise<ApiResponse<any>> {
   try {
     const { data, error } = await supabase
       .from("contacts")
@@ -142,7 +90,7 @@ export async function fetchContactById(
 
     return {
       success: true,
-      data: data as Contact,
+      data: data as any,
       message: "Contact fetched successfully",
     };
   } catch (error) {
@@ -156,34 +104,10 @@ export async function fetchContactById(
 
 export async function updateContact(
   contactId: string,
-  formData: Partial<ContactFormData>
-): Promise<ApiResponse<Contact>> {
+  formData: Partial<any>
+): Promise<ApiResponse<any>> {
   try {
-    const updateData: any = {};
-
-    if (formData.firstName !== undefined)
-      updateData.first_name = formData.firstName;
-    if (formData.lastName !== undefined)
-      updateData.last_name = formData.lastName;
-    if (formData.title !== undefined) updateData.title = formData.title;
-    if (formData.department !== undefined)
-      updateData.department = formData.department;
-    if (formData.parentCompany !== undefined)
-      updateData.parent_company_id = formData.parentCompany;
-    if (formData.serviceSite !== undefined)
-      updateData.service_site_id = formData.serviceSite;
-    if (formData.email !== undefined) updateData.email = formData.email;
-    if (formData.phone !== undefined) updateData.phone = formData.phone;
-    if (formData.mobilePhone !== undefined)
-      updateData.mobile_phone = formData.mobilePhone;
-    if (formData.workPhone !== undefined)
-      updateData.work_phone = formData.workPhone;
-    if (formData.contactType !== undefined)
-      updateData.contact_type = formData.contactType;
-    if (formData.contactStatus !== undefined)
-      updateData.contact_status = formData.contactStatus;
-
-    updateData.updated_at = new Date().toISOString();
+    const updateData = mapTitlesToLabels(formData, ContactProp);
 
     const { data, error } = await supabase
       .from("contacts")
@@ -198,7 +122,7 @@ export async function updateContact(
 
     return {
       success: true,
-      data: data as Contact,
+      data: data as any,
       message: "Contact updated successfully",
     };
   } catch (error) {

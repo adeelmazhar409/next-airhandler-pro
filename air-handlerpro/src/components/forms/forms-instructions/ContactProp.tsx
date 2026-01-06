@@ -1,4 +1,4 @@
-export const CreateNewContactFormProps = [
+export const ContactProp = [
   {
     sectionName: "Basic Information",
     fields: [
@@ -42,7 +42,7 @@ export const CreateNewContactFormProps = [
         type: "dropdown",
         label: "parent_company_id",
         Title: "Parent Company",
-        placeholder: "None",
+        placeholder: "Select parent company",
         linkTable: "companies",
         linkTableValue: "business_name",
       },
@@ -51,7 +51,7 @@ export const CreateNewContactFormProps = [
         type: "dropdown",
         label: "service_site_id",
         Title: "Service Site",
-        placeholder: "None",
+        placeholder: "Select service site",
         linkTable: "sites",
         linkTableValue: "site_name",
       },
@@ -69,21 +69,21 @@ export const CreateNewContactFormProps = [
       },
       {
         nature: "half",
-        type: "text",
+        type: "number",
         label: "phone",
         Title: "Phone",
         placeholder: "Primary phone number",
       },
       {
         nature: "half",
-        type: "text",
+        type: "number",
         label: "mobile_phone",
         Title: "Mobile Phone",
         placeholder: "Mobile phone number",
       },
       {
         nature: "half",
-        type: "text",
+        type: "number",
         label: "work_phone",
         Title: "Work Phone",
         placeholder: "Work phone number",
@@ -96,27 +96,35 @@ export const CreateNewContactFormProps = [
       {
         nature: "third",
         type: "dropdown",
-        label: "contact_type",
+        label: "contact_type_id",
         Title: "Contact Type",
-        placeholder: "Primary Contact",
+        placeholder: "Select contact type",
         linkTable: "contact_types",
         linkTableValue: "type",
+        linkTableValue2: "description",
       },
       {
         nature: "third",
         type: "radio-dropdown",
-        label: "contact_status",
+        label: "contact_status_id",
         Title: "Contact Status",
-        placeholder: "Active",
+        placeholder: "Select contact status",
         linkTable: "contact_status",
         linkTableValue: "status",
+        radioColor: {
+          Active: "bg-green-400",
+          Inactive: "bg-red-400",
+          Prospect: "bg-orange-400",
+          Customer: "bg-blue-400",
+          "Former Customer": "bg-gray-400",
+        },
       },
       {
         nature: "third",
         type: "dropdown",
-        label: "preferred_contact_method",
+        label: "contact_method_id",
         Title: "Preferred Contact Method",
-        placeholder: "Email",
+        placeholder: "Select contact method",
         linkTable: "contact_method",
         linkTableValue: "method",
       },
@@ -157,7 +165,7 @@ export const CreateNewContactFormProps = [
       {
         nature: "full",
         type: "textarea",
-        label: "Notes",
+        label: "notes",
         Title: "Notes",
         placeholder: "Add notes about this contact...",
         rows: 4,
@@ -171,10 +179,5 @@ export const CreateNewContactFormProps = [
 ];
 
 export const contactLinkTable = [
-  "companies",
-  "sites",
-  "users",
-  "contact_types",
-  "contact_status",
-  "contact_method"
+  'companies', 'sites', 'users', 'contact_status', 'contact_types', 'contact_method'
 ];

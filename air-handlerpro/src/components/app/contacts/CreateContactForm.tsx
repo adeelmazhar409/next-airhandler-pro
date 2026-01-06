@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import DynamicFormBuilder from "@/components/forms/DynamicFormBuilder";
-import { CreateNewContactFormProps } from "@/components/forms/forms-instructions/ContactProp";
+import { ContactProp } from "@/components/forms/forms-instructions/ContactProp";
 import { createContact } from "@/service/api/contact";
 
 interface CreateContactFormComponentProps {
@@ -68,7 +68,7 @@ export function CreateContactForm({
 
       <div className="bg-white rounded-lg shadow-sm p-8 relative">
         <DynamicFormBuilder
-          config={CreateNewContactFormProps}
+          config={ContactProp}
           onSubmit={handleFormSubmit}
           onCancel={onCancel}
           linkTableData={linkTableData}

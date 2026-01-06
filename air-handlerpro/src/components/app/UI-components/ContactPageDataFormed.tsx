@@ -29,8 +29,8 @@ export default function ContactPageDataFormed({
 }) {
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-8">
-        Service Sites
+      <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        Contacts
       </h2>
 
       {loading && <LoadingSkeleton />}

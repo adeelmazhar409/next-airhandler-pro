@@ -317,7 +317,6 @@ const DynamicFormBuilder: React.FC<any> = ({
     processFields(config);
     return defaults;
   };
-  console.log(createDefaultValues(), linkTableData);
   // Initialize React Hook Form
   const {
     control,
@@ -752,6 +751,7 @@ const DynamicFormBuilder: React.FC<any> = ({
                 linkTableData || [],
                 field.linkTable
               );
+
               const displayValue = getDisplayValue(
                 displayOptions,
                 value,
@@ -784,7 +784,6 @@ const DynamicFormBuilder: React.FC<any> = ({
                               key={idx}
                               type="button"
                               onClick={() => {
-                                // Store the ID, not the display value
                                 onChange(option.id);
                                 toggleDropdown(fieldKey);
                               }}
@@ -802,7 +801,14 @@ const DynamicFormBuilder: React.FC<any> = ({
                                     .join(" ")
                                 : option?.[
                                     field.linkTableValue as keyof typeof option
-                                  ] || ""}
+                                  ]}
+                              <p className="text-xs text-slate/50">
+                                {
+                                  option[
+                                    field.linkTableValue2 as keyof typeof option
+                                  ]
+                                }
+                              </p>
                             </button>
                           ))}
                         </div>
@@ -817,100 +823,101 @@ const DynamicFormBuilder: React.FC<any> = ({
         );
 
       case "radio-dropdown":
-        const radioFilteredOptions =
-          field.option?.filter((option) =>
-            option.toLowerCase().includes(searchTerm.toLowerCase())
-          ) || [];
-        const optionDescriptions = field.optionDescription || [];
-
         return (
           <Controller
             key={fieldKey}
-            name={field.label}
+            name={field.Title}
             control={control}
             defaultValue={editingData ? editingData[field.label] : ""}
-            render={({ field: { onChange, value } }) => (
-              <div
-                className={getFieldWidth(field.nature)}
-                data-field={field.label}
-              >
-                {renderLabel(field)}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => toggleDropdown(fieldKey)}
-                    className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
-                  >
-                    <span className={value ? "text-charcoal" : "text-slate"}>
-                      {value || field.placeholder}
-                    </span>
-                    <ChevronDown className="w-5 h-5 text-slate" />
-                  </button>
+            render={({ field: { onChange, value } }) => {
+              const displayOptions = getDisplayOptions(
+                linkTableData || [],
+                field.linkTable
+              );
 
-                  {isDropdownOpen && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-80 overflow-hidden">
-                      <div className="p-2 border-b border-silver">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate" />
-                          <input
-                            type="text"
-                            placeholder="Search..."
-                            value={searchTerm}
-                            onChange={(e) =>
-                              setSearchTerms((prev) => ({
-                                ...prev,
-                                [fieldKey]: e.target.value,
-                              }))
-                            }
-                            className="w-full pl-9 pr-3 py-2 border border-silver rounded focus:outline-none focus:ring-2 focus:ring-cerulean text-sm"
-                          />
+              const displayValue = getDisplayValue(
+                displayOptions,
+                value,
+                field.linkTableValue as string | string[]
+              );
+
+              const selectedColor =
+                displayOptions.find((option) => option.id === value)?.status ||
+                "bg-slate";
+
+              return (
+                <div
+                  className={getFieldWidth(field.nature)}
+                  data-field={field.label}
+                >
+                  {renderLabel(field)}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => toggleDropdown(fieldKey)}
+                      className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between gap-2 bg-white cursor-pointer`}
+                    >
+                      {field.radioColor?.[selectedColor] && (
+                        <span
+                          className={`w-4 h-4 rounded-full ${field.radioColor?.[selectedColor]}`}
+                        ></span>
+                      )}
+                      <span
+                        className={`${
+                          value ? "text-charcoal" : "text-slate"
+                        } flex-1 self-left`}
+                      >
+                        {displayValue || field.placeholder}
+                      </span>
+
+                      <ChevronDown className="w-5 h-5 text-slate" />
+                    </button>
+
+                    {isDropdownOpen && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-80 overflow-hidden">
+                        <div className="overflow-y-auto max-h-64 p-2">
+                          {displayOptions?.map((option, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              name={fieldKey}
+                              onClick={() => {
+                                onChange(option.id);
+                                toggleDropdown(fieldKey);
+                              }}
+                              className="flex justify-start gap-3 p-3 w-full hover:bg-platinum rounded-lg cursor-pointer transition-colors"
+                            >
+                              {field.radioColor?.[option.status] && (
+                                <span
+                                  className={`w-4 h-4 rounded-full ${
+                                    field.radioColor?.[option.status]
+                                  }`}
+                                ></span>
+                              )}
+                              <div className="flex-1 self-left">
+                                <div className="text-sm font-medium text-left text-charcoal">
+                                  {Array.isArray(field.linkTableValue)
+                                    ? field.linkTableValue
+                                        .map(
+                                          (key) =>
+                                            option[key as keyof typeof option]
+                                        )
+                                        .join(" ")
+                                    : option[
+                                        field.linkTableValue as keyof typeof option
+                                      ]}
+                                </div>
+                              </div>
+                            </button>
+                          ))}
                         </div>
                       </div>
-                      <div className="overflow-y-auto max-h-64 p-2">
-                        {radioFilteredOptions.length > 0 ? (
-                          radioFilteredOptions.map((option, idx) => {
-                            const isSelected = value === option;
-                            return (
-                              <label
-                                key={idx}
-                                className="flex items-start gap-3 p-3 hover:bg-platinum rounded-lg cursor-pointer transition-colors"
-                              >
-                                <div className="relative flex items-center justify-center mt-0.5">
-                                  <input
-                                    type="radio"
-                                    name={fieldKey}
-                                    checked={isSelected}
-                                    onChange={() =>
-                                      selectOption(fieldKey, option, onChange)
-                                    }
-                                    className="w-4 h-4 text-cerulean border-silver focus:ring-2 focus:ring-cerulean cursor-pointer"
-                                  />
-                                </div>
-                                <div className="flex-1">
-                                  <div className="text-sm font-medium text-charcoal">
-                                    {option}
-                                  </div>
-                                  {optionDescriptions[idx] && (
-                                    <div className="text-xs text-slate mt-1">
-                                      {optionDescriptions[idx]}
-                                    </div>
-                                  )}
-                                </div>
-                              </label>
-                            );
-                          })
-                        ) : (
-                          <div className="px-4 py-2 text-slate text-sm">
-                            No options found
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                  {renderError(field.Title)}
                 </div>
-                {renderError(field.Title)}
-              </div>
-            )}
+              );
+            }}
           />
         );
 
@@ -1617,7 +1624,7 @@ const DynamicFormBuilder: React.FC<any> = ({
                           : "bg-charcoal text-white hover:bg-cerulean"
                       }`}
                     >
-                      {btnText}
+                      {editingData && btnIdx === 1 ? "Update & Save" : btnText}
                     </button>
                   ))}
                 </div>

@@ -86,6 +86,7 @@ interface FieldConfig {
   minuteplaceholder?: string;
   option?: string[];
   linkTable?: string;
+  linkTableValue2?: string;
   linkTableValue?: string | string[];
   box?: object[];
   optionDescription?: string[];
@@ -93,6 +94,7 @@ interface FieldConfig {
   buttonName?: string;
   message?: string;
   button?: string[];
+  radioColor?: Record<string, string>;
   rows?: number;
   multiple?: boolean;
   accept?: string;
