@@ -80,6 +80,8 @@ export async function createCompany(
       })
       .select()
       .single();
+    
+    console.log(error, "compnay error");
 
     // one-to-many relationships
     insertData.sites.forEach(async (site: any) => {

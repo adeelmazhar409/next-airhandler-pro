@@ -253,11 +253,17 @@ function mapTitlesToLabels(data: any, formProps: any[]) {
 
   Object.entries(data).forEach(([key, value]) => {
     const label = titleLabelMap[key];
-
     if (!label) return;
+
+    // ❌ skip empty strings
+    if (value === "") return;
+
+    // ❌ optionally skip null / undefined
+    if (value === null || value === undefined) return;
 
     // Handle Service Sites (array of objects → array of ids)
     if (label === "sites" && Array.isArray(value)) {
+      if (value.length === 0) return; // skip empty array
       result[label] = value.map((v: any) => v.id);
     } else {
       result[label] = value;
@@ -266,6 +272,7 @@ function mapTitlesToLabels(data: any, formProps: any[]) {
 
   return result;
 }
+
 
 export {
   getPasswordInfo,

@@ -27,6 +27,7 @@ export const SiteFormProps = [
         Title: "Service Address",
         placeholder: "Enter complete service address",
         message: "Include street address, city, state, and ZIP code",
+        required:true,
       },
     ],
   },

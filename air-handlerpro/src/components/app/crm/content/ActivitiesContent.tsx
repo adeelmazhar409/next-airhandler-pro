@@ -2,7 +2,15 @@ import React, { useCallback, useEffect, useState } from "react";
 import { ActitivtyIcon, ClockIcon } from "../../../icons/icons";
 import Button from "../../UI-components/button";
 import { ActivityForm } from "./forms/ActivityForm";
-import { deleteActivity, fetchActivities } from "@/service/api/activites";
+import { supabase } from "@/lib/supabase";
+import {
+  createActivity,
+  deleteActivity,
+  fetchActivities,
+  updateActivity,
+} from "@/service/api/activites";
+import { activityLinkTable } from "@/components/forms/forms-instructions/ActivityProp";
+import { buildFinalActivityObject } from "@/components/utility/HelperFunctions";
 import ActivityPageDataFormed from "../../UI-components/activitypagedataFormed";
 
 export default function ActivitiesContent() {
@@ -11,23 +19,52 @@ export default function ActivitiesContent() {
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [activities, setActivities] = useState<any[]>([]);
+  const [activityData, setActivityData] = useState<any[]>([]); // Raw activities from API
+  const [linkTableData, setLinkTableData] = useState<any[]>([]);
+  const [editingActivity, setEditingActivity] = useState<any | null>(null);
 
-  // Memoized fetch function
+  // Memoized fetch function - includes link tables and builds enriched view
   const fetchAllData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
+      // Fetch main activities
       const activitiesResponse = await fetchActivities();
 
       if (!activitiesResponse.success) {
         setError(activitiesResponse.error || "Failed to load activities");
-      } else {
-        setActivities(activitiesResponse.data || []);
+        setActivities([]);
+        setActivityData([]);
+        return;
       }
+
+      const rawActivities = activitiesResponse.data || [];
+      setActivityData(rawActivities);
+
+      // Fetch all related link tables in parallel
+      const promises = activityLinkTable.map(async (table: any) => {
+        const { data, error } = await supabase.from(table).select("*");
+        if (error) {
+          console.error(`Error fetching ${table}:`, error);
+          return { [table]: [] };
+        }
+        return { [table]: data };
+      });
+
+      const results = await Promise.all(promises);
+
+      // Build enriched activity objects for display
+      const activitiesViewData = buildFinalActivityObject(
+        rawActivities,
+        results
+      );
+      setActivities(activitiesViewData || []);
+      setLinkTableData(results);
     } catch (err: any) {
       console.error("Error loading data:", err);
       setError("An unexpected error occurred");
+      setActivities([]);
     } finally {
       setLoading(false);
     }
@@ -63,51 +100,64 @@ export default function ActivitiesContent() {
   };
 
   const handleEditActivity = (activityId: string) => {
-    // TODO: Implement edit functionality
-    // For now, just log the activity ID
-    console.log("Edit activity:", activityId);
-    alert("Edit functionality coming soon!");
+    const activityToEdit = activityData.find((a: any) => a.id === activityId);
+    if (activityToEdit) {
+      setEditingActivity(activityToEdit);
+      setFormToggle(true);
+    } else {
+      alert("Activity not found for editing.");
+    }
   };
 
-  const handleCreateEstimate = () => {
+  const handleCreateActivity = () => {
+    setEditingActivity(null);
     setFormToggle(true);
   };
 
   const handleCancel = () => {
     setFormToggle(false);
+    setEditingActivity(null);
   };
 
-  const handleSubmit = (formData: any) => {
-    console.log("Form submitted:", formData);
-    // Close the form and refresh data
-    setFormToggle(false);
-    triggerRefresh();
+  const handleSubmit = async (formData: any) => {
+    try {
+      if (formData.id) {
+        await updateActivity(formData.id, formData);
+      } else {
+        await createActivity(formData);
+      }
+      setFormToggle(false);
+      setEditingActivity(null);
+      triggerRefresh();
+    } catch (err) {
+      console.error("Error submitting activity:", err);
+      alert("Failed to save activity. Please try again.");
+    }
   };
 
-  // Load data on mount and refresh
+  // Load data on mount and on refresh
   useEffect(() => {
     fetchAllData();
   }, [refreshKey, fetchAllData]);
 
-  // Show form if toggle is on
+  // Show form when toggled
   if (formToggle) {
     return (
       <ActivityForm
         onCancel={handleCancel}
         onSubmit={handleSubmit}
-        linkTableData={[]}
-        editingActivity={null}
+        linkTableData={linkTableData}
+        editingActivity={editingActivity}
       />
     );
   }
 
-  // Check if we have data
   const hasData = !loading && !error && activities.length > 0;
 
   return (
     <div className="mx-auto my-3 px-4">
       <div className="w-full flex justify-end py-2">
-        <Button onClick={handleCreateEstimate} value="New Activity" />
+        <Button onClick={handleCreateActivity} value="New Activity" />
       </div>
 
       {/* Main Card */}
@@ -120,7 +170,7 @@ export default function ActivitiesContent() {
           </h2>
         </div>
 
-        {/* Content - Show ActivityPageDataFormed if has data, otherwise show empty state */}
+        {/* Content */}
         {hasData ? (
           <ActivityPageDataFormed
             loading={loading}
@@ -180,7 +230,7 @@ export default function ActivitiesContent() {
 
       {/* Floating New Button */}
       <div className="mt-4 text-center">
-        <Button onClick={handleCreateEstimate} value="Activity" />
+        <Button onClick={handleCreateActivity} value="Activity" />
       </div>
     </div>
   );

@@ -29,6 +29,8 @@ export async function createContact(formData: any): Promise<ApiResponse<any>> {
       .select()
       .single();
 
+    
+    console.log(error,"company error");
     if (error) {
       throw new Error(error.message || "Failed to create contact");
     }

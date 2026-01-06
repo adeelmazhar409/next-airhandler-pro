@@ -37,6 +37,7 @@ export async function createServiceSite(
       .select()
       .single();
 
+    console.log(error,"Sites errors");
 
     if (error) {
       throw new Error(error.message || "Failed to create service site");
