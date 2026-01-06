@@ -95,6 +95,12 @@ interface FieldConfig {
   message?: string;
   button?: string[];
   radioColor?: Record<string, string>;
+  nativeOption?: { value: string; label: string }[];
+  activeDependence?: string;
+  dataDependence?: {
+    field: string;
+    dataMapping: { value: string; linkTable: string; linkTableValue: string }[];
+  };
   rows?: number;
   multiple?: boolean;
   accept?: string;

@@ -3,16 +3,19 @@
 import { useState } from "react";
 import DynamicFormBuilder from "@/components/forms/DynamicFormBuilder";
 import { ActivityFormProps } from "@/components/forms/forms-instructions/ActivityProp";
-import { createActivity } from "@/service/api/activites";
 
 interface ActivityFormComponentProps {
   onCancel: () => void;
   onSubmit: (formData: any) => void;
+  linkTableData: any[];
+  editingActivity: any | null;
 }
 
 export function ActivityForm({
   onCancel,
   onSubmit,
+  linkTableData,
+  editingActivity,
 }: ActivityFormComponentProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,52 +25,7 @@ export function ActivityForm({
     setError(null);
 
     try {
-      // DEBUG: Log what's coming from the form
-      console.log("Raw form data from DynamicFormBuilder:", formData);
-
-      // Transform the form data to match the API expected format
-      // DynamicFormBuilder uses the 'label' property as keys
-      const transformedData = {
-        subject: formData["Subject"] || "",
-        activityType: formData["Activity Type"] || "",
-        priority: formData["Priority"] || "Medium",
-        relatedTo: formData["Related To"] || "",
-        relatedItem: formData["Related Item"] || "",
-        dueDate: formData["Due Date"] || null,
-        dueTime: formData["Due Time"] || null,
-        contact: formData["Contact"] || null,
-        assignTo: formData["Assign To"] || null,
-        description: formData["Description"] || null,
-      };
-
-      console.log("Transformed data being sent to API:", transformedData);
-
-      // Validate required fields
-      if (!transformedData.subject) {
-        throw new Error("Subject is required");
-      }
-      if (!transformedData.activityType) {
-        throw new Error("Activity Type is required");
-      }
-      if (!transformedData.relatedTo) {
-        throw new Error("Related To is required");
-      }
-      if (!transformedData.relatedItem) {
-        throw new Error("Related Item is required");
-      }
-
-      // Call the service function with transformed data
-      const result = await createActivity(transformedData);
-
-      if (!result.success) {
-        throw new Error(result.error || "Failed to create activity");
-      }
-
-      console.log("Success:", result.message);
-      console.log("Created activity data:", result.data);
-
-      // Call the parent's onSubmit handler with the created activity data
-      onSubmit(result.data);
+      await onSubmit(formData);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "An unexpected error occurred";
@@ -124,7 +82,8 @@ export function ActivityForm({
       {/* Dynamic Form */}
       <div className="bg-white rounded-lg shadow-sm p-8 relative">
         <DynamicFormBuilder
-          editingData={null}
+          linkTableData={linkTableData}
+          editingData={editingActivity}
           config={ActivityFormProps}
           onSubmit={handleFormSubmit}
           onCancel={onCancel}
