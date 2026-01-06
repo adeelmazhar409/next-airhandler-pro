@@ -51,11 +51,12 @@ export default function ContactsContent() {
         return { [table]: data };
       });
       const results = await Promise.all(promises);
+
       const contactsViewData = buildFinalContactObject(
         contactsResponse.data || [],
         results
       );
-      
+
       setContacts(contactsViewData || []);
       setLinkTableData(results);
     } catch (err: any) {
@@ -120,6 +121,7 @@ export default function ContactsContent() {
       />
     );
   }
+
   const data = true;
 
   return (
@@ -151,24 +153,25 @@ export default function ContactsContent() {
               Contact Management
             </h2>
           </div>
+
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-charcoal">{contacts.length}</div>
+              <div className="text-2xl font-bold text-charcoal">2</div>
               <div className="text-[11px] text-slate mt-0.5">
                 Total Contacts
               </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-charcoal">{contacts.filter((contact: any) => contact.contact_status === "Active").length || 0}</div>
+              <div className="text-2xl font-bold text-charcoal">1</div>
               <div className="text-[11px] text-slate mt-0.5">Active</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-charcoal">{contacts.filter((contact: any) => contact.contact_status === "Prospect").length || 0}</div>
+              <div className="text-2xl font-bold text-charcoal">0</div>
               <div className="text-[11px] text-slate mt-0.5">Prospects</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-charcoal">{contacts.filter((contact: any) => contact.contact_status === "Customer").length || 0}</div>
+              <div className="text-2xl font-bold text-charcoal">1</div>
               <div className="text-[11px] text-slate mt-0.5">Customers</div>
             </div>
           </div>
@@ -185,7 +188,7 @@ export default function ContactsContent() {
               onEditContact={handleEditContact}
             />
           ) : (
-            <div><Actbox value="Contacts" icon={<ContactsIcon />} description="No contacts found" /></div>
+            <div>No data</div>
           )}
         </div>
       </div>
