@@ -761,6 +761,7 @@ const DynamicFormBuilder: React.FC<any> = ({
             control={control}
             defaultValue={editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => {
+
               const isDisabled = field.activeDependence
                 ? formValues[field.activeDependence!]
                   ? false
@@ -777,9 +778,8 @@ const DynamicFormBuilder: React.FC<any> = ({
                   )
                 : getDisplayOptions(linkTableData || [], field.linkTable);
 
-              // field.Title === "Related Item" &&
-              //   console.log("displayOptions", displayOptions, value);
-
+              // const joinValue = typeof field.linkTableValue2 === 'object' ? linkTableData[field.linkTableValue2.linkvalue] : field.linkTableValue2;
+              console.log(linkTableData, field.linkTableValue2, "joinValue");
               const linkTableValue =
                 field.dataDependence &&
                 field.dataDependence.dataMapping.find(
@@ -1407,7 +1407,7 @@ const DynamicFormBuilder: React.FC<any> = ({
                       .includes(searchLower);
                   }
                 })
-                .filter((option: any) => !value.includes(option.id));
+                .filter((option: any) => !value?.includes(option.id));
 
               return (
                 <div

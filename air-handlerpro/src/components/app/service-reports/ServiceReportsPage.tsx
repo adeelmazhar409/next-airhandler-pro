@@ -72,6 +72,14 @@ export default function ServiceReports() {
     }
   }
 
+  
+  // Show Create Work Order Form
+  if (formToggle) {
+    return (
+      <ServiceReportForm onCancel={handleCancel} onSubmit={handleSubmit} />
+    );
+  }
+  
   // Show Service Report Detail Page
   if (selectedReportId) {
     const reportData = technicianReportsData.find(
@@ -83,14 +91,6 @@ export default function ServiceReports() {
       );
     }
   }
-
-  // Show Create Work Order Form
-  if (formToggle) {
-    return (
-      <ServiceReportForm onCancel={handleCancel} onSubmit={handleSubmit} />
-    );
-  }
-
   // Define all sections in an array
   const sections = [
     {

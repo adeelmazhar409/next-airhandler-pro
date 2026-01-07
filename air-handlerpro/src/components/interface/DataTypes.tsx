@@ -86,7 +86,7 @@ interface FieldConfig {
   minuteplaceholder?: string;
   option?: string[];
   linkTable?: string;
-  linkTableValue2?: string;
+  linkTableValue2?: string | {table: string, linkvalue: string};
   linkTableValue?: string | string[];
   box?: object[];
   optionDescription?: string[];
