@@ -96,7 +96,7 @@ export default function CompaniesContent() {
     setEditingCompany(null);
   };
 
-  const handleSubmit = (formData: any) => {
+  const handleSubmit = async (formData: any) => {
     formData.id
       ? updateCompany(formData.id, formData)
       : createCompany(formData);

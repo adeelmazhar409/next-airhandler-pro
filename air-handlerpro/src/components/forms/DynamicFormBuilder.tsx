@@ -88,7 +88,7 @@ const DynamicFormBuilder: React.FC<any> = ({
                     .string()
                     .min(1, `${field.Title} is required`)
                     .refine(
-                      (val) => val === "" || /^[a-zA-Z ]+$/.test(val),
+                      (val) => val === "" || /^[a-zA-Z0-9 ]+$/.test(val),
                       "Please enter only text"
                     )
                 : z
@@ -1407,7 +1407,7 @@ const DynamicFormBuilder: React.FC<any> = ({
                       .includes(searchLower);
                   }
                 })
-                .filter((option: any) => !value.includes(option.id));
+                .filter((option: any) => !value?.includes(option.id));
 
               return (
                 <div
@@ -1465,7 +1465,7 @@ const DynamicFormBuilder: React.FC<any> = ({
                                           key={idx}
                                           type="button"
                                           onClick={() => {
-                                            if (!value.includes(option.id)) {
+                                            if (!value?.includes(option.id)) {
                                               onChange(option.id);
                                               toggleDropdown(fieldKey);
                                               setSearchTerms((prev) => ({
@@ -1474,9 +1474,9 @@ const DynamicFormBuilder: React.FC<any> = ({
                                               }));
                                             }
                                           }}
-                                          disabled={value.includes(option.id)}
+                                          disabled={value?.includes(option.id)}
                                           className={`w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm ${
-                                            value.includes(option.id)
+                                            value?.includes(option.id)
                                               ? "opacity-50 cursor-not-allowed"
                                               : "cursor-pointer"
                                           }`}
