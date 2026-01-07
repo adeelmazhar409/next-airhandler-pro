@@ -12,6 +12,8 @@ import {
 import { activityLinkTable } from "@/components/forms/forms-instructions/ActivityProp";
 import { buildFinalActivityObject } from "@/components/utility/HelperFunctions";
 import ActivityPageDataFormed from "../../UI-components/activitypagedataFormed";
+import { toast } from "@/components/toast";
+import { confirm } from "@/components/confirm";
 
 export default function ActivitiesContent() {
   const [formToggle, setFormToggle] = useState(false);
@@ -74,30 +76,31 @@ export default function ActivitiesContent() {
   const triggerRefresh = () => {
     setRefreshKey((prev) => prev + 1);
   };
+const handleDeleteActivity = async (
+  activityId: string,
+  activitySubject: string
+) => {
+  confirm(
+    `Are you sure you want to delete activity: "${activitySubject}"?`,
+    async () => {
+      // This only runs if user clicks "Confirm"
+      try {
+        const result = await deleteActivity(activityId);
 
-  const handleDeleteActivity = async (
-    activityId: string,
-    activitySubject: string
-  ) => {
-    if (
-      !confirm(`Are you sure you want to delete activity: ${activitySubject}?`)
-    ) {
-      return;
-    }
-
-    try {
-      const result = await deleteActivity(activityId);
-      if (result.success) {
-        triggerRefresh();
-      } else {
-        console.error("Error deleting activity:", result.error);
-        alert("Failed to delete activity");
+        if (result.success) {
+          toast("✅ Activity deleted successfully!");
+          triggerRefresh();
+        } else {
+          toast("❌ Failed to delete activity");
+          console.error("Error deleting activity:", result.error);
+        }
+      } catch (err) {
+        console.error("Error deleting activity:", err);
+        toast("❌ An unexpected error occurred");
       }
-    } catch (err) {
-      console.error("Error deleting activity:", err);
-      alert("An unexpected error occurred");
     }
-  };
+  );
+};
 
   const handleEditActivity = (activityId: string) => {
     const activityToEdit = activityData.find((a: any) => a.id === activityId);
@@ -129,6 +132,7 @@ export default function ActivitiesContent() {
       setFormToggle(false);
       setEditingActivity(null);
       triggerRefresh();
+  toast("✅ Success! Record saved");
     } catch (err) {
       console.error("Error submitting activity:", err);
       alert("Failed to save activity. Please try again.");
