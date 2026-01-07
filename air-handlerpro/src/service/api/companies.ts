@@ -70,12 +70,7 @@ export async function createCompany(
     const { data, error } = await supabase
       .from("companies")
       .insert({
-        business_name: insertData.business_name,
-        company_type_id: insertData.company_type_id,
-        billing_address: insertData.billing_address,
-        notes: insertData.notes,
-        primary_contact_id: insertData.primary_contact_id,
-        owner_id: insertData.owner_id,
+       ...insertData,
         created_by: user.id,
       })
       .select()
@@ -84,7 +79,7 @@ export async function createCompany(
     console.log(error, "compnay error");
 
     // one-to-many relationships
-    insertData.sites.forEach(async (site: any) => {
+    insertData.sites?.forEach(async (site: any) => {
       const { data: siteData, error: siteError } = await supabase
         .from("sites")
         .insert({
