@@ -123,31 +123,22 @@ export async function updateActivity(
   formData: Partial<any>
 ): Promise<ApiResponse<any>> {
   try {
-    const updateData: any = {};
+    // Use the same mapping function as createActivity
+    const updateData = mapTitlesToLabels(formData, ActivityFormProps);
 
-    if (formData.subject !== undefined) updateData.subject = formData.subject;
-    if (formData.description !== undefined)
-      updateData.description = formData.description;
-    if (formData.activityType !== undefined)
-      updateData.activity_type = formData.activityType;
-    if (formData.priority !== undefined)
-      updateData.priority = formData.priority;
-    if (formData.relatedTo !== undefined)
-      updateData.related_to_type = formData.relatedTo;
-    if (formData.relatedItem !== undefined)
-      updateData.related_to_id = formData.relatedItem;
-    if (formData.contact !== undefined)
-      updateData.contact_id = formData.contact;
-    if (formData.assignTo !== undefined)
-      updateData.assigned_to = formData.assignTo;
-    if (formData.dueDate !== undefined) updateData.due_date = formData.dueDate;
-    if (formData.dueTime !== undefined) updateData.due_time = formData.dueTime;
+    // Handle assigned_to field same as create
+    let assigned_to: any = updateData.assigned_to;
+    const { assigned_to: _removed, ...selectedData } = updateData;
 
-    updateData.updated_at = new Date().toISOString();
+    const finalUpdateData = {
+      ...selectedData,
+      ...(assigned_to && { assigned_to_id: assigned_to }),
+      updated_at: new Date().toISOString(),
+    };
 
     const { data, error } = await supabase
       .from("activities")
-      .update(updateData)
+      .update(finalUpdateData)
       .eq("id", activityId)
       .select()
       .single();
@@ -169,7 +160,6 @@ export async function updateActivity(
     };
   }
 }
-
 export async function deleteActivity(
   activityId: string
 ): Promise<ApiResponse<void>> {

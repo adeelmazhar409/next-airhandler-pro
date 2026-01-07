@@ -1,8 +1,12 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import StatsCard from "../../UI-components/StatsCard";
-import { ContactsIcon, NocontactIcon } from "../../../icons/icons";
+import {
+  ContactsIcon,
+  NocontactIcon,
+  
+} from "../../../icons/icons";
+import { LayoutGrid, List } from "lucide-react";
 import Actbox from "../../UI-components/Actbox";
-import { useState } from "react";
 import ContactsExample from "../../UI-components/ContactPageDataFormed";
 import Button from "../../UI-components/button";
 import {
@@ -15,24 +19,25 @@ import { buildFinalContactObject } from "@/components/utility/HelperFunctions";
 import { contactLinkTable } from "@/components/forms/forms-instructions/ContactProp";
 import { supabase } from "@/lib/supabase";
 import { CreateContactForm } from "../../contacts/CreateContactForm";
+import { toast } from "@/components/toast";
+import { confirm } from "@/components/confirm";
 
 export default function ContactsContent() {
   const [contactFormToggle, setContactFormToggle] = useState(false);
-  const [loading, setLoading] = useState(true); // Start as true
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [contacts, setContacts] = useState<any[]>([]);
   const [contactData, setContactData] = useState<any | null>(null);
   const [linkTableData, setLinkTableData] = useState<any[]>([]);
   const [editingContact, setEditingContact] = useState<any | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid"); // Default to grid like your current design
 
-  // Memoized fetch functions to avoid recreating on every render
   const fetchAllData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Fetch companies
       const contactsResponse = await fetchContacts();
 
       if (!contactsResponse.success) {
@@ -41,12 +46,11 @@ export default function ContactsContent() {
         setContactData(contactsResponse.data);
       }
 
-      // Fetch link table data in parallel
       const promises = contactLinkTable.map(async (table: any) => {
         const { data, error } = await supabase.from(table).select("*");
         if (error) {
           console.error(`Error fetching ${table}:`, error);
-          return { [table]: [] }; // Return empty on error
+          return { [table]: [] };
         }
         return { [table]: data };
       });
@@ -67,26 +71,40 @@ export default function ContactsContent() {
     }
   }, []);
 
-  // Trigger refresh
   const triggerRefresh = () => {
     setRefreshKey((prev) => prev + 1);
   };
 
-  const handleDeleteContact = async (contactId: string) => {
-    try {
-      await deleteContact(contactId);
-      triggerRefresh();
-    } catch (err) {
-      console.error("Error deleting contact:", err);
+  const handleDeleteContact = (contactId: string, contactName: string) => {
+    confirm(
+      `Are you sure you want to delete contact: "${contactName}"?`,
+      async () => {
+        try {
+          const result = await deleteContact(contactId);
+          if (result.success) {
+            toast("✅ Contact deleted successfully!");
+            triggerRefresh();
+          } else {
+            toast("❌ Failed to delete contact");
+          }
+        } catch (err) {
+          console.error("Error deleting contact:", err);
+          toast("❌ An unexpected error occurred");
+        }
+      }
+    );
+  };
+
+  const handleEditContact = (contactId: string) => {
+    const contactToEdit = contactData?.find((c: any) => c.id === contactId);
+    if (contactToEdit) {
+      setEditingContact(contactToEdit);
+      setContactFormToggle(true);
     }
   };
 
-  const handleEditContact = (contact: any) => {
-    setEditingContact(contactData.find((c: any) => c.id === contact));
-    setContactFormToggle(true);
-  };
-
   const handleCreateContact = () => {
+    setEditingContact(null);
     setContactFormToggle(true);
   };
 
@@ -95,22 +113,31 @@ export default function ContactsContent() {
     setEditingContact(null);
   };
 
-  const handleSubmit = (formData: any) => {
-    formData.id
-      ? updateContact(formData.id, formData)
-      : createContact(formData);
-    console.log(formData);
-    setContactFormToggle(false);
-    setEditingContact(null);
-    triggerRefresh(); // Refresh data after submit
+  const handleSubmit = async (formData: any) => {
+    try {
+      if (formData.id) {
+        await updateContact(formData.id, formData);
+      } else {
+        await createContact(formData);
+      }
+      setContactFormToggle(false);
+      setEditingContact(null);
+      triggerRefresh();
+      toast("✅ Success! Record saved");
+    } catch (err) {
+      console.error("Error submitting contact:", err);
+      toast("❌ Failed to save contact");
+    }
   };
 
-  // Load data on mount and refresh
+  const toggleViewMode = () => {
+    setViewMode((prev) => (prev === "list" ? "grid" : "list"));
+  };
+
   useEffect(() => {
     fetchAllData();
   }, [refreshKey, fetchAllData]);
 
-  // Early returns for forms
   if (contactFormToggle) {
     return (
       <CreateContactForm
@@ -122,18 +149,31 @@ export default function ContactsContent() {
     );
   }
 
-  const data = true;
-
   return (
-    <div className=" ">
-      {/* Main Content */}
+    <div className="">
+      <div className="w-full flex justify-between py-2 px-4">
+        {/* View Toggle Button */}
+        <button
+          onClick={toggleViewMode}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-silver rounded-lg text-charcoal hover:bg-platinum transition-colors"
+        >
+          {viewMode === "list" ? (
+            <>
+              <LayoutGrid className="w-4 h-4" />
+              <span>Grid View</span>
+            </>
+          ) : (
+            <>
+              <List className="w-4 h-4" />
+              <span>List View</span>
+            </>
+          )}
+        </button>
 
-      {/* Section Title Below */}
-      <div className="flex  w-full justify-end">
         <Button onClick={handleCreateContact} value="Create contact" />
       </div>
+
       <div className="mx-auto mt-6 px-4">
-        {/* Stats Overview Card */}
         <div className="bg-white rounded-lg border border-silver shadow-sm p-4 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <svg
@@ -154,42 +194,45 @@ export default function ContactsContent() {
             </h2>
           </div>
 
-          {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="text-center">
-              <div className="text-2xl font-bold text-charcoal">2</div>
+              <div className="text-2xl font-bold text-charcoal">
+                {contacts.length}
+              </div>
               <div className="text-[11px] text-slate mt-0.5">
                 Total Contacts
               </div>
             </div>
+            {/* You can update these dynamically later */}
             <div className="text-center">
-              <div className="text-2xl font-bold text-charcoal">1</div>
+              <div className="text-2xl font-bold text-charcoal">
+                {contacts.filter((c) => c.contact_status === "Active").length}
+              </div>
               <div className="text-[11px] text-slate mt-0.5">Active</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-charcoal">0</div>
+              <div className="text-2xl font-bold text-charcoal">
+                {contacts.filter((c) => c.contact_status === "Prospect").length}
+              </div>
               <div className="text-[11px] text-slate mt-0.5">Prospects</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-charcoal">1</div>
+              <div className="text-2xl font-bold text-charcoal">
+                {contacts.filter((c) => c.contact_status === "Customer").length}
+              </div>
               <div className="text-[11px] text-slate mt-0.5">Customers</div>
             </div>
           </div>
 
-          {/* Empty State */}
-
-          {data ? (
-            <ContactsExample
-              key={refreshKey}
-              loading={loading}
-              error={error}
-              contacts={contacts}
-              handleDeleteContact={handleDeleteContact}
-              onEditContact={handleEditContact}
-            />
-          ) : (
-            <div>No data</div>
-          )}
+          <ContactsExample
+            key={refreshKey}
+            loading={loading}
+            error={error}
+            contacts={contacts}
+            handleDeleteContact={handleDeleteContact}
+            onEditContact={handleEditContact}
+            viewMode={viewMode}
+          />
         </div>
       </div>
     </div>

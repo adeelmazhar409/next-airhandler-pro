@@ -1,9 +1,15 @@
 "use client";
 import ActivityItem from "@/components/app/UI-components/activitypagedata";
 
-function LoadingSkeleton() {
+function LoadingSkeleton({ viewMode }: { viewMode: "list" | "grid" }) {
   return (
-    <div className="space-y-4 mx-auto p-6">
+    <div
+      className={
+        viewMode === "grid"
+          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6"
+          : "space-y-4 mx-auto p-6"
+      }
+    >
       {[1, 2, 3].map((i) => (
         <div
           key={i}
@@ -20,7 +26,10 @@ interface ActivityPageDataFormedProps {
   activities?: any[];
   handleDeleteActivity?: (activityId: string, activitySubject: string) => void;
   onEditActivity?: (activityId: string) => void;
+  viewMode?: "list" | "grid";
 }
+
+export type { ActivityPageDataFormedProps };
 
 export default function ActivityPageDataFormed({
   loading,
@@ -28,10 +37,11 @@ export default function ActivityPageDataFormed({
   activities,
   handleDeleteActivity,
   onEditActivity,
+  viewMode = "list",
 }: ActivityPageDataFormedProps) {
   return (
-    <div className="mx-auto p-6 space-y-4">
-      {loading && <LoadingSkeleton />}
+    <div className="mx-auto p-6">
+      {loading && <LoadingSkeleton viewMode={viewMode} />}
 
       {error && (
         <div className="text-center py-12">
@@ -46,7 +56,13 @@ export default function ActivityPageDataFormed({
       )}
 
       {!loading && !error && activities && activities.length > 0 && (
-        <>
+        <div
+          className={
+            viewMode === "grid"
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              : "space-y-4"
+          }
+        >
           {activities?.map((activity) => {
             // Determine priority and type from activity data
             const priority = (activity.priority?.toLowerCase() || "medium") as
@@ -92,6 +108,7 @@ export default function ActivityPageDataFormed({
                 dueDate={dueDateTime}
                 priority={priority}
                 type={type}
+                viewMode={viewMode}
                 onEdit={() => {
                   if (onEditActivity) {
                     onEditActivity(activity.id);
@@ -105,7 +122,7 @@ export default function ActivityPageDataFormed({
               />
             );
           })}
-        </>
+        </div>
       )}
     </div>
   );

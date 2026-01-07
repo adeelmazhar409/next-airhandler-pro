@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { ActitivtyIcon, ClockIcon } from "../../../icons/icons";
+import {  LayoutGrid, List } from "lucide-react";
 import Button from "../../UI-components/button";
 import { ActivityForm } from "./forms/ActivityForm";
 import { supabase } from "@/lib/supabase";
@@ -24,6 +25,7 @@ export default function ActivitiesContent() {
   const [activityData, setActivityData] = useState<any[]>([]); // Raw activities from API
   const [linkTableData, setLinkTableData] = useState<any[]>([]);
   const [editingActivity, setEditingActivity] = useState<any | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list"); // View mode state
 
   // Memoized fetch function - includes link tables and builds enriched view
   const fetchAllData = useCallback(async () => {
@@ -76,31 +78,32 @@ export default function ActivitiesContent() {
   const triggerRefresh = () => {
     setRefreshKey((prev) => prev + 1);
   };
-const handleDeleteActivity = async (
-  activityId: string,
-  activitySubject: string
-) => {
-  confirm(
-    `Are you sure you want to delete activity: "${activitySubject}"?`,
-    async () => {
-      // This only runs if user clicks "Confirm"
-      try {
-        const result = await deleteActivity(activityId);
 
-        if (result.success) {
-          toast("✅ Activity deleted successfully!");
-          triggerRefresh();
-        } else {
-          toast("❌ Failed to delete activity");
-          console.error("Error deleting activity:", result.error);
+  const handleDeleteActivity = async (
+    activityId: string,
+    activitySubject: string
+  ) => {
+    confirm(
+      `Are you sure you want to delete activity: "${activitySubject}"?`,
+      async () => {
+        // This only runs if user clicks "Confirm"
+        try {
+          const result = await deleteActivity(activityId);
+
+          if (result.success) {
+            toast("✅ Activity deleted successfully!");
+            triggerRefresh();
+          } else {
+            toast("❌ Failed to delete activity");
+            console.error("Error deleting activity:", result.error);
+          }
+        } catch (err) {
+          console.error("Error deleting activity:", err);
+          toast("❌ An unexpected error occurred");
         }
-      } catch (err) {
-        console.error("Error deleting activity:", err);
-        toast("❌ An unexpected error occurred");
       }
-    }
-  );
-};
+    );
+  };
 
   const handleEditActivity = (activityId: string) => {
     const activityToEdit = activityData.find((a: any) => a.id === activityId);
@@ -124,19 +127,26 @@ const handleDeleteActivity = async (
 
   const handleSubmit = async (formData: any) => {
     try {
-      if (formData.id) {
-        await updateActivity(formData.id, formData);
+      if (editingActivity?.id) {
+        // UPDATE - pass the ID from editingActivity
+        await updateActivity(editingActivity.id, formData);
       } else {
+        // CREATE
         await createActivity(formData);
       }
       setFormToggle(false);
       setEditingActivity(null);
       triggerRefresh();
-  toast("✅ Success! Record saved");
+      toast("✅ Success! Record saved");
     } catch (err) {
       console.error("Error submitting activity:", err);
       alert("Failed to save activity. Please try again.");
     }
+  };
+
+  // Toggle between list and grid view
+  const toggleViewMode = () => {
+    setViewMode((prev) => (prev === "list" ? "grid" : "list"));
   };
 
   // Load data on mount and on refresh
@@ -160,7 +170,25 @@ const handleDeleteActivity = async (
 
   return (
     <div className="mx-auto my-3 px-4">
-      <div className="w-full flex justify-end py-2">
+      <div className="w-full flex justify-between py-2">
+        {/* View Toggle Button */}
+        <button
+          onClick={toggleViewMode}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-silver rounded-lg text-charcoal hover:bg-platinum transition-colors"
+        >
+          {viewMode === "list" ? (
+            <>
+              <LayoutGrid className="w-4 h-4" />
+              <span>Grid View</span>
+            </>
+          ) : (
+            <>
+              <List className="w-4 h-4" />
+              <span>List View</span>
+            </>
+          )}
+        </button>
+
         <Button onClick={handleCreateActivity} value="New Activity" />
       </div>
 
@@ -182,6 +210,7 @@ const handleDeleteActivity = async (
             activities={activities}
             handleDeleteActivity={handleDeleteActivity}
             onEditActivity={handleEditActivity}
+            viewMode={viewMode}
           />
         ) : (
           <>
