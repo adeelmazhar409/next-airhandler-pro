@@ -2,36 +2,41 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Actbox from "../../UI-components/Actbox";
-import { SiteIcon } from "../../../icons/icons";
+import { SiteIcon, } from "../../../icons/icons";
+import { List,LayoutGrid } from "lucide-react";
 import Button from "../../UI-components/button";
 import ServiceSitesGrid from "../../UI-components/serviceSideDataFormed";
 import { SiteForm } from "./forms/SiteForm";
 import { supabase } from "@/lib/supabase";
+import { buildFinalSiteObject } from "@/components/utility/HelperFunctions";
 import {
-  buildFinalSiteObject,
-} from "@/components/utility/HelperFunctions";
-import { createServiceSite, deleteServiceSite, fetchServiceSites, updateServiceSite } from "@/service/api/site";
+  createServiceSite,
+  deleteServiceSite,
+  fetchServiceSites,
+  updateServiceSite,
+} from "@/service/api/site";
 import { siteLinkTable } from "@/components/forms/forms-instructions/SiteProp";
+import { toast } from "@/components/toast";
+import { confirm } from "@/components/confirm";
 
 export default function SitesContent() {
-  const [view, setView] = useState<"companies" | "sites">("companies");
   const [siteFormToggle, setSiteFormToggle] = useState(false);
-  const [loading, setLoading] = useState(true); // Start as true
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [sites, setSites] = useState<any[]>([]);
   const [siteData, setSiteData] = useState<any | null>(null);
   const [linkTableData, setLinkTableData] = useState<any[]>([]);
   const [editingSite, setEditingSite] = useState<any | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid"); // Default to grid like your card design
 
-  // Memoized fetch functions to avoid recreating on every render
   const fetchAllData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Fetch companies
       const serviceSitesResponse = await fetchServiceSites();
+      console.log(serviceSitesResponse);
 
       if (!serviceSitesResponse.success) {
         setError(serviceSitesResponse.error || "Failed to load service sites");
@@ -39,12 +44,11 @@ export default function SitesContent() {
         setSiteData(serviceSitesResponse.data);
       }
 
-      // Fetch link table data in parallel
       const promises = siteLinkTable.map(async (table) => {
         const { data, error } = await supabase.from(table).select("*");
         if (error) {
           console.error(`Error fetching ${table}:`, error);
-          return { [table]: [] }; // Return empty on error
+          return { [table]: [] };
         }
         return { [table]: data };
       });
@@ -65,26 +69,40 @@ export default function SitesContent() {
     }
   }, []);
 
-  // Trigger refresh
   const triggerRefresh = () => {
     setRefreshKey((prev) => prev + 1);
   };
 
-  const handleDeleteSite = async (siteId: string) => {
-    try {
-      await deleteServiceSite(siteId);
-      triggerRefresh();
-    } catch (err) {
-      console.error("Error deleting site:", err);
+  const handleDeleteSite = (siteId: string, siteName: string) => {
+    confirm(
+      `Are you sure you want to delete site: "${siteName}"?`,
+      async () => {
+        try {
+          const result = await deleteServiceSite(siteId);
+          if (result.success) {
+            toast("✅ Site deleted successfully!");
+            triggerRefresh();
+          } else {
+            toast("❌ Failed to delete site");
+          }
+        } catch (err) {
+          console.error("Error deleting site:", err);
+          toast("❌ An unexpected error occurred");
+        }
+      }
+    );
+  };
+
+  const handleEditSite = (siteId: string) => {
+    const siteToEdit = siteData?.find((s: any) => s.id === siteId);
+    if (siteToEdit) {
+      setEditingSite(siteToEdit);
+      setSiteFormToggle(true);
     }
   };
 
-  const handleEditSite = (site: any) => {
-    setEditingSite(siteData.find((s: any) => s.id === site));
-    setSiteFormToggle(true);
-  };
-
   const handleCreateSite = () => {
+    setEditingSite(null);
     setSiteFormToggle(true);
   };
 
@@ -93,22 +111,31 @@ export default function SitesContent() {
     setEditingSite(null);
   };
 
-  const handleSubmit = (formData: any) => {
-    formData.id
-      ? updateServiceSite(formData.id, formData)
-      : createServiceSite(formData);
-    console.log(formData);
-    setSiteFormToggle(false);
-    setEditingSite(null);
-    triggerRefresh(); // Refresh data after submit
+  const handleSubmit = async (formData: any) => {
+    try {
+      if (formData.id) {
+        await updateServiceSite(formData.id, formData);
+      } else {
+        await createServiceSite(formData);
+      }
+      setSiteFormToggle(false);
+      setEditingSite(null);
+      triggerRefresh();
+      toast("✅ Success! Record saved");
+    } catch (err) {
+      console.error("Error submitting site:", err);
+      toast("❌ Failed to save site");
+    }
   };
 
-  // Load data on mount and refresh
+  const toggleViewMode = () => {
+    setViewMode((prev) => (prev === "list" ? "grid" : "list"));
+  };
+
   useEffect(() => {
     fetchAllData();
   }, [refreshKey, fetchAllData]);
 
-  // Early returns for forms
   if (siteFormToggle) {
     return (
       <SiteForm
@@ -128,40 +155,30 @@ export default function SitesContent() {
       "Sites help you manage locations associated with your companies and streamline service operations.",
   };
 
-  const hasServiceData = true; // Adjust based on actual data if needed
+  const hasServiceData = sites.length > 0;
 
   return (
     <div className="">
-      <div className="flex gap-2 mb-6 justify-between">
-        <div className="flex gap-2">
-          <button
-            onClick={() => setView("sites")}
-            className={`flex items-center gap-2 px-4 py-2 border border-black font-medium transition-colors rounded-md cursor-pointer ${
-              view === "sites"
-                ? "bg-charcoal text-white"
-                : "bg-white text-charcoal hover:bg-charcoal/30"
-            }`}
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-              />
-            </svg>
-            Sites
-          </button>
-        </div>
+      <div className="flex gap-2 mb-6 justify-between px-4">
+        {/* View Toggle Button */}
+        <button
+          onClick={toggleViewMode}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-silver rounded-lg text-charcoal hover:bg-platinum transition-colors"
+        >
+          {viewMode === "list" ? (
+            <>
+              <LayoutGrid className="w-4 h-4" />
+              <span>Grid View</span>
+            </>
+          ) : (
+            <>
+              <List className="w-4 h-4" />
+              <span>List View</span>
+            </>
+          )}
+        </button>
 
-        <div className="flex gap-2">
-          <Button onClick={handleCreateSite} value="Add Sites" />
-        </div>
+        <Button onClick={handleCreateSite} value="Add Sites" />
       </div>
 
       {hasServiceData ? (
@@ -172,6 +189,7 @@ export default function SitesContent() {
           serviceSites={sites}
           handleDeleteSite={handleDeleteSite}
           onEditSite={handleEditSite}
+          viewMode={viewMode}
         />
       ) : (
         <Actbox {...siteValue} />

@@ -97,10 +97,6 @@ export default function WorkOrderDetailPage({
             <button className="px-4 py-2 border border-silver rounded-lg text-charcoal hover:bg-platinum transition-colors">
               Archive
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-charcoal transition-colors">
-              <span>+</span>
-              New Service Report
-            </button>
           </div>
         </div>
       </div>

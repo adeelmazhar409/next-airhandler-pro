@@ -50,11 +50,12 @@ export async function fetchCompanies(): Promise<any> {
   }
 }
 // Create Company
+//
+// Create Company - FIXED with correct column name
 export async function createCompany(
   formData: any
 ): Promise<ApiResponse<any>> {
   try {
-    // Get the current authenticated user
     const {
       data: { user },
       error: authError,
@@ -65,36 +66,35 @@ export async function createCompany(
     }
 
     const insertData = mapTitlesToLabels(formData, CompanyFormProps);
-    console.log(insertData)
-    // Insert data directly into Supabase
+    const { sites, ...companyData } = insertData;
+
     const { data, error } = await supabase
       .from("companies")
       .insert({
-       ...insertData,
+        ...companyData,
         created_by: user.id,
       })
       .select()
       .single();
-    
-    console.log(error, "compnay error");
 
-    // one-to-many relationships
-    insertData.sites?.forEach(async (site: any) => {
-      const { data: siteData, error: siteError } = await supabase
-        .from("sites")
-        .insert({
-          company_id: data.id,
-        })
-        .eq("id", site)
-        .select()
-        .single();
-      
-      if (siteError) {
-        throw new Error(siteError.message || "Failed to create site");
-      }
-    });
     if (error) {
       throw new Error(error.message || "Failed to create company");
+    }
+
+    // Link existing sites to this company
+    if (sites && Array.isArray(sites) && sites.length > 0) {
+      for (const siteId of sites) {
+        const { error: siteError } = await supabase
+          .from("sites")
+          .update({
+            parent_company_id: data.id,  // ✅ Correct column name
+          })
+          .eq("id", siteId);
+
+        if (siteError) {
+          console.error(`Failed to link site ${siteId}:`, siteError.message);
+        }
+      }
     }
 
     return {
