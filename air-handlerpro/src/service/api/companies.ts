@@ -156,6 +156,7 @@ export async function fetchCompanyById(
   }
 }
 // Update Company by ID
+// Update Company by ID
 export async function updateCompany(
   companyId: string,
   formData: Partial<any>
@@ -178,22 +179,21 @@ export async function updateCompany(
       .select()
       .single();
     
-    // one-to-many relationships
-    updateData.sites.forEach(async (site: any) => {
-      const { data: siteData, error: siteError } = await supabase
-        .from("sites")
-        .update({
-          company_id: companyId
-        })
-        .eq("id", site)
-        .select()
-        .single();
-      
-      if (siteError) {
-        throw new Error(siteError.message || "Failed to update site");
+    // one-to-many relationships - only process if sites exist
+    if (updateData.sites && Array.isArray(updateData.sites) && updateData.sites.length > 0) {
+      for (const site of updateData.sites) {
+        const { error: siteError } = await supabase
+          .from("sites")
+          .update({
+            parent_company_id: companyId  // Use parent_company_id to match createCompany
+          })
+          .eq("id", site);
+        
+        if (siteError) {
+          console.error(`Failed to link site ${site}:`, siteError.message);
+        }
       }
-    });
-    
+    }
 
     if (error) {
       throw new Error(error.message || "Failed to update company");

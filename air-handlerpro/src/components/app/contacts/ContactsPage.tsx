@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import StatsCardsRow from "../UI-components/StatCardRow";
 import Heading from "../Heading";
 import Button from "../UI-components/button";
@@ -29,7 +29,7 @@ export default function ContactsPage() {
   const [searchValue, setSearchValue] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const [contactFormToggle, setContactFormToggle] = useState(false);
-  const [loading, setLoading] = useState(true); // Start as true
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [contacts, setContacts] = useState<any[]>([]);
@@ -37,13 +37,44 @@ export default function ContactsPage() {
   const [linkTableData, setLinkTableData] = useState<any[]>([]);
   const [editingContact, setEditingContact] = useState<any | null>(null);
 
-  // Memoized fetch functions to avoid recreating on every render
+  // Filter contacts based on search value
+  const filteredContacts = useMemo(() => {
+    if (!searchValue.trim()) {
+      return contacts;
+    }
+
+    const searchLower = searchValue.toLowerCase().trim();
+
+    return contacts.filter((contact) => {
+      // Search in first name
+      const firstName = contact.first_name?.toLowerCase() || "";
+      // Search in last name
+      const lastName = contact.last_name?.toLowerCase() || "";
+      // Search in full name
+      const fullName = `${firstName} ${lastName}`.trim();
+      // Search in email
+      const email = contact.email?.toLowerCase() || "";
+      // Search in phone
+      const phone = contact.phone?.toLowerCase() || "";
+      // Search in company name
+      const companyName = contact.company_name?.toLowerCase() || "";
+
+      return (
+        firstName.includes(searchLower) ||
+        lastName.includes(searchLower) ||
+        fullName.includes(searchLower) ||
+        email.includes(searchLower) ||
+        phone.includes(searchLower) ||
+        companyName.includes(searchLower)
+      );
+    });
+  }, [contacts, searchValue]);
+
   const fetchAllData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Fetch companies
       const contactsResponse = await fetchContacts();
 
       if (!contactsResponse.success) {
@@ -52,22 +83,22 @@ export default function ContactsPage() {
         setContactData(contactsResponse.data);
       }
 
-      // Fetch link table data in parallel
       const promises = contactLinkTable.map(async (table: any) => {
         const { data, error } = await supabase.from(table).select("*");
         if (error) {
           console.error(`Error fetching ${table}:`, error);
-          return { [table]: [] }; // Return empty on error
+          return { [table]: [] };
         }
         return { [table]: data };
       });
       const results = await Promise.all(promises);
-      const contactsViewData = buildFinalContactObject(
+
+      const viewData = buildFinalContactObject(
         contactsResponse.data || [],
         results
       );
 
-      setContacts(contactsViewData || []);
+      setContacts(viewData || []);
       setLinkTableData(results);
     } catch (err: any) {
       console.error("Error loading data:", err);
@@ -77,26 +108,12 @@ export default function ContactsPage() {
     }
   }, []);
 
-  // Trigger refresh
   const triggerRefresh = () => {
     setRefreshKey((prev) => prev + 1);
   };
 
-  const handleDeleteContact = async (contactId: string) => {
-    try {
-      await deleteContact(contactId);
-      triggerRefresh();
-    } catch (err) {
-      console.error("Error deleting contact:", err);
-    }
-  };
-
-  const handleEditContact = (contact: any) => {
-    setEditingContact(contactData.find((c: any) => c.id === contact));
-    setContactFormToggle(true);
-  };
-
   const handleCreateContact = () => {
+    setEditingContact(null);
     setContactFormToggle(true);
   };
 
@@ -105,17 +122,16 @@ export default function ContactsPage() {
     setEditingContact(null);
   };
 
-  const handleSubmit = (formData: any) => {
-    formData.id
-      ? updateContact(formData.id, formData)
-      : createContact(formData);
+  const handleSubmit = async (formData: any) => {
+    const result = formData.id
+      ? await updateContact(formData.id, formData)
+      : await createContact(formData);
     console.log(formData);
     setContactFormToggle(false);
     setEditingContact(null);
-    triggerRefresh(); // Refresh data after submit
+    triggerRefresh();
   };
 
-  // Load data on mount and refresh
   useEffect(() => {
     fetchAllData();
   }, [refreshKey, fetchAllData]);
@@ -158,10 +174,10 @@ export default function ContactsPage() {
   const inputFields: InputField[] = [
     {
       type: "search",
-      placeholder: "Enter name to search...",
+      placeholder: "Search by name, email, phone, or company...",
       disable: false,
       show: true,
-      onChange: (value) => console.log("Search:", value),
+      onChange: (value) => setSearchValue(value),
     },
     {
       type: "dropdownButton",
@@ -216,34 +232,24 @@ export default function ContactsPage() {
         />
         <Button onClick={handleCreateContact} value="New Contact" />
       </div>
-      {/* Stats Cards Row */}
+
       <StatsCardsRow stats={topStats} />
 
-      {/* Search and Filters Row */}
       <SearchAndFilters
         fields={inputFields}
         searchValue={searchValue}
         onSearchChange={setSearchValue}
       />
 
-      {/* Empty State */}
       {data ? (
         <ContactsExample
           key={refreshKey}
           loading={loading}
           error={error}
-          contacts={contacts}
-          handleDeleteContact={handleDeleteContact}
-          onEditContact={handleEditContact}
+          contacts={filteredContacts} // Use filtered contacts here
         />
       ) : (
-        <>
-          <div className="mb-6">
-            <p className="text-sm text-slate">Showing 0 of 0 contacts</p>
-          </div>
-
-          <Actbox {...value} />
-        </>
+        <Actbox {...value} />
       )}
     </div>
   );
