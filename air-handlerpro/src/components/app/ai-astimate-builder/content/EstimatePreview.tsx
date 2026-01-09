@@ -1,95 +1,53 @@
 import {
   AvgDealSizeIcon,
   EquipmentIcon,
-  PreviewIcon,
   ScheduleIcon,
 } from "@/components/icons/icons";
-import { CheckCircle2, Circle } from "lucide-react";
-
-const SidebarSection = ({
-  title,
-  icon,
-  badge,
-  children,
-}: {
-  title: string;
-  icon: React.ReactNode;
-  badge?: string;
-  children: React.ReactNode;
-}) => (
-  <div>
-    <div className="flex items-center justify-between mb-2">
-      <div className="flex items-center gap-1.5">
-        {icon}
-        <h3 className="font-semibold text-charcoal text-xs">{title}</h3>
-      </div>
-      {badge && (
-        <span className="text-[10px] text-slate bg-yellow-50 px-1.5 py-0.5 rounded">
-          {badge}
-        </span>
-      )}
-    </div>
-    {children}
-  </div>
-);
-
-const ProgressItem = ({
-  label,
-  completed,
-}: {
-  label: string;
-  completed: boolean;
-}) => (
-  <div className="flex items-center justify-between">
-    <span className="text-xs text-slate">{label}</span>
-    {completed ? (
-      <CheckCircle2 className="w-4 h-4 text-green-500" />
-    ) : (
-      <Circle className="w-4 h-4 text-silver" />
-    )}
-  </div>
-);
+import { Building2, CheckCircle2 } from "lucide-react";
 
 interface EstimatePreviewProps {
-  selectedCompany?: { business_name: string; industry?: string } | null;
-  selectedSite?: { site_name: string; service_address: string } | null;
-  estimateData?: {
-    estimateName?: string;
-    estimateNumber?: string;
-    contractLength?: number;
-    contractStartDate?: string;
-    billingFrequency?: string;
-    milesToSite?: number;
-    totalAmount?: number;
-  };
-  conversationStep?: string;
+  selectedCompany: any;
+  selectedSite: any;
+  estimateData: any;
+  conversationStep: string;
+  onSaveDraft?: () => void;
+  onViewEstimate?: () => void;
 }
 
 export const EstimatePreview = ({
   selectedCompany,
   selectedSite,
-  estimateData = {},
-  conversationStep = "initial",
+  estimateData,
+  conversationStep,
+  onSaveDraft,
+  onViewEstimate,
 }: EstimatePreviewProps) => {
-  const hasCustomer = !!selectedCompany && !!selectedSite;
-  const hasEstimateInfo = !!estimateData.estimateName;
-  const hasSchedule = !!estimateData.contractStartDate;
+  const hasCustomer = selectedCompany && selectedSite;
+  const hasEstimateInfo =
+    estimateData.estimateName && estimateData.estimateNumber;
+  const hasSchedule =
+    estimateData.contractStartDate && estimateData.contractLength;
+  const isComplete = conversationStep === "complete";
 
   return (
-    <div className="w-80 bg-white border border-silver flex flex-col pt-10">
+    <div className="w-80 bg-white border-l border-silver flex flex-col flex-shrink-0">
+      {/* Preview Header */}
       <div className="px-4 py-3 border-b border-silver">
-        <div className="flex items-center gap-1.5 text-charcoal">
-          <PreviewIcon />
-          <h2 className="font-semibold text-sm">Estimate Preview</h2>
-        </div>
+        <h2 className="text-sm font-semibold text-charcoal">
+          Estimate Preview
+        </h2>
+        <p className="text-xs text-slate mt-0.5">
+          Track your estimate progress
+        </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      {/* Preview Content - Scrollable */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {/* Customer Section */}
         <SidebarSection
-          title="Customer"
+          title="Customer & Site"
           badge={hasCustomer ? "Confirmed" : "Pending"}
-          icon={null}
+          icon={<Building2 className="w-4 h-4" />}
         >
           {hasCustomer ? (
             <div className="space-y-1">
@@ -181,7 +139,7 @@ export const EstimatePreview = ({
 
         <div className="border-t border-silver" />
 
-        {/* Cost */}
+        {/* Travel Info */}
         <SidebarSection
           title="Travel Info"
           icon={<AvgDealSizeIcon color={"grey"} />}
@@ -215,24 +173,24 @@ export const EstimatePreview = ({
               completed={hasEstimateInfo}
             />
             <ProgressItem label="Schedule" completed={hasSchedule} />
-            <ProgressItem
-              label="Complete"
-              completed={conversationStep === "complete"}
-            />
+            <ProgressItem label="Complete" completed={isComplete} />
           </div>
         </div>
       </div>
 
+      {/* Action Buttons - Fixed at Bottom */}
       <div className="px-4 py-3 border-t border-silver space-y-2">
         <button
+          onClick={onSaveDraft}
           className="w-full px-3 py-2 border border-silver rounded-lg text-charcoal text-xs font-medium hover:bg-platinum transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={conversationStep !== "complete"}
+          disabled={!isComplete}
         >
           Save Draft
         </button>
         <button
-          className="w-full px-3 py-2 bg-cerulean text-white rounded-lg text-xs font-medium hover:bg-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={conversationStep !== "complete"}
+          onClick={onViewEstimate}
+          className="w-full px-3 py-2 bg-cerulean text-white rounded-lg text-xs font-medium hover:bg-cerulean/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!isComplete}
         >
           View Estimate
         </button>
@@ -240,3 +198,62 @@ export const EstimatePreview = ({
     </div>
   );
 };
+
+// Helper components
+const SidebarSection = ({
+  title,
+  badge,
+  icon,
+  children,
+}: {
+  title: string;
+  badge?: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}) => (
+  <div>
+    <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center gap-1.5">
+        {icon}
+        <h3 className="font-semibold text-charcoal text-xs">{title}</h3>
+      </div>
+      {badge && (
+        <span
+          className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+            badge === "Confirmed" || badge === "Set"
+              ? "bg-green-100 text-green-700"
+              : "bg-slate/10 text-slate"
+          }`}
+        >
+          {badge}
+        </span>
+      )}
+    </div>
+    {children}
+  </div>
+);
+
+const ProgressItem = ({
+  label,
+  completed,
+}: {
+  label: string;
+  completed: boolean;
+}) => (
+  <div className="flex items-center gap-2">
+    <div
+      className={`w-4 h-4 rounded-full flex items-center justify-center ${
+        completed ? "bg-green-500" : "bg-slate/20"
+      }`}
+    >
+      {completed && <CheckCircle2 className="w-3 h-3 text-white" />}
+    </div>
+    <span
+      className={`text-xs ${
+        completed ? "text-charcoal font-medium" : "text-slate"
+      }`}
+    >
+      {label}
+    </span>
+  </div>
+);

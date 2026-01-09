@@ -2,11 +2,15 @@ import { ChatIcon, DeleteIcon, LeftArrowIcon } from "@/components/icons/icons";
 
 interface HeaderAndChatTabProps {
   onClear?: () => void;
+  onBack?: () => void;
 }
 
-export const HeaderAndChatTab = ({ onClear }: HeaderAndChatTabProps) => (
+export const HeaderAndChatTab = ({
+  onClear,
+  onBack,
+}: HeaderAndChatTabProps) => (
   <div>
-    <div className="bg-white border border-silver px-4 py-3">
+    <div className="bg-white border-b border-silver px-4 py-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div>
@@ -29,14 +33,19 @@ export const HeaderAndChatTab = ({ onClear }: HeaderAndChatTabProps) => (
               Clear Chat
             </button>
           )}
-          <button className="flex items-center gap-1.5 text-xs text-slate hover:text-cerulean transition-colors">
-            <LeftArrowIcon />
-            Back to Estimates
-          </button>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="flex items-center gap-1.5 text-xs text-slate hover:text-cerulean transition-colors"
+            >
+              <LeftArrowIcon />
+              Back to Estimates
+            </button>
+          )}
         </div>
       </div>
     </div>
-    <div className="bg-white border-r border-l border-silver border-b px-4">
+    <div className="bg-white border-b border-silver px-4">
       <button className="flex items-center gap-1.5 px-3 py-2 border-b-2 border-cerulean text-cerulean font-medium text-sm">
         <ChatIcon />
         Chat
