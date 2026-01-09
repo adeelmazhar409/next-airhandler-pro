@@ -24,10 +24,14 @@ import {
 import { buildFinalContactObject } from "@/components/utility/HelperFunctions";
 import { contactLinkTable } from "@/components/forms/forms-instructions/ContactProp";
 import { supabase } from "@/lib/supabase";
+import { LayoutGrid, List } from "lucide-react";
 
 export default function ContactsPage() {
   const [searchValue, setSearchValue] = useState("");
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("All Statuses");
+  const [selectedType, setSelectedType] = useState("All Types");
+  const [sortBy, setSortBy] = useState("Name");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   const [contactFormToggle, setContactFormToggle] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,38 +41,92 @@ export default function ContactsPage() {
   const [linkTableData, setLinkTableData] = useState<any[]>([]);
   const [editingContact, setEditingContact] = useState<any | null>(null);
 
-  // Filter contacts based on search value
-  const filteredContacts = useMemo(() => {
-    if (!searchValue.trim()) {
-      return contacts;
+  // Get unique statuses and types from contacts
+  const contactStatuses = useMemo(() => {
+    const statuses = new Set(
+      contacts.map((c) => c.contact_status).filter(Boolean)
+    );
+    return ["All Statuses", ...Array.from(statuses)];
+  }, [contacts]);
+
+  const contactTypes = useMemo(() => {
+    const types = new Set(contacts.map((c) => c.contact_type).filter(Boolean));
+    return ["All Types", ...Array.from(types)];
+  }, [contacts]);
+
+  // Filter and sort contacts
+  const filteredAndSortedContacts = useMemo(() => {
+    let result = [...contacts];
+
+    // Apply search filter
+    if (searchValue.trim()) {
+      const searchLower = searchValue.toLowerCase().trim();
+      result = result.filter((contact) => {
+        const firstName = contact.first_name?.toLowerCase() || "";
+        const lastName = contact.last_name?.toLowerCase() || "";
+        const fullName = `${firstName} ${lastName}`.trim();
+        const email = contact.email?.toLowerCase() || "";
+        const phone = contact.phone?.toLowerCase() || "";
+        const title = contact.title?.toLowerCase() || "";
+        const department = contact.department?.toLowerCase() || "";
+        const companyName = contact.company_name?.toLowerCase() || "";
+
+        return (
+          firstName.includes(searchLower) ||
+          lastName.includes(searchLower) ||
+          fullName.includes(searchLower) ||
+          email.includes(searchLower) ||
+          phone.includes(searchLower) ||
+          title.includes(searchLower) ||
+          department.includes(searchLower) ||
+          companyName.includes(searchLower)
+        );
+      });
     }
 
-    const searchLower = searchValue.toLowerCase().trim();
-
-    return contacts.filter((contact) => {
-      // Search in first name
-      const firstName = contact.first_name?.toLowerCase() || "";
-      // Search in last name
-      const lastName = contact.last_name?.toLowerCase() || "";
-      // Search in full name
-      const fullName = `${firstName} ${lastName}`.trim();
-      // Search in email
-      const email = contact.email?.toLowerCase() || "";
-      // Search in phone
-      const phone = contact.phone?.toLowerCase() || "";
-      // Search in company name
-      const companyName = contact.company_name?.toLowerCase() || "";
-
-      return (
-        firstName.includes(searchLower) ||
-        lastName.includes(searchLower) ||
-        fullName.includes(searchLower) ||
-        email.includes(searchLower) ||
-        phone.includes(searchLower) ||
-        companyName.includes(searchLower)
+    // Apply status filter
+    if (selectedStatus !== "All Statuses") {
+      result = result.filter(
+        (contact) => contact.contact_status === selectedStatus
       );
+    }
+
+    // Apply type filter
+    if (selectedType !== "All Types") {
+      result = result.filter(
+        (contact) => contact.contact_type === selectedType
+      );
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case "Name":
+          const nameA = `${a.first_name || ""} ${a.last_name || ""}`.trim();
+          const nameB = `${b.first_name || ""} ${b.last_name || ""}`.trim();
+          return nameA.localeCompare(nameB);
+
+        case "Recent Activity":
+          const dateA = new Date(a.updated_at || a.created_at || 0).getTime();
+          const dateB = new Date(b.updated_at || b.created_at || 0).getTime();
+          return dateB - dateA; // Most recent first
+
+        case "Contact Score":
+          // Placeholder - you can add score logic later
+          return 0;
+
+        case "Company":
+          const companyA = a.company_name || "";
+          const companyB = b.company_name || "";
+          return companyA.localeCompare(companyB);
+
+        default:
+          return 0;
+      }
     });
-  }, [contacts, searchValue]);
+
+    return result;
+  }, [contacts, searchValue, selectedStatus, selectedType, sortBy]);
 
   const fetchAllData = useCallback(async () => {
     setLoading(true);
@@ -117,6 +175,26 @@ export default function ContactsPage() {
     setContactFormToggle(true);
   };
 
+  const handleEditContact = (contact: any) => {
+    setEditingContact(contact);
+    setContactFormToggle(true);
+  };
+
+  const handleDeleteContact = async (
+    contactId: string,
+    contactName: string
+  ) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${contactName}"?`
+    );
+    if (confirmed) {
+      const result = await deleteContact(contactId);
+      if (result.success) {
+        triggerRefresh();
+      }
+    }
+  };
+
   const handleCancel = () => {
     setContactFormToggle(false);
     setEditingContact(null);
@@ -147,75 +225,88 @@ export default function ContactsPage() {
     );
   }
 
+  // Calculate stats dynamically
+  const activeCount = contacts.filter(
+    (c) => c.contact_status === "Active"
+  ).length;
+  const prospectCount = contacts.filter(
+    (c) => c.contact_status === "Prospect"
+  ).length;
+  const customerCount = contacts.filter(
+    (c) => c.contact_status === "Customer"
+  ).length;
+
   const topStats = [
     {
-      title: "Total Companies",
-      value: "2",
-      icon: <CRMIcon />,
+      title: "Total Contacts",
+      value: contacts.length.toString(),
+      icon: <ContactsIcon />,
       hoverable: false,
     },
     {
-      title: "Service Sites",
-      value: "1",
-      icon: <ServiceSitesIcon />,
-    },
-    {
-      title: "Active Customers",
-      value: "0",
+      title: "Active",
+      value: activeCount.toString(),
       icon: <ActiveCustomersIcon />,
     },
     {
+      title: "Customers",
+      value: customerCount.toString(),
+      icon: <CRMIcon />,
+    },
+    {
       title: "Prospects",
-      value: "1",
-      icon: <ContactsIcon />,
+      value: prospectCount.toString(),
+      icon: <ServiceSitesIcon />,
     },
   ];
 
   const inputFields: InputField[] = [
     {
       type: "search",
-      placeholder: "Search by name, email, phone, or company...",
+      placeholder: "Search contacts by name, email, title, or department...",
       disable: false,
       show: true,
       onChange: (value) => setSearchValue(value),
     },
     {
       type: "dropdownButton",
-      name: "All Types",
-      options: ["Type 1", "Type 2", "Type 3", "Type 4"],
+      name: selectedStatus,
+      options: contactStatuses,
+      disable: false,
+      show: true,
+      onChange: (value) => setSelectedStatus(value),
+    },
+    {
+      type: "dropdownButton",
+      name: selectedType,
+      options: contactTypes,
       disable: false,
       show: true,
       onChange: (value) => setSelectedType(value),
     },
     {
-      type: "filterButton",
-      name: "Filter",
+      type: "dropdownButton",
+      name: sortBy,
+      options: ["Name", "Recent Activity", "Contact Score", "Company"],
       disable: false,
       show: true,
-      onClick: () => console.log("Filter clicked"),
-    },
-    {
-      type: "sortButton",
-      name: "Sort",
-      disable: false,
-      show: true,
-      onClick: () => console.log("Sort clicked"),
+      onChange: (value) => setSortBy(value),
     },
     {
       type: "gridButton",
       disable: false,
       show: true,
-      onClick: () => console.log("Grid view"),
+      onClick: () => setViewMode("grid"),
     },
     {
       type: "listButton",
       disable: false,
       show: true,
-      onClick: () => console.log("List view"),
+      onClick: () => setViewMode("list"),
     },
   ];
 
-  const data = true;
+  const data = contacts.length > 0;
   const value = {
     header: false,
     value: "Contacts",
@@ -225,9 +316,9 @@ export default function ContactsPage() {
 
   return (
     <div className="bg-platinum/10 p-8">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-6">
         <Heading
-          title="Contact"
+          title="Contacts"
           description="Manage your customer and prospect relationships"
         />
         <Button onClick={handleCreateContact} value="New Contact" />
@@ -241,12 +332,23 @@ export default function ContactsPage() {
         onSearchChange={setSearchValue}
       />
 
+      {/* Results count */}
+      {data && (
+        <div className="mb-4 text-sm text-slate">
+          Showing {filteredAndSortedContacts.length} of {contacts.length}{" "}
+          contacts
+        </div>
+      )}
+
       {data ? (
         <ContactsExample
           key={refreshKey}
           loading={loading}
           error={error}
-          contacts={filteredContacts} // Use filtered contacts here
+          contacts={filteredAndSortedContacts}
+          handleDeleteContact={handleDeleteContact}
+          onEditContact={handleEditContact}
+          viewMode={viewMode}
         />
       ) : (
         <Actbox {...value} />
