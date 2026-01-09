@@ -2,39 +2,43 @@
 
 import CustomerAccountCard from "./companySideData";
 
-function LoadingSkeleton() {
+function LoadingSkeleton({ viewMode }: { viewMode: "list" | "grid" }) {
   return (
-    <div className="flex gap-3 flex-wrap">
+    <div className={viewMode === "grid" ? "flex gap-3 flex-wrap" : "space-y-4"}>
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="w-full max-w-sm h-64 bg-gray-200 animate-pulse rounded-lg"
+          className={
+            viewMode === "grid"
+              ? "w-full max-w-sm h-96 bg-gray-200 animate-pulse rounded-xl"
+              : "w-full h-32 bg-gray-200 animate-pulse rounded-lg"
+          }
         />
       ))}
     </div>
   );
 }
 
-export default function CustomerAccountsGrid({
-  onEditCompany,
-  loading,
-  error,
-  companies,
-  handleDeleteCompany,
-}: {
-  onEditCompany?: (company: any) => void;
+interface CustomerAccountsGridProps {
   loading?: boolean;
   error?: string | null;
   companies?: any[];
   handleDeleteCompany?: (companyId: string, companyName: string) => void;
-}) {
-  return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-8">
-        Customer Accounts
-      </h2>
+  onEditCompany?: (companyId: string) => void;
+  viewMode?: "list" | "grid";
+}
 
-      {loading && <LoadingSkeleton />}
+export default function CustomerAccountsGrid({
+  loading,
+  error,
+  companies,
+  handleDeleteCompany,
+  onEditCompany,
+  viewMode = "grid",
+}: CustomerAccountsGridProps) {
+  return (
+    <div className="px-4">
+      {loading && <LoadingSkeleton viewMode={viewMode} />}
 
       {error && (
         <div className="text-center py-12">
@@ -49,28 +53,23 @@ export default function CustomerAccountsGrid({
       )}
 
       {!loading && !error && companies && companies.length > 0 && (
-        <div className="flex gap-3 flex-wrap">
-          {companies?.map((company) => {
-
-            return (
-              <CustomerAccountCard
-                key={company.id}
-                companyData={company}
-                onEdit={() => {
-                  if (onEditCompany) {
-                    onEditCompany(company.id);
-                  }
-                }}
-                onDelete={() =>
-                  handleDeleteCompany &&
-                  handleDeleteCompany(
-                    company.id,
-                    company.business_name || "this company"
-                  )
-                }
-              />
-            );
-          })}
+        <div
+          className={viewMode === "grid" ? "flex gap-3 flex-wrap" : "space-y-4"}
+        >
+          {companies.map((company) => (
+            <CustomerAccountCard
+              key={company.id}
+              companyData={company}
+              viewMode={viewMode}
+              onEdit={() => onEditCompany?.(company.id)}
+              onDelete={() =>
+                handleDeleteCompany?.(
+                  company.id,
+                  company.business_name || "this company"
+                )
+              }
+            />
+          ))}
         </div>
       )}
     </div>

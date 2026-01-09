@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Actbox from "../../UI-components/Actbox";
-import { BuildingIcon } from "../../../icons/icons";
+import { BuildingIcon} from "../../../icons/icons";
+import { LayoutGrid,List } from "lucide-react";
 import Button from "../../UI-components/button";
 import CustomerAccountsGrid from "../../UI-components/companySideDataFormed";
 import { CompanyForm } from "./forms/CompanyForm";
@@ -15,25 +16,25 @@ import {
 import { companyLinkTable } from "@/components/forms/forms-instructions/CompanyProp";
 import { supabase } from "@/lib/supabase";
 import { buildFinalCompanyObject } from "@/components/utility/HelperFunctions";
+import { toast } from "@/components/toast";
+import { confirm } from "@/components/confirm";
 
 export default function CompaniesContent() {
-  const [view, setView] = useState<"companies" | "sites">("companies");
   const [companyFormToggle, setCompanyFormToggle] = useState(false);
   const [editingCompany, setEditingCompany] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true); // Start as true
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [companies, setCompanies] = useState<any[]>([]);
   const [companyData, setCompanyData] = useState<any | null>(null);
   const [linkTableData, setLinkTableData] = useState<any[]>([]);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid"); // Default to grid
 
-  // Memoized fetch functions to avoid recreating on every render
   const fetchAllData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Fetch companies
       const companiesResponse = await fetchCompanies();
 
       if (!companiesResponse.success) {
@@ -42,18 +43,20 @@ export default function CompaniesContent() {
         setCompanyData(companiesResponse.data);
       }
 
-      // Fetch link table data in parallel
       const promises = companyLinkTable.map(async (table) => {
         const { data, error } = await supabase.from(table).select("*");
         if (error) {
           console.error(`Error fetching ${table}:`, error);
-          return { [table]: [] }; // Return empty on error
+          return { [table]: [] };
         }
         return { [table]: data };
       });
       const results = await Promise.all(promises);
 
-      const viewData = buildFinalCompanyObject(companiesResponse.data, results);
+      const viewData = buildFinalCompanyObject(
+        companiesResponse.data || [],
+        results
+      );
 
       setCompanies(viewData || []);
       setLinkTableData(results);
@@ -65,30 +68,41 @@ export default function CompaniesContent() {
     }
   }, []);
 
-  // Trigger refresh
   const triggerRefresh = () => {
     setRefreshKey((prev) => prev + 1);
   };
 
-  // Delete company
-  const handleDeleteCompany = async (companyId: string) => {
-    try {
-      await deleteCompany(companyId);
-      triggerRefresh();
-    } catch (err) {
-      console.error("Error deleting company:", err);
-    }
+  const handleDeleteCompany = (companyId: string, companyName: string) => {
+    confirm(
+      `Are you sure you want to delete company: "${companyName}"?`,
+      async () => {
+        try {
+          const result = await deleteCompany(companyId);
+          if (result.success) {
+            toast("✅ Company deleted successfully!");
+            triggerRefresh();
+          } else {
+            toast("❌ Failed to delete company");
+          }
+        } catch (err) {
+          console.error("Error deleting company:", err);
+          toast("❌ An unexpected error occurred");
+        }
+      }
+    );
   };
 
-  // Form handlers
   const handleCreateCompany = () => {
     setEditingCompany(null);
     setCompanyFormToggle(true);
   };
 
-  const handleEditCompany = (company: any) => {
-    setEditingCompany(companyData.find((c: any) => c.id === company));
-    setCompanyFormToggle(true);
+  const handleEditCompany = (companyId: string) => {
+    const companyToEdit = companyData?.find((c: any) => c.id === companyId);
+    if (companyToEdit) {
+      setEditingCompany(companyToEdit);
+      setCompanyFormToggle(true);
+    }
   };
 
   const handleCancel = () => {
@@ -97,20 +111,30 @@ export default function CompaniesContent() {
   };
 
   const handleSubmit = async (formData: any) => {
-    formData.id
-      ? updateCompany(formData.id, formData)
-      : createCompany(formData);
-    setCompanyFormToggle(false);
-    setEditingCompany(null);
-    triggerRefresh(); // Refresh data after submit
+    try {
+      if (formData.id) {
+        await updateCompany(formData.id, formData);
+      } else {
+        await createCompany(formData);
+      }
+      setCompanyFormToggle(false);
+      setEditingCompany(null);
+      triggerRefresh();
+      toast("✅ Success! Record saved");
+    } catch (error) {
+      console.error("Error submitting company:", error);
+      toast("❌ Failed to save company");
+    }
   };
 
-  // Load data on mount and refresh
+  const toggleViewMode = () => {
+    setViewMode((prev) => (prev === "list" ? "grid" : "list"));
+  };
+
   useEffect(() => {
     fetchAllData();
   }, [refreshKey, fetchAllData]);
 
-  // Early returns for forms
   if (companyFormToggle) {
     return (
       <CompanyForm
@@ -130,41 +154,33 @@ export default function CompaniesContent() {
       "Companies help you organize your contacts and deals by grouping them under a single entity.",
   };
 
+  const hasData = companies.length > 0;
+
   return (
     <div className="">
-      <div className="flex gap-2 mb-6 justify-between">
-        <div className="flex gap-2">
-          <button
-            onClick={() => setView("companies")}
-            className={`flex items-center gap-2 px-4 py-2 border border-black font-medium transition-colors rounded-md cursor-pointer ${
-              view === "companies"
-                ? "bg-charcoal text-white"
-                : "bg-white text-charcoal hover:bg-charcoal/30"
-            }`}
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-              />
-            </svg>
-            Companies
-          </button>
-        </div>
+      <div className="flex gap-2 mb-6 justify-between px-4">
+        {/* View Toggle Button */}
+        <button
+          onClick={toggleViewMode}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-silver rounded-lg text-charcoal hover:bg-platinum transition-colors"
+        >
+          {viewMode === "list" ? (
+            <>
+              <LayoutGrid className="w-4 h-4" />
+              <span>Grid View</span>
+            </>
+          ) : (
+            <>
+              <List className="w-4 h-4" />
+              <span>List View</span>
+            </>
+          )}
+        </button>
 
-        <div className="flex gap-2">
-          <Button onClick={handleCreateCompany} value="Add Companies" />
-        </div>
+        <Button onClick={handleCreateCompany} value="Add Companies" />
       </div>
 
-      {companies.length > 0 ? (
+      {hasData ? (
         <CustomerAccountsGrid
           key={refreshKey}
           loading={loading}
@@ -172,6 +188,7 @@ export default function CompaniesContent() {
           companies={companies}
           handleDeleteCompany={handleDeleteCompany}
           onEditCompany={handleEditCompany}
+          viewMode={viewMode}
         />
       ) : (
         <Actbox {...companyValue} />
