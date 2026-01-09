@@ -47,6 +47,74 @@ const generateHourOptions = () => {
   return hours;
 };
 
+function formatDateTime(isoString: string): string {
+  return new Date(isoString)
+    .toLocaleString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace(",", "");
+}
+
+function toISOTimestamp({
+  date,
+  hour,
+  minute,
+}: {
+  date: string;
+  hour: string;
+  minute: string;
+}): string {
+  const [h, meridian] = hour.split(" ");
+  let hours = Number(h);
+
+  if (meridian === "PM" && hours !== 12) hours += 12;
+  if (meridian === "AM" && hours === 12) hours = 0;
+
+  return `${date}T${String(hours).padStart(2, "0")}:${minute}:00Z`;
+}
+
+function fromISOTimestamp(iso: string): {
+  date: string;
+  hour: string;
+  minute: string;
+} {
+  const [datePart, timePart] = iso.replace("Z", "").split("T");
+  const [hh, mm] = timePart.split(":");
+
+  let hours = Number(hh);
+  const minute = mm;
+
+  const meridian = hours >= 12 ? "PM" : "AM";
+
+  // Convert 24h → 12h
+  hours = hours % 12;
+  if (hours === 0) hours = 12;
+
+  return {
+    date: datePart,
+    hour: `${hours.toString().padStart(2, "0")} ${meridian}`,
+    minute,
+  };
+}
+
+function calculateTotalHours(
+  scheduled_start: string,
+  scheduled_end: string
+): number {
+  const start = new Date(scheduled_start).getTime();
+  const end = new Date(scheduled_end).getTime();
+
+  const diffMs = end - start; // milliseconds
+  const diffHours = diffMs / (1000 * 60 * 60);
+
+  return diffHours;
+}
+
 // Generate minute options
 const generateMinuteOptions = () => {
   const minutes = [];
@@ -185,18 +253,23 @@ function buildTitleLabelMap(formProps: any[]) {
 }
 
 function buildFinalContactObject(contact: any[], relatedTables: any[]) {
-
   const finalContactObject = contact.map((con) => {
     const companies = relatedTables.find((t) => t.companies)?.companies || [];
     const sites = relatedTables.find((t) => t.sites)?.sites || [];
     const users = relatedTables.find((t) => t.users)?.users || [];
-    const contactStatus = relatedTables.find((t) => t.contact_status)?.contact_status || [];
-    const contactType = relatedTables.find((t) => t.contact_types)?.contact_types || [];
+    const contactStatus =
+      relatedTables.find((t) => t.contact_status)?.contact_status || [];
+    const contactType =
+      relatedTables.find((t) => t.contact_types)?.contact_types || [];
     const owner = users.find((u: any) => u.id === con.owner_id);
     const company = companies.find((c: any) => c.id === con.parent_company_id);
     const site = sites.find((s: any) => s.id === con.service_site_id);
-    const contactStatusValue = contactStatus.find((s: any) => s.id === con.contact_status_id);
-    const contactTypeValue = contactType.find((t: any) => t.id === con.contact_type_id);
+    const contactStatusValue = contactStatus.find(
+      (s: any) => s.id === con.contact_status_id
+    );
+    const contactTypeValue = contactType.find(
+      (t: any) => t.id === con.contact_type_id
+    );
 
     return {
       id: con.id,
@@ -246,6 +319,70 @@ function buildFinalActivityObject(activity: any[], relatedTables: any[]) {
   return finalActivityObject;
 }
 
+function buildFinalWorkOrderObject(workOrder: any[], relatedTables: any[]) {
+  const finalWorkOrderObject = workOrder.map((wo) => {
+    const contacts = relatedTables.find((t) => t.contacts)?.contacts || [];
+    const site =
+      relatedTables
+        .find((t) => t.sites)
+        ?.sites.find((s: any) => s.id === wo.customer_site_id) || [];
+    const contact = contacts.find(
+      (c: any) => c.id === site?.primary_contact_id
+    );
+    const serviceReports =
+      relatedTables
+        .find((t) => t.service_reports)
+        ?.service_reports?.filter((sr: any) => sr.work_order_id === wo.id) ||
+      [];
+
+    return {
+      id: wo.id,
+      work_order: wo.work_order_number || "Not assigned",
+      description: wo.description,
+      equipment_information: wo.equipment_information,
+      scheduled_start: wo.scheduled_start,
+      scheduled_end: wo.scheduled_end,
+      site_name: site?.site_name || null,
+      service_address: site?.service_address || null,
+      contact_name: contact?.first_name + " " + contact?.last_name || null,
+      contact_phone: contact?.phone || null,
+      contact_email: contact?.email || null,
+      created_at: wo.created_at,
+      updated_at: wo.updated_at,
+      service_reports: serviceReports,
+    };
+  });
+  return finalWorkOrderObject;
+}
+
+function buildFinalServiceReportObject(
+  serviceReport: any[],
+  relatedTables: any[]
+) {
+  const finalServiceReportObject = serviceReport.map((sr) => {
+    const workOrder = relatedTables.find((t) => t.work_orders)?.work_orders.find((wo: any) => wo.id === sr.work_order_id);
+    const site = relatedTables.find((t) => t.sites)?.sites.find((s: any) => s.id === workOrder?.customer_site_id);
+    const contact = relatedTables.find((t) => t.contacts)?.contacts.find((c: any) => c.id === site?.primary_contact_id);
+
+    return {
+      id: sr.id,
+      findings_repairs: sr.findings_repairs || null,
+      recommendations: sr.recommendations || null,
+      internal_note: sr.internal_note || null,
+      total_hours: sr.time || null,
+      photo: sr.photo || null,
+      status: sr.status || null,
+      created_at: sr.created_at || null,
+      updated_at: sr.updated_at || null,
+      work_order: workOrder?.work_order_number || null,
+      site_name: site?.site_name || null,
+      service_address: site?.service_address || null,
+      contact_name: contact?.first_name + " " + contact?.last_name || null,
+    };
+  });
+  return finalServiceReportObject;
+}
+
 function mapTitlesToLabels(data: any, formProps: any[]) {
   const titleLabelMap = buildTitleLabelMap(formProps);
 
@@ -273,7 +410,6 @@ function mapTitlesToLabels(data: any, formProps: any[]) {
   return result;
 }
 
-
 export {
   getPasswordInfo,
   getStrengthLabel,
@@ -287,5 +423,11 @@ export {
   buildTitleLabelMap,
   buildFinalContactObject,
   buildFinalActivityObject,
+  buildFinalWorkOrderObject,
+  buildFinalServiceReportObject,
   mapTitlesToLabels,
+  formatDateTime,
+  toISOTimestamp,
+  fromISOTimestamp,
+  calculateTotalHours,
 };

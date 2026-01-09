@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDateTime } from "@/components/utility/HelperFunctions";
 import { FileText } from "lucide-react";
 
 interface ServiceReport {
@@ -9,33 +10,20 @@ interface ServiceReport {
   hours: number;
 }
 
-interface WorkOrderData {
-  id: string;
-  siteName: string;
-  contactName: string;
-  phone: string;
-  email: string;
-  workOrderNumber: string;
-  serviceAddress: string;
-  scheduledStart: string;
-  scheduledEnd: string;
-  description: string;
-  equipmentInfo: string;
-  status: "scheduled" | "in-progress" | "completed";
-  createdDate: string;
-  serviceReports: ServiceReport[];
-}
-
 interface WorkOrderDetailPageProps {
-  data: WorkOrderData;
+  data: any;
   onBack: () => void;
   onViewReport: (reportId: string) => void;
+  onEditWorkOrder: (workOrderId: string) => void;
+  onArchiveWorkOrder: () => void;
 }
 
 export default function WorkOrderDetailPage({
   data,
   onBack,
   onViewReport,
+  onEditWorkOrder,
+  onArchiveWorkOrder,
 }: WorkOrderDetailPageProps) {
   const statusStyles = {
     scheduled: "bg-gray-200 text-gray-700",
@@ -52,33 +40,33 @@ export default function WorkOrderDetailPage({
     <div className="p-8">
       {/* Header */}
       <div className="mb-6">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 text-charcoal hover:bg-platinum rounded-lg transition-colors mb-4"
-        >
-          <span>←</span>
-          <span className="font-medium">Back</span>
-        </button>
-
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-charcoal">
-              Work Order - {data.siteName}
-            </h1>
-            <p className="text-slate text-sm mt-1">
-              Created {data.createdDate}
-            </p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-2 px-4 py-2 text-charcoal hover:bg-platinum rounded-lg transition-colors cursor-pointer border border-silver"
+            >
+              <span>←</span>
+              <span className="font-medium">Back</span>
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-charcoal">
+                Work Order - {data.site_name}
+              </h1>
+              <p className="text-slate text-sm mt-1">
+                Created{" "}
+                {data.created_at
+                  ? formatDateTime(data.created_at)
+                  : "Not Created"}
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <span
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                statusStyles[data.status]
-              }`}
+            <button
+              onClick={() => onEditWorkOrder(data.id)}
+              className="flex items-center gap-2 px-4 py-2 border border-silver rounded-lg text-charcoal hover:bg-platinum transition-colors cursor-pointer"
             >
-              {data.status}
-            </span>
-            <button className="flex items-center gap-2 px-4 py-2 border border-silver rounded-lg text-charcoal hover:bg-platinum transition-colors">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -94,7 +82,10 @@ export default function WorkOrderDetailPage({
               </svg>
               Edit Work Order
             </button>
-            <button className="px-4 py-2 border border-silver rounded-lg text-charcoal hover:bg-platinum transition-colors">
+            <button
+              onClick={onArchiveWorkOrder}
+              className="px-4 py-2 border border-silver rounded-lg text-charcoal hover:bg-platinum transition-colors cursor-pointer"
+            >
               Archive
             </button>
           </div>
@@ -127,22 +118,22 @@ export default function WorkOrderDetailPage({
           <div className="space-y-4">
             <div>
               <p className="text-sm text-slate mb-1">Site Name</p>
-              <p className="text-charcoal font-medium">{data.siteName}</p>
+              <p className="text-charcoal font-medium">{data.site_name}</p>
             </div>
 
             <div>
               <p className="text-sm text-slate mb-1">Contact Person</p>
-              <p className="text-charcoal font-medium">{data.contactName}</p>
+              <p className="text-charcoal font-medium">{data.contact_name}</p>
             </div>
 
             <div>
               <p className="text-sm text-slate mb-1">Phone</p>
-              <p className="text-charcoal font-medium">{data.phone}</p>
+              <p className="text-charcoal font-medium">{data.contact_phone}</p>
             </div>
 
             <div>
               <p className="text-sm text-slate mb-1">Email</p>
-              <p className="text-charcoal font-medium">{data.email}</p>
+              <p className="text-charcoal font-medium">{data.contact_email}</p>
             </div>
           </div>
         </div>
@@ -171,24 +162,32 @@ export default function WorkOrderDetailPage({
           <div className="space-y-4">
             <div>
               <p className="text-sm text-slate mb-1">Work Order #</p>
-              <p className="text-charcoal font-medium">
-                {data.workOrderNumber}
-              </p>
+              <p className="text-charcoal font-medium">{data.work_order}</p>
             </div>
 
             <div>
               <p className="text-sm text-slate mb-1">Service Address</p>
-              <p className="text-charcoal font-medium">{data.serviceAddress}</p>
+              <p className="text-charcoal font-medium">
+                {data.service_address}
+              </p>
             </div>
 
             <div>
               <p className="text-sm text-slate mb-1">Scheduled Start</p>
-              <p className="text-charcoal font-medium">{data.scheduledStart}</p>
+              <p className="text-charcoal font-medium">
+                {data.scheduled_start
+                  ? formatDateTime(data.scheduled_start)
+                  : "Not Scheduled"}
+              </p>
             </div>
 
             <div>
               <p className="text-sm text-slate mb-1">Scheduled End</p>
-              <p className="text-charcoal font-medium">{data.scheduledEnd}</p>
+              <p className="text-charcoal font-medium">
+                {data.scheduled_end
+                  ? formatDateTime(data.scheduled_end)
+                  : "Not Scheduled"}
+              </p>
             </div>
           </div>
         </div>
@@ -203,12 +202,12 @@ export default function WorkOrderDetailPage({
       </div>
 
       {/* Equipment Information */}
-      {data.equipmentInfo && (
+      {data.equipment_information && (
         <div className="bg-white border-2 border-black rounded-lg p-6 mb-6">
           <h2 className="text-lg font-bold text-charcoal mb-4">
             Equipment Information
           </h2>
-          <p className="text-charcoal">{data.equipmentInfo}</p>
+          <p className="text-charcoal">{data.equipment_information}</p>
         </div>
       )}
 
@@ -217,12 +216,12 @@ export default function WorkOrderDetailPage({
         <div className="flex items-center gap-2 mb-4">
           <FileText className="w-5 h-5 text-charcoal" />
           <h2 className="text-lg font-bold text-charcoal">
-            Service Reports ({data.serviceReports.length})
+            Service Reports ({data.serviceReports?.length})
           </h2>
         </div>
 
         <div className="space-y-3">
-          {data.serviceReports.map((report) => (
+          {data.serviceReports?.map((report: any) => (
             <div
               key={report.id}
               className="flex items-center justify-between p-4 border border-silver rounded-lg hover:bg-platinum transition-colors"
@@ -234,7 +233,9 @@ export default function WorkOrderDetailPage({
                   </h3>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      reportStatusStyles[report.status]
+                      reportStatusStyles[
+                        report.status as keyof typeof reportStatusStyles
+                      ]
                     }`}
                   >
                     {report.status}

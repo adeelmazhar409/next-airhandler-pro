@@ -2,34 +2,37 @@
 
 import React from "react";
 import { User, Clock } from "lucide-react";
+import { formatDateTime } from "@/components/utility/HelperFunctions";
 
 type ReportStatus = "draft" | "signed";
 
-interface TechnicianReportCardProps {
+interface ServiceReportCardProps { 
   id: string;
-  siteName: string;
-  status: ReportStatus;
-  hours: number; // e.g., 0 or 6
-  date: string; // e.g., "Sep 16, 2025"
+  serviceReportData: any;
   onViewReport?: (reportId: string) => void;
+  onEditServiceReport?: (reportId: string) => void;
 }
 
-const TechnicianReportCard: React.FC<TechnicianReportCardProps> = ({
+const ServiceReportCard: React.FC<ServiceReportCardProps> = ({
   id,
-  siteName,
-  status,
-  hours,
-  date,
+  serviceReportData,
   onViewReport,
+  onEditServiceReport,
 }) => {
   const statusStyles = {
     draft: "bg-gray-200 text-gray-700",
     signed: "bg-green-100 text-green-800",
   };
 
-  const handleViewReport = () => {
+  const handleViewReport = (reportId: string) => {
     if (onViewReport) {
-      onViewReport(id);
+      onViewReport(reportId);
+    }
+  };
+
+  const handleEditServiceReport = (reportId: string) => {
+    if (onEditServiceReport) {
+      onEditServiceReport(reportId);
     }
   };
 
@@ -37,11 +40,11 @@ const TechnicianReportCard: React.FC<TechnicianReportCardProps> = ({
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 w-full max-w-sm hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">{siteName}</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{serviceReportData.site_name}</h3>
         <span
-          className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[status]}`}
+          className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[serviceReportData.status as keyof typeof statusStyles]}`}
         >
-          {status}
+          {serviceReportData.status}
         </span>
       </div>
 
@@ -54,16 +57,16 @@ const TechnicianReportCard: React.FC<TechnicianReportCardProps> = ({
       <div className="flex items-center gap-3 text-gray-700 mb-5">
         <Clock className="w-5 h-5 text-gray-500" />
         <span className="text-sm">
-          {hours} {hours === 1 ? "hour" : "hours"}
+          {serviceReportData.total_hours} {serviceReportData.total_hours === 1 ? "hour" : "hours"}
         </span>
       </div>
 
       {/* Date & Button */}
       <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-600">{date}</span>
+        <span className="text-sm text-gray-600">{formatDateTime(serviceReportData.created_at)}</span>
         <button
-          onClick={handleViewReport}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+          onClick={() => handleViewReport(serviceReportData.id)}
+          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition cursor-pointer"
         >
           View Report
         </button>
@@ -72,4 +75,4 @@ const TechnicianReportCard: React.FC<TechnicianReportCardProps> = ({
   );
 };
 
-export default TechnicianReportCard;
+export default ServiceReportCard;

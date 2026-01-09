@@ -1,32 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { Camera, Clock, FileText, PenTool } from "lucide-react";
-
-interface ServiceReportData {
-  id: string;
-  siteName: string;
-  workOrderNumber: string;
-  customerName: string;
-  contactName: string;
-  serviceAddress: string;
-  totalHours: number;
-  status: "draft" | "signed";
-  createdDate: string;
-  findings: string;
-  recommendations: string;
-  internalNotes: string;
-}
+import { Camera, Clock, Edit, FileText, PenTool } from "lucide-react";
+import { formatDateTime } from "@/components/utility/HelperFunctions";
 
 interface ServiceReportDetailPageProps {
-  data: ServiceReportData;
+  data: any;
   onBack: () => void;
+  onEditServiceReport: (serviceReportId: string) => void;
+  onViewReport: (serviceReportId: string) => void;
+  onArchiveServiceReport: () => void;
 }
 
 export default function ServiceReportDetailPage({
   data,
   onBack,
+  onEditServiceReport,
+  onViewReport,
+  onArchiveServiceReport,
 }: ServiceReportDetailPageProps) {
+
   const [activeTab, setActiveTab] = useState<
     "report" | "photos" | "time" | "signature"
   >("report");
@@ -44,11 +37,11 @@ export default function ServiceReportDetailPage({
       label: "Time Tracking",
       icon: <Clock className="w-4 h-4" />,
     },
-    {
-      id: "signature",
-      label: "Signature",
-      icon: <PenTool className="w-4 h-4" />,
-    },
+    // {
+    //   id: "signature",
+    //   label: "Signature",
+    //   icon: <PenTool className="w-4 h-4" />,
+    // },
   ];
 
   return (
@@ -66,41 +59,38 @@ export default function ServiceReportDetailPage({
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-charcoal">
-              Service Report - {data.siteName}
+              Service Report - {data.site_name}
             </h1>
             <p className="text-slate text-sm mt-1">
-              Created {data.createdDate}
+              Created {formatDateTime(data.created_at)}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <span
               className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                statusStyles[data.status]
+                statusStyles[data.status as keyof typeof statusStyles]
               }`}
             >
               {data.status}
             </span>
-            <button className="px-4 py-2 border border-silver rounded-lg text-charcoal hover:bg-platinum transition-colors">
+            <button
+              onClick={() => onArchiveServiceReport()}
+              className="px-4 py-2 border border-silver rounded-lg text-charcoal hover:bg-platinum transition-colors cursor-pointer"
+            >
               Archive Report
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-charcoal transition-colors">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
-                />
-              </svg>
-              Save
+            <button
+              onClick={() => onEditServiceReport(data.id)}
+              className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-charcoal transition-colors cursor-pointer"
+            >
+             <Edit className="w-4 h-4" />
+              Edit
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 border border-black rounded-lg text-charcoal hover:bg-platinum transition-colors">
+            <button
+              onClick={() => onViewReport(data.id)}
+              className="flex items-center gap-2 px-4 py-2 border border-black rounded-lg text-charcoal hover:bg-platinum transition-colors cursor-pointer"
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -129,27 +119,29 @@ export default function ServiceReportDetailPage({
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
           <div>
             <p className="text-sm text-slate mb-1">Work Order #</p>
-            <p className="text-charcoal font-medium">{data.workOrderNumber}</p>
+            <p className="text-charcoal font-medium">{data.work_order}</p>
           </div>
 
           <div>
             <p className="text-sm text-slate mb-1">Customer</p>
-            <p className="text-charcoal font-medium">{data.customerName}</p>
+            <p className="text-charcoal font-medium">{data.site_name}</p>
           </div>
 
           <div>
             <p className="text-sm text-slate mb-1">Contact</p>
-            <p className="text-charcoal font-medium">{data.contactName}</p>
+            <p className="text-charcoal font-medium">{data.contact_name}</p>
           </div>
 
           <div>
             <p className="text-sm text-slate mb-1">Service Address</p>
-            <p className="text-charcoal font-medium">{data.serviceAddress}</p>
+            <p className="text-charcoal font-medium">{data.service_address}</p>
           </div>
 
           <div>
             <p className="text-sm text-slate mb-1">Total Hours</p>
-            <p className="text-charcoal font-medium">{data.totalHours} hours</p>
+            <p className="text-charcoal font-medium">
+              {data.total_hours || 0} hours
+            </p>
           </div>
         </div>
       </div>
@@ -160,7 +152,7 @@ export default function ServiceReportDetailPage({
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors ${
+            className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors cursor-pointer ${
               activeTab === tab.id
                 ? "bg-black text-white"
                 : "bg-white text-charcoal border border-silver hover:bg-platinum"
@@ -183,7 +175,8 @@ export default function ServiceReportDetailPage({
             <p className="text-sm text-slate mb-3">Visible to customer</p>
             <div className="min-h-[120px] p-4 border border-silver rounded-lg bg-platinum">
               <p className="text-charcoal">
-                {data.findings || "This is the findings and repair section"}
+                {data.findings_repairs ||
+                  "This is the findings and repair section"}
               </p>
             </div>
           </div>
@@ -212,7 +205,7 @@ export default function ServiceReportDetailPage({
             </p>
             <div className="min-h-[120px] p-4 border border-silver rounded-lg bg-platinum">
               <p className="text-charcoal">
-                {data.internalNotes ||
+                {data.internal_note ||
                   "This is the internal note section and should not be visible on the PDF report."}
               </p>
             </div>
@@ -224,7 +217,7 @@ export default function ServiceReportDetailPage({
               <p className="text-sm text-slate">Status:</p>
               <span
                 className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  statusStyles[data.status]
+                  statusStyles[data.status as keyof typeof statusStyles]
                 }`}
               >
                 {data.status}
@@ -236,27 +229,74 @@ export default function ServiceReportDetailPage({
 
       {activeTab === "photos" && (
         <div className="bg-white border-2 border-black rounded-lg p-6">
-          <div className="text-center py-12">
-            <Camera className="w-16 h-16 text-slate mx-auto mb-4" />
-            <p className="text-charcoal font-medium">No photos uploaded yet</p>
-            <p className="text-slate text-sm mt-2">
-              Photos will appear here once uploaded
-            </p>
-          </div>
+          {data.photo && (
+            <div className="text-center py-12">
+              <img
+                src={data.photo}
+                alt="Service Report Photo"
+                className="w-16 h-16 mx-auto mb-4"
+              />
+            </div>
+          )}
+          {!data.photo && (
+            <div className="text-center py-12">
+              <Camera className="w-16 h-16 text-slate mx-auto mb-4" />
+              <p className="text-charcoal font-medium">
+                No photos uploaded yet
+              </p>
+              <p className="text-slate text-sm mt-2">
+                Photos will appear here once uploaded
+              </p>
+            </div>
+          )}
         </div>
       )}
 
       {activeTab === "time" && (
         <div className="bg-white border-2 border-black rounded-lg p-6">
-          <div className="text-center py-12">
-            <Clock className="w-16 h-16 text-slate mx-auto mb-4" />
-            <p className="text-charcoal font-medium">
-              Time tracking information
-            </p>
-            <p className="text-slate text-sm mt-2">
-              Total hours logged: {data.totalHours} hours
-            </p>
-          </div>
+          {data.total_hours && (
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-row gap-2">
+                  <Clock className="w-6 h-6 text-slate" />
+                  <p className="text-charcoal font-medium text-xl">
+                    Time Tracking
+                  </p>
+                </div>
+                <div className="flex flex-row gap-2">
+                  <p>
+                    <span className="text-slate text-sm font-medium">
+                      Total Hours:
+                    </span>
+                  </p>
+                  <p className="text-charcoal font-medium text-xl">
+                    {data.total_hours || 0}
+                  </p>
+                </div>
+              </div>
+              <div className=" p-4 border border-silver rounded-lg py-4">
+                <p className="text-slate text-md font-medium">
+                  {data.total_hours || 0} hours (Manually Entry)
+                </p>
+                <p className="text-slate text-sm mt-2">
+                  {data.created_at
+                    ? formatDateTime(data.created_at)
+                    : "No time tracking information"}
+                </p>
+              </div>
+            </div>
+          )}
+          {!data.total_hours && (
+            <div className="text-center py-12">
+              <Clock className="w-16 h-16 text-slate mx-auto mb-4" />
+              <p className="text-charcoal font-medium">
+                No time tracking information
+              </p>
+              <p className="text-slate text-sm mt-2">
+                Time tracking information will appear here once logged
+              </p>
+            </div>
+          )}
         </div>
       )}
 

@@ -1,7 +1,6 @@
 import { supabase } from "@/lib/supabase";
-import { WorkOrderFormProps } from "@/components/forms/forms-instructions/WorkOrderFormProp";
-import { mapTitlesToLabels, toISOTimestamp } from "@/components/utility/HelperFunctions";
-
+import { mapTitlesToLabels } from "@/components/utility/HelperFunctions";
+import { ServiceReportFormProps } from "@/components/forms/forms-instructions/ServiceReportProp";
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -10,7 +9,7 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-export async function createWorkOrder(
+export async function createServiceReport(
   formData: any
 ): Promise<ApiResponse<any>> {
   try {
@@ -23,26 +22,47 @@ export async function createWorkOrder(
       throw new Error("You must be logged in");
     }
 
-    let insertData = mapTitlesToLabels(formData, WorkOrderFormProps);
+    const { photos, ...insertData } = mapTitlesToLabels(
+      formData,
+      ServiceReportFormProps
+    );
 
-    insertData.scheduled_start = toISOTimestamp({ date: insertData.scheduled_start.date, hour: insertData.scheduled_start.hour, minute: insertData.scheduled_start.minute });
-    insertData.scheduled_end = toISOTimestamp({ date: insertData.scheduled_end.date, hour: insertData.scheduled_end.hour, minute: insertData.scheduled_end.minute });
-
+    
+    console.log(insertData);
     const { data, error } = await supabase
-      .from("work_orders")
-      .insert([insertData])
-      .select()
-      .single();
-
-
-    console.log(insertData, error)
-
+    .from("service_reports")
+    .insert([insertData])
+    .select()
+    .single();
+    
+    console.log(error);
     if (error) throw new Error(error.message);
+   
+    for (const file of photos) {
+      console.log("Uploading:", file.name);
+
+      const filePath = `${user.id}/${crypto.randomUUID()}-${file.name}`;
+
+      const { data, error } = await supabase.storage
+        .from("media")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type,
+        });
+
+      if (error) {
+        console.error("Upload failed:", error);
+        throw error;
+      }
+
+      insertData.photos.push(data.path);
+    }
 
     return {
       success: true,
       data: data as any,
-      message: "Work order created",
+      message: "Service report created",
     };
   } catch (error) {
     return {
@@ -52,11 +72,11 @@ export async function createWorkOrder(
   }
 }
 
-export async function fetchWorkOrders(): Promise<ApiResponse<any[]>> {
+export async function fetchServiceReports(): Promise<ApiResponse<any[]>> {
   try {
     const { data, error } = await supabase
-      .from("work_orders")
-      .select('*')
+      .from("service_reports")
+      .select("*")
       .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
@@ -64,7 +84,7 @@ export async function fetchWorkOrders(): Promise<ApiResponse<any[]>> {
     return {
       success: true,
       data: (data as any[]) || [],
-      message: "Work orders fetched",
+      message: "Service reports fetched",
     };
   } catch (error) {
     return {
@@ -74,13 +94,13 @@ export async function fetchWorkOrders(): Promise<ApiResponse<any[]>> {
   }
 }
 
-export async function fetchWorkOrderById(
+export async function fetchServiceReportById(
   id: string
 ): Promise<ApiResponse<any>> {
   try {
     const { data, error } = await supabase
-      .from("work_orders")
-      .select('*')
+      .from("service_reports")
+      .select("*")
       .eq("id", id)
       .single();
 
@@ -89,7 +109,7 @@ export async function fetchWorkOrderById(
     return {
       success: true,
       data: data as any,
-      message: "Work order fetched",
+      message: "Service report fetched",
     };
   } catch (error) {
     return {
@@ -99,18 +119,18 @@ export async function fetchWorkOrderById(
   }
 }
 
-export async function updateWorkOrder(
+export async function updateServiceReport(
   id: string,
   formData: Partial<any>
 ): Promise<ApiResponse<any>> {
   try {
-      const updateData = mapTitlesToLabels(formData, WorkOrderFormProps);
+    const updateData = mapTitlesToLabels(formData, ServiceReportFormProps);
 
     const { data, error } = await supabase
-      .from("work_orders")
+      .from("service_reports")
       .update(updateData)
       .eq("id", id)
-      .select('*')
+      .select("*")
       .single();
 
     if (error) throw new Error(error.message);
@@ -118,7 +138,7 @@ export async function updateWorkOrder(
     return {
       success: true,
       data: data as any,
-      message: "Work order updated",
+      message: "Service report updated",
     };
   } catch (error) {
     return {
@@ -128,9 +148,14 @@ export async function updateWorkOrder(
   }
 }
 
-export async function deleteWorkOrder(id: string): Promise<ApiResponse<void>> {
+export async function deleteServiceReport(
+  id: string
+): Promise<ApiResponse<void>> {
   try {
-    const { error } = await supabase.from("work_orders").delete().eq("id", id);
+    const { error } = await supabase
+      .from("service_reports")
+      .delete()
+      .eq("id", id);
 
     if (error) throw new Error(error.message);
 

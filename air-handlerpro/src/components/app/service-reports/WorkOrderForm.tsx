@@ -1,16 +1,16 @@
 "use client";
 
 import DynamicFormBuilder from '@/components/forms/DynamicFormBuilder';
-import { ServiceReportFormProps } from '@/components/forms/forms-instructions/ServiceReportProp';
+import { WorkOrderFormProps } from '@/components/forms/forms-instructions/WorkOrderFormProp';
 
-interface ServiceReportFormProps {
+interface WorkOrderFormProps {
   onCancel: () => void;
   onSubmit: (formData: any) => void;
   linkTableData: any[];
-  editingServiceReport: any ;
+  editingWorkOrder: any;
 }
 
-export function ServiceReportForm({ onCancel, onSubmit, linkTableData, editingServiceReport }: ServiceReportFormProps) {
+export function WorkOrderForm({ onCancel, onSubmit, linkTableData, editingWorkOrder }: WorkOrderFormProps) {
   return (
     <div className="p-8">
       {/* Header */}
@@ -20,21 +20,21 @@ export function ServiceReportForm({ onCancel, onSubmit, linkTableData, editingSe
           className="flex items-center gap-2 text-charcoal hover:text-slate transition-colors mb-4 cursor-pointer"
         >
           <span>←</span>
-          <span>Back to Service Reports</span>
+          <span>Back to Work Orders</span>
         </button>
         <h1 className="text-3xl font-bold text-charcoal">
-          {editingServiceReport ? "Edit Service Report" : "Create Service Report"}
+          {editingWorkOrder ? "Edit Work Order" : "Create Work Order"}
         </h1>
       </div>
 
       {/* Dynamic Form */}
       <div className="bg-white rounded-lg shadow-sm p-8">
         <DynamicFormBuilder
-          config={ServiceReportFormProps}
+          config={WorkOrderFormProps}
           onSubmit={onSubmit}
           onCancel={onCancel}
           linkTableData={linkTableData}
-          editingData={editingServiceReport}
+          editingData={editingWorkOrder}
         />
       </div>
     </div>

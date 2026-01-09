@@ -12,6 +12,7 @@ import {
   MapPin,
   Badge,
   Building,
+  User,
 } from "lucide-react";
 import { z } from "zod";
 import DynamicModal from "./DynamicModal";
@@ -23,13 +24,14 @@ import {
   ModalConfig,
 } from "../interface/DataTypes";
 import {
+  fromISOTimestamp,
   generateHourOptions,
   generateMinuteOptions,
   getDisplayOptions,
   getDisplayValue,
   getFieldWidth,
+  calculateTotalHours,
 } from "../utility/HelperFunctions";
-import { inspect } from "util";
 
 const DynamicFormBuilder: React.FC<any> = ({
   linkTableData,
@@ -54,6 +56,7 @@ const DynamicFormBuilder: React.FC<any> = ({
     config: null,
     parentFieldLabel: null,
   });
+
   const createValidationSchema = () => {
     const schemaFields: Record<string, z.ZodTypeAny> = {};
 
@@ -306,6 +309,7 @@ const DynamicFormBuilder: React.FC<any> = ({
             case "search-dropdown":
             case "radio-dropdown":
             case "stage-dropdown":
+            case "detail-view-select":
             default:
               defaults[field.label] = "";
               break;
@@ -512,6 +516,11 @@ const DynamicFormBuilder: React.FC<any> = ({
                   className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean focus:border-transparent text-charcoal placeholder-slate resize-y`}
                 />
                 {renderError(field.Title)}
+                {field.message && !hasError && (
+                  <p className="text-gray-500 text-[12px] mt-2">
+                    {field.message}
+                  </p>
+                )}
               </div>
             )}
           />
@@ -589,12 +598,11 @@ const DynamicFormBuilder: React.FC<any> = ({
             control={control}
             defaultValue={
               editingData
-                ? editingData[field.label]
+                ? fromISOTimestamp(editingData[field.label])
                 : { date: "", hour: "", minute: "" }
             }
             render={({ field: { onChange, value } }) => {
-              const currentValue = value || { date: "", hour: "", minute: "" };
-
+              const currentValue = value;
               return (
                 <div
                   className={getFieldWidth(field.nature)}
@@ -761,7 +769,6 @@ const DynamicFormBuilder: React.FC<any> = ({
             control={control}
             defaultValue={editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => {
-
               const isDisabled = field.activeDependence
                 ? formValues[field.activeDependence!]
                   ? false
@@ -778,8 +785,14 @@ const DynamicFormBuilder: React.FC<any> = ({
                   )
                 : getDisplayOptions(linkTableData || [], field.linkTable);
 
-              // const joinValue = typeof field.linkTableValue2 === 'object' ? linkTableData[field.linkTableValue2.linkvalue] : field.linkTableValue2;
-              console.log(linkTableData, field.linkTableValue2, "joinValue");
+              const joinValue =
+                typeof field.linkTableValue2 === "object"
+                  ? getDisplayOptions(
+                      linkTableData,
+                      field.linkTableValue2.table
+                    )
+                  : field.linkTableValue2;
+
               const linkTableValue =
                 field.dataDependence &&
                 field.dataDependence.dataMapping.find(
@@ -859,11 +872,39 @@ const DynamicFormBuilder: React.FC<any> = ({
                                       : (field.linkTableValue as string)
                                   ]}
                               <p className="text-xs text-slate/50">
-                                {
-                                  option[
-                                    field.linkTableValue2 as keyof typeof option
-                                  ]
-                                }
+                                {field.linkTableValue2 &&
+                                Array.isArray(joinValue)
+                                  ? joinValue?.find((item: any) =>
+                                      typeof field.linkTableValue2 ===
+                                        "object" &&
+                                      "linkvalue" in field.linkTableValue2
+                                        ? item[
+                                            (
+                                              field.linkTableValue2 as {
+                                                linkvalue: string;
+                                              }
+                                            ).linkvalue
+                                          ] === option.id
+                                        : false
+                                    )?.first_name +
+                                    " " +
+                                    joinValue?.find((item: any) =>
+                                      typeof field.linkTableValue2 ===
+                                        "object" &&
+                                      "linkvalue" in field.linkTableValue2
+                                        ? item[
+                                            (
+                                              field.linkTableValue2 as {
+                                                linkvalue: string;
+                                              }
+                                            ).linkvalue
+                                          ] === option.id
+                                        : false
+                                    )?.last_name
+                                  : field.linkTableValue2
+                                  ? joinValue &&
+                                    option[joinValue as keyof typeof option]
+                                  : ""}
                               </p>
                             </button>
                           ))}
@@ -1063,6 +1104,12 @@ const DynamicFormBuilder: React.FC<any> = ({
                           key={idx}
                           className="flex items-center justify-between px-3 py-2 bg-platinum rounded-lg"
                         >
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={file.name}
+                            width={100}
+                            height={100}
+                          />
                           <span className="text-sm text-charcoal truncate">
                             {file.name}
                           </span>
@@ -1080,6 +1127,11 @@ const DynamicFormBuilder: React.FC<any> = ({
                     </div>
                   )}
                   {renderError(field.Title)}
+                  {field.message && !hasError && (
+                    <p className="text-gray-500 text-[12px] mt-2">
+                      {field.message}
+                    </p>
+                  )}
                 </div>
               );
             }}
@@ -1288,6 +1340,38 @@ const DynamicFormBuilder: React.FC<any> = ({
           />
         );
 
+      case "checkbox":
+        return (
+          <Controller
+            key={fieldKey}
+            name={field.Title}
+            control={control}
+            defaultValue={editingData ? editingData[field.label] : false}
+            render={({ field: { onChange, value } }) => (
+              <div
+                className={getFieldWidth(field.nature)}
+                data-field={field.Title}
+              >
+                <div className="flex  gap-2">
+                  <input
+                    type="checkbox"
+                    checked={value}
+                    onChange={onChange}
+                    className={`w-fit ${errorBorderClass} focus:outline-none text-charcoal placeholder-slate`}
+                  />
+                  {renderLabel(field)}
+                </div>
+                {renderError(field.Title)}
+                {field.message && !hasError && (
+                  <p className="text-gray-500 text-[12px] mt-2">
+                    {field.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
+        );
+
       case "stage-dropdown":
         const defaultStageColors: Record<string, string> = {
           "Lead (10%)": "bg-slate",
@@ -1374,7 +1458,7 @@ const DynamicFormBuilder: React.FC<any> = ({
             key={fieldKey}
             name={field.Title}
             control={control}
-            defaultValue={editingData ? editingData[field.label] : ''}
+            defaultValue={editingData ? editingData[field.label] : ""}
             render={({ field: { onChange, value } }) => {
               const displayOptions = getDisplayOptions(
                 linkTableData || [],
@@ -1692,7 +1776,232 @@ const DynamicFormBuilder: React.FC<any> = ({
             }}
           />
         );
-     
+
+      case "detail-view-select":
+        return (
+          <Controller
+            key={fieldKey}
+            name={field.Title}
+            control={control}
+            defaultValue={editingData ? editingData[field.label] : ""}
+            render={({ field: { onChange, value } }) => {
+              const displayOptions = getDisplayOptions(
+                linkTableData || [],
+                field.linkTable
+              );
+
+              const displayValue = getDisplayValue(
+                displayOptions,
+                value,
+                field.linkTableValue as string | string[]
+              );
+
+              const selectedOption = displayOptions.find(
+                (item: any) => item.id === value
+              );
+             
+              const displayFilterOption = displayOptions.filter(
+                (item: any) => item.id !== value
+              );
+
+              let siteTable =
+                typeof field.linkTableValue2 === "string"
+                  ? field.linkTableValue2
+                  : field.linkTableValue2?.table;
+
+              let siteData = getDisplayOptions(linkTableData, siteTable)?.find(
+                (item: any) => item.id === selectedOption?.customer_site_id
+              );
+
+              let completeDisplayValue = {
+                siteData: siteData,
+                workData: selectedOption,
+                contactData: getDisplayOptions(
+                  linkTableData,
+                  typeof field.linkTableValue3 === "string"
+                    ? field.linkTableValue3
+                    : field.linkTableValue3?.table
+                )?.find(
+                  (item: any) => item.id === siteData?.primary_contact_id
+                ),
+              };
+
+              return (
+                <div
+                  className={getFieldWidth(field.nature)}
+                  data-field={field.Title}
+                >
+                  {renderLabel(field)}
+                  <div className="flex gap-2 items-center justify-end mb-2">
+                    {field.placeholder && (
+                      <div className="w-full flex flex-col items-start">
+                        <div className="relative w-full">
+                          <button
+                            type="button"
+                            onClick={() => toggleDropdown(fieldKey)}
+                            className={`w-full px-4 py-3 border ${errorBorderClass} rounded-lg focus:outline-none focus:ring-2 focus:ring-cerulean text-left flex items-center justify-between bg-white cursor-pointer`}
+                          >
+                            <span
+                              className={
+                                displayValue && displayValue.length > 0
+                                  ? "text-charcoal"
+                                  : "text-slate"
+                              }
+                            >
+                              {displayValue || field.placeholder}
+                            </span>
+                            <ChevronDown className="w-5 h-5 text-slate" />
+                          </button>
+                          {isDropdownOpen && (
+                            <div className="absolute z-10 w-full mt-1 bg-white border border-silver rounded-lg shadow-lg max-h-60 overflow-hidden">
+                              {/* list of items */}
+                              <div className="overflow-y-auto max-h-48 py-2">
+                                {displayFilterOption &&
+                                displayFilterOption.length > 0 ? (
+                                  displayFilterOption.map(
+                                    (option: any, idx: any) => {
+                                      return (
+                                        <button
+                                          key={idx}
+                                          type="button"
+                                          onClick={() => {
+                                            // FIXED: Call onChange to update form state
+                                            onChange(option.id);
+                                            toggleDropdown(fieldKey);
+                                          }}
+                                          className="w-full px-4 py-2 text-left hover:bg-platinum transition-colors text-charcoal text-sm cursor-pointer"
+                                        >
+                                          {Array.isArray(field.linkTableValue)
+                                            ? field.linkTableValue
+                                                .map(
+                                                  (value) =>
+                                                    option?.[
+                                                      value as keyof typeof option
+                                                    ] || ""
+                                                )
+                                                .join(" ")
+                                            : option?.[
+                                                field.linkTableValue as keyof typeof option
+                                              ] || ""}
+                                        </button>
+                                      );
+                                    }
+                                  )
+                                ) : (
+                                  <div className="px-4 py-2 text-slate text-sm">
+                                    No options found
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {renderError(field.Title)}
+                  {!value ? (
+                    <div className="w-full px-4 py-6 border border-silver rounded-lg bg-platinum/20 text-center">
+                      <p className="text-slate text-sm">
+                        {field.message ||
+                          field.placeholder ||
+                          "No items added yet"}
+                      </p>
+                    </div>
+                  ) : value ? (
+                    <div className="flex flex-col justify-between px-8 py-3 border border-silver rounded-lg bg-white hover:bg-platinum/30 transition-colors group">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-charcoal font-medium text-xl my-4">
+                          Work Order Details
+                        </h2>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onChange("");
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity ml-3 text-slate hover:text-red-500 cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 w-full">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-2">
+                              <p className="text-charcoal/50 font-medium text-sm">
+                                Work Order #
+                              </p>
+                              <p className="text-charcoal font-medium text-sm">
+                                {
+                                  completeDisplayValue.workData
+                                    .work_order_number
+                                }
+                              </p>
+                            </div>
+                            <p className="text-charcoal/50 font-medium text-sm">
+                              Contact
+                            </p>
+                            <div className="flex gap-2">
+                              <User className="w-4 h-4 text-slate" />
+                              <p className="text-charcoal font-medium text-sm">
+                                {completeDisplayValue.contactData?.first_name +
+                                  " " +
+                                  completeDisplayValue.contactData?.last_name ||
+                                  "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <p className="text-charcoal/50 font-medium text-sm">
+                              Total hour
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-slate" />
+                              <p className="text-charcoal font-medium text-md">
+                                {calculateTotalHours(
+                                  completeDisplayValue.workData.scheduled_start,
+                                  completeDisplayValue.workData.scheduled_end
+                                ) || "0"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-col gap-2">
+                            <p className="text-charcoal/50 font-medium text-sm">
+                              Customer
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <Building className="w-4 h-4 text-slate" />
+                              <p className="text-charcoal font-medium text-md">
+                                {completeDisplayValue.siteData?.site_name ||
+                                  "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <p className="text-charcoal/50 font-medium text-sm">
+                              Service Address
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-slate" />
+                              <p className="text-charcoal font-medium text-sm">
+                                {completeDisplayValue.siteData
+                                  ?.service_address || "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            }}
+          />
+        );
+
       default:
         return null;
     }

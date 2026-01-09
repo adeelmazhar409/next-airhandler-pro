@@ -160,6 +160,7 @@ export async function updateActivity(
     };
   }
 }
+
 export async function deleteActivity(
   activityId: string
 ): Promise<ApiResponse<void>> {

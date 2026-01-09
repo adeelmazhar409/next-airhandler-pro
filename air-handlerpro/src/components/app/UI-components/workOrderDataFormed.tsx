@@ -1,93 +1,81 @@
 // app/page.tsx or any component
 
-import ScheduledVisitCard from "./workOrderData";
+import WorkOrderCard from "./workOrderData";
 
-// data/scheduledVisits.ts - Enhanced with complete data structure
-export const scheduledVisitsData = [
-  {
-    id: "wo-001",
-    siteName: "Test SH Network Site w/ parent",
-    contactName: "Mason Keith",
-    phone: "407-458-5548",
-    email: "mason@gmail.com",
-    workOrderNumber: "123456",
-    serviceAddress: "65654 Street Lane orlando, FL 35654",
-    scheduledStart: "Aug 26, 2025 4:00 PM",
-    scheduledEnd: "Aug 26, 2025 8:00 PM",
-    dateTime: "Aug 26, 2025 4:00 PM",
-    description: "Brand New Work Order Reporting Page",
-    equipmentInfo: "Trane TSC50HA",
-    reportCount: 3,
-    status: "scheduled" as const,
-    createdDate: "Aug 21, 2025 4:52 AM",
-    serviceReports: [
-      {
-        id: "sr-001",
-        status: "draft" as const,
-        createdDate: "Aug 21, 2025 5:52 AM",
-        hours: 0,
-      },
-      {
-        id: "sr-002",
-        status: "signed" as const,
-        createdDate: "Aug 21, 2025 5:00 AM",
-        hours: 6,
-      },
-      {
-        id: "sr-003",
-        status: "draft" as const,
-        createdDate: "Aug 21, 2025 5:36 AM",
-        hours: 0,
-      },
-    ],
-  },
-  {
-    id: "wo-002",
-    siteName: "Stan Lee's Service Site",
-    contactName: "Stan Lee",
-    phone: "407-555-1249",
-    email: "stan.lee@stanlees.com",
-    workOrderNumber: "123457",
-    serviceAddress: "15488 Orange Dr Apopka, FL 32756",
-    scheduledStart: "Aug 22, 2025 12:30 PM",
-    scheduledEnd: "Aug 22, 2025 4:30 PM",
-    dateTime: "Aug 22, 2025 12:30 PM",
-    description:
-      "Customer called stating RTU 7 was not cooling properly and there is water coming through the ceiling tiles.",
-    equipmentInfo: "York RTU-7",
-    reportCount: 1,
-    status: "scheduled" as const,
-    createdDate: "Aug 20, 2025 10:15 AM",
-    serviceReports: [
-      {
-        id: "sr-004",
-        status: "draft" as const,
-        createdDate: "Aug 22, 2025 1:00 PM",
-        hours: 0,
-      },
-    ],
-  },
-  // Add more visits easily here
-];
-
-interface ScheduledVisitsGridProps {
-  onViewDetails?: (workOrderId: string) => void;
+function LoadingSkeleton({ viewMode }: { viewMode: "list" | "grid" }) {
+  return (
+    <div className={viewMode === "grid" ? "flex gap-3 flex-wrap" : "space-y-4"}>
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className={
+            viewMode === "grid"
+              ? "w-full max-w-sm h-80 bg-gray-200 animate-pulse rounded-xl"
+              : "w-full h-32 bg-gray-200 animate-pulse rounded-lg"
+          }
+        />
+      ))}
+    </div>
+  );
 }
 
-export default function ScheduledVisitsGrid({
+
+interface WorkOrderDataFormedProps {
+  loading?: boolean;
+  error?: string | null;
+  workOrders?: any[];
+  handleDeleteWorkOrder?: (workOrderId: string, workOrderNumber: string) => void;
+  onEditWorkOrder?: (workOrderId: string) => void;
+  onViewDetails?: (workOrderId: string) => void;
+  viewMode?: "list" | "grid";
+}
+
+export default function WorkOrderDataFormed({
+  loading,
+  error,
+  workOrders,
+  handleDeleteWorkOrder,
+  onEditWorkOrder,
   onViewDetails,
-}: ScheduledVisitsGridProps) {
+  viewMode = "grid",
+}: WorkOrderDataFormedProps) {
   return (
-    <div className="">
-      <div className="flex gap-3 flex-wrap">
-        {scheduledVisitsData.map((visit) => (
-          <ScheduledVisitCard
-            key={visit.id}
-            {...visit}
-            onViewDetails={onViewDetails}
-          />
-        ))}
-      </div>
+    <div>
+      {loading && <LoadingSkeleton viewMode={viewMode} />}
+
+      {error && (
+        <div className="text-center py-12">
+          <p className="text-gray-500">{error}</p>
+        </div>
+      )}
+
+      {!loading && !error && workOrders?.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No work orders found.</p>
+        </div>
+      )}
+
+      {!loading && !error && workOrders && workOrders.length > 0 && (
+        <div
+          className={viewMode === "grid" ? "flex gap-3 flex-wrap" : "space-y-4"}
+        >
+          {workOrders.map((workOrder) => (
+            <WorkOrderCard     
+              key={workOrder.id}
+              workOrderData={workOrder}
+              viewMode={viewMode}
+              onEdit={() => onEditWorkOrder?.(workOrder.id)}
+              onViewDetails={() => onViewDetails?.(workOrder.id)}
+              onDelete={() =>
+                handleDeleteWorkOrder?.(
+                  workOrder.id,
+                  `${workOrder.workOrderNumber}`
+                )
+              }
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
