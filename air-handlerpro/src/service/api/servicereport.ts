@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { mapTitlesToLabels } from "@/components/utility/HelperFunctions";
 import { ServiceReportFormProps } from "@/components/forms/forms-instructions/ServiceReportProp";
+import { getPublicUrl } from "./storage";
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -27,17 +28,6 @@ export async function createServiceReport(
       ServiceReportFormProps
     );
 
-    
-    console.log(insertData);
-    const { data, error } = await supabase
-    .from("service_reports")
-    .insert([insertData])
-    .select()
-    .single();
-    
-    console.log(error);
-    if (error) throw new Error(error.message);
-   
     for (const file of photos) {
       console.log("Uploading:", file.name);
 
@@ -56,8 +46,18 @@ export async function createServiceReport(
         throw error;
       }
 
-      insertData.photos.push(data.path);
+      insertData.photo = data.path;
     }
+
+    console.log(insertData);
+    const { data, error } = await supabase
+      .from("service_reports")
+      .insert([insertData])
+      .select()
+      .single();
+
+    console.log(error);
+    if (error) throw new Error(error.message);
 
     return {
       success: true,
@@ -81,6 +81,20 @@ export async function fetchServiceReports(): Promise<ApiResponse<any[]>> {
 
     if (error) throw new Error(error.message);
 
+    const publicUrls = await Promise.all(
+      data.map(async (report: any) => {
+        const { data: publicUrl, error } = await getPublicUrl(
+          "media",
+          report.photo
+        );
+        return publicUrl;
+      })
+    );
+    data.map((report: any, index: number) => {
+      report.photo = publicUrls[index];
+    });
+
+    console.log(data);
     return {
       success: true,
       data: (data as any[]) || [],

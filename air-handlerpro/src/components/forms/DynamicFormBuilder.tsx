@@ -14,7 +14,7 @@ import {
   Building,
   User,
 } from "lucide-react";
-import { z } from "zod";
+import { file, z } from "zod";
 import DynamicModal from "./DynamicModal";
 import {
   DynamicFormBuilderProps,
@@ -1067,8 +1067,8 @@ const DynamicFormBuilder: React.FC<any> = ({
             control={control}
             defaultValue={editingData ? editingData[field.label] : []}
             render={({ field: { onChange, value } }) => {
-              const files = (value as File[]) || [];
-
+              const files = value || [];
+              console.log(files);
               return (
                 <div
                   className={getFieldWidth(field.nature)}
@@ -1097,9 +1097,9 @@ const DynamicFormBuilder: React.FC<any> = ({
                     </p>
                   </div>
 
-                  {files.length > 0 && (
+                  {typeof files === "object" && files?.length > 1 && (
                     <div className="mt-3 space-y-2">
-                      {files.map((file, idx) => (
+                      {files?.map((file: File, idx: number) => (
                         <div
                           key={idx}
                           className="flex items-center justify-between px-3 py-2 bg-platinum rounded-lg"
@@ -1124,6 +1124,30 @@ const DynamicFormBuilder: React.FC<any> = ({
                           </button>
                         </div>
                       ))}
+                    </div>
+                  )}
+                  {files && (
+                    <div className="mt-3 space-y-2">
+                      <div className="flex items-center justify-between px-3 py-2 bg-platinum rounded-lg">
+                        <img
+                          src={files}
+                          alt={file.name}
+                          width={100}
+                          height={100}
+                        />
+                        <span className="text-sm text-charcoal truncate">
+                          {file.name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeFile(field.label, 0, files, onChange)
+                          }
+                          className="ml-2 text-slate hover:text-red-500 transition-colors cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   )}
                   {renderError(field.Title)}
@@ -1799,7 +1823,7 @@ const DynamicFormBuilder: React.FC<any> = ({
               const selectedOption = displayOptions.find(
                 (item: any) => item.id === value
               );
-             
+
               const displayFilterOption = displayOptions.filter(
                 (item: any) => item.id !== value
               );

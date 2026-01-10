@@ -19,7 +19,6 @@ export default function ServiceReportDetailPage({
   onViewReport,
   onArchiveServiceReport,
 }: ServiceReportDetailPageProps) {
-
   const [activeTab, setActiveTab] = useState<
     "report" | "photos" | "time" | "signature"
   >("report");
@@ -84,7 +83,7 @@ export default function ServiceReportDetailPage({
               onClick={() => onEditServiceReport(data.id)}
               className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-charcoal transition-colors cursor-pointer"
             >
-             <Edit className="w-4 h-4" />
+              <Edit className="w-4 h-4" />
               Edit
             </button>
             <button
@@ -226,7 +225,6 @@ export default function ServiceReportDetailPage({
           </div>
         </div>
       )}
-
       {activeTab === "photos" && (
         <div className="bg-white border-2 border-black rounded-lg p-6">
           {data.photo && (
@@ -234,7 +232,7 @@ export default function ServiceReportDetailPage({
               <img
                 src={data.photo}
                 alt="Service Report Photo"
-                className="w-16 h-16 mx-auto mb-4"
+                className="w-20 h-20 mx-auto mb-4"
               />
             </div>
           )}

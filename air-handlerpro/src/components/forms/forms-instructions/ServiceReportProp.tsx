@@ -51,7 +51,7 @@ export const ServiceReportFormProps = [
       {
         nature: "full",
         type: "file",
-        label: "photos",
+        label: "photo",
         Title: "Upload Photo",
         placeholder: "No photos yet",
         message: "Upload photos to document your work",
