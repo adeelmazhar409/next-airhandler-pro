@@ -9,6 +9,9 @@ import { MessageBubble } from "./content/Messages";
 import { base } from "@/service/base";
 import { toast } from "@/components/toast";
 import { supabase } from "@/lib/supabase";
+import { EstimateSummaryTable } from "./content/EstimateSummaryTable";
+import { add } from "@dnd-kit/utilities";
+import { boolean } from "zod";
 
 interface Company {
   id: string;
@@ -41,8 +44,8 @@ interface EstimateData {
 
 type ConversationStep =
   | "initial"
-  | "company_search"
-  | "company_confirm"
+  | "company&site_search"
+  | "company&site_confirm"
   | "site_select"
   | "estimate_name"
   | "contract_length"
@@ -74,6 +77,7 @@ export default function AIEstimateBuilder({
   const [isProcessing, setIsProcessing] = useState(false);
   const [conversationStep, setConversationStep] =
     useState<ConversationStep>("initial");
+  const [showSummary, setShowSummary] = useState(false);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
@@ -106,35 +110,120 @@ export default function AIEstimateBuilder({
   };
 
   // Process user input based on conversation step
+
+  // Generate estimate number helper
+  const generateEstimateNumber = () => {
+    return `EST-${Date.now()}`;
+  };
+
+  // Save estimate to database
+  const handleSaveEstimate = async () => {
+    try {
+      if (!selectedCompany || !selectedSite) {
+        toast("❌ Please select a company and site first");
+        return;
+      }
+
+      const completeEstimateData = {
+        customer_company_id: selectedCompany.id,
+        customer_site_id: selectedSite.id,
+        estimate_name: estimateData.estimateName || "Untitled Estimate",
+        estimate_number:
+          estimateData.estimateNumber || generateEstimateNumber(),
+        contract_length: estimateData.contractLength || 12,
+        contract_start_date:
+          estimateData.contractStartDate ||
+          new Date().toISOString().split("T")[0],
+        billing_frequency: estimateData.billingFrequency || "Monthly",
+        miles_to_site: estimateData.milesToSite || 0,
+        travel_charge: estimateData.travelCharge || 0,
+        parking_fees: estimateData.parkingFees || 0,
+        status: estimateData.status || "Draft",
+        total_amount: estimateData.totalAmount || 0,
+      };
+
+      const result = await base(
+        "create",
+        "maintenanceEstimate",
+        completeEstimateData
+      );
+
+      if (result.success) {
+        toast("✅ Estimate saved successfully!");
+        addMessage(
+          "assistant",
+          `Great! Your estimate has been saved successfully.\n\nEstimate Number: **${completeEstimateData.estimate_number}**\n\nWould you like to create another estimate?`
+        );
+        setConversationStep("complete");
+      } else {
+        toast(
+          "❌ Failed to save estimate: " + (result.error || "Unknown error")
+        );
+      }
+    } catch (error: any) {
+      console.error("Error saving estimate:", error);
+      toast("❌ Error saving estimate: " + error.message);
+    }
+  };
+
+  
   const processUserInput = async (userInput: string) => {
     setIsProcessing(true);
 
     switch (conversationStep) {
       case "initial":
-      case "company_search": {
+      case "company&site_search": {
         // Search for companies
-        const result = await base("fetch", "company");
-        if (result.success && result.data) {
-          const matchedCompanies = result.data.filter((company: Company) =>
+        const company = await base("fetch", "company");
+        const sites = await base("fetch", "site");
+
+        const result = [company, sites];
+        
+      
+        if (result[0].success && result[1].success && result[0].data && result[1].data) {
+          const matchedCompanies = result[0].data.filter((company: Company) =>
             company.business_name
               .toLowerCase()
               .includes(userInput.toLowerCase())
           );
 
-          if (matchedCompanies.length === 0) {
+          const matchedSites = result[1].data.filter((site: Site) =>
+            site.site_name.toLowerCase().includes(userInput.toLowerCase())
+          );
+
+          if (matchedCompanies.length === 0 && matchedSites.length === 0) {
             addMessage(
               "assistant",
-              `I couldn't find any companies matching "${userInput}". Please try again with a different company name.`
+              `I couldn't find any companies or sites matching "${userInput}". Please try again with a different company or site name.`
             );
-          } else if (matchedCompanies.length === 1) {
+          } else if (matchedCompanies.length === 1 || matchedSites.length === 1) {
             setSelectedCompany(matchedCompanies[0]);
+            setSelectedSite(matchedSites[0]);
+            setSites(matchedSites);
             setCompanies(matchedCompanies);
-            addMessage(
-              "assistant",
-              `Great! I found: **${matchedCompanies[0].business_name}**\n\nIs this the correct company? (Reply "yes" or "no")`
-            );
-            setConversationStep("company_confirm");
-          } else {
+
+            if (matchedCompanies.length === 1) {
+
+              addMessage(
+                "assistant",
+                `Great! I found: **${matchedCompanies[0].business_name}**\n\nIs this the correct company? (Reply "yes" or "no")`
+              );
+              setConversationStep("company&site_confirm");
+          
+            } else {
+              addMessage(
+                "assistant",
+                `Great! I found: **${matchedSites[0].site_name}**\n\nIs this the correct site? (Reply "yes" or "no")`
+              );
+              setConversationStep("company&site_confirm");
+            }
+          
+          
+          }
+          
+          
+          else {
+           
             setCompanies(matchedCompanies);
             const companyList = matchedCompanies
               .map((c: Company, i: number) => `${i + 1}. ${c.business_name}`)
@@ -143,7 +232,7 @@ export default function AIEstimateBuilder({
               "assistant",
               `I found multiple companies:\n\n${companyList}\n\nPlease reply with the number of the company you want.`
             );
-            setConversationStep("company_confirm");
+            setConversationStep("company&site_confirm");
           }
         } else {
           addMessage(
@@ -154,40 +243,69 @@ export default function AIEstimateBuilder({
         break;
       }
 
-      case "company_confirm": {
+      case "company&site_confirm": {
         const input = userInput.toLowerCase().trim();
-        if (input === "yes" && selectedCompany) {
-          // Fetch sites for the company
-          const result = await base("fetch", "site");
-          if (result.success && result.data) {
-            const companySites = result.data.filter(
-              (site: any) => site.parent_company_id === selectedCompany.id
-            );
+       const  selectedCompany = companies[0];
+        const selectedSite = sites[0];
 
-            if (companySites.length === 0) {
-              addMessage(
-                "assistant",
-                "This company has no service sites. Please add sites first."
-              );
-              setConversationStep("initial");
-            } else {
-              setSites(companySites);
-              const siteList = companySites
-                .map((s: Site, i: number) => `${i + 1}. ${s.site_name}`)
-                .join("\n");
-              addMessage(
-                "assistant",
-                `Perfect! Please select a site:\n\n${siteList}\n\nReply with the site number.`
-              );
-              setConversationStep("site_select");
-            }
+
+
+
+        if (input === "yes") {
+
+          if (selectedCompany) {
+            addMessage(
+              "assistant",
+              `Excellent! You've selected: **${
+                selectedCompany.business_name
+              }**\n\nWhat would you like to name this estimate?`
+            );
+            setConversationStep("estimate_name");
+
+
+          } else if (selectedSite) { 
+   addMessage(
+     "assistant",
+     `Excellent! You've selected: **${
+       selectedSite.site_name
+     }**\n\nWhat would you like to name this estimate?`
+   );
+   setConversationStep("estimate_name");
+            
           }
+          // Fetch sites for the company
+          // const result = await base("fetch", "site");
+          // if (result.success && result.data) {
+          //   const companySites = result.data.filter(
+          //     (site: any) => site.parent_company_id === selectedCompany.id
+          //   );
+
+       
+        
+          //   if (companySites.length === 0) {
+          //     addMessage(
+          //       "assistant",
+          //       "This company has no service sites. Please add sites first."
+          //     );
+          //     setConversationStep("initial");
+          //   } else {
+          //     setSites(companySites);
+          //     const siteList = companySites
+          //       .map((s: Site, i: number) => `${i + 1}. ${s.site_name}`)
+          //       .join("\n");
+          //     addMessage(
+          //       "assistant",
+          //       `Perfect! Please select a site:\n\n${siteList}\n\nReply with the site number.`
+          //     );
+          //     setConversationStep("site_select");
+          //   }
+          // }
         } else if (input === "no") {
           addMessage(
             "assistant",
             "No problem! What company would you like to create an estimate for?"
           );
-          setConversationStep("company_search");
+          setConversationStep("company&site_search");
           setSelectedCompany(null);
         } else if (!isNaN(parseInt(input))) {
           const index = parseInt(input) - 1;
@@ -209,25 +327,25 @@ export default function AIEstimateBuilder({
         break;
       }
 
-      case "site_select": {
-        const siteIndex = parseInt(userInput) - 1;
-        if (!isNaN(siteIndex) && siteIndex >= 0 && siteIndex < sites.length) {
-          setSelectedSite(sites[siteIndex]);
-          setEstimateData((prev) => ({
-            ...prev,
-            customerCompanyId: selectedCompany?.id,
-            customerSiteId: sites[siteIndex].id,
-          }));
-          addMessage(
-            "assistant",
-            `Perfect! Site selected: **${sites[siteIndex].site_name}**\n\nNow, what would you like to name this estimate?`
-          );
-          setConversationStep("estimate_name");
-        } else {
-          addMessage("assistant", "Invalid site number. Please try again.");
-        }
-        break;
-      }
+      // case "site_select": {
+      //   const siteIndex = parseInt(userInput) - 1;
+      //   if (!isNaN(siteIndex) && siteIndex >= 0 && siteIndex < sites.length) {
+      //     setSelectedSite(sites[siteIndex]);
+      //     setEstimateData((prev) => ({
+      //       ...prev,
+      //       customerCompanyId: selectedCompany?.id,
+      //       customerSiteId: sites[siteIndex].id,
+      //     }));
+      //     addMessage(
+      //       "assistant",
+      //       `Perfect! Site selected: **${sites[siteIndex].site_name}**\n\nNow, what would you like to name this estimate?`
+      //     );
+      //     setConversationStep("estimate_name");
+      //   } else {
+      //     addMessage("assistant", "Invalid site number. Please try again.");
+      //   }
+      //   break;
+      // }
 
       case "estimate_name": {
         setEstimateData((prev) => ({
@@ -318,118 +436,59 @@ export default function AIEstimateBuilder({
       }
 
       case "travel_info": {
-        const miles = parseFloat(userInput);
-        if (isNaN(miles) || miles < 0) {
-          addMessage("assistant", "Please enter a valid number for miles.");
+        const parts = userInput.split(",").map((s) => s.trim());
+        if (parts.length !== 3) {
+          addMessage(
+            "assistant",
+            "Please provide all three values separated by commas: miles, travel charge, parking fees (e.g., 25, 50, 10)"
+          );
         } else {
-          setEstimateData((prev) => ({
-            ...prev,
-            milesToSite: miles,
-            travelCharge: 0,
-            parkingFees: 0,
-            status: "draft",
-            totalAmount: 0,
-          }));
+          const miles = parseFloat(parts[0]);
+          const travelCharge = parseFloat(parts[1]);
+          const parkingFees = parseFloat(parts[2]);
 
-          const review = `
-Perfect! Let me review the estimate details:
-
-**Customer:** ${selectedCompany?.business_name}
-**Site:** ${selectedSite?.site_name}
-**Estimate Name:** ${estimateData.estimateName}
-**Estimate Number:** ${estimateData.estimateNumber}
-**Contract Length:** ${estimateData.contractLength} months
-**Start Date:** ${estimateData.contractStartDate}
-**Billing Frequency:** ${estimateData.billingFrequency}
-**Miles to Site:** ${miles}
-
-Everything look correct? Reply "yes" to create the estimate or "no" to start over.
-          `.trim();
-
-          addMessage("assistant", review);
-          setConversationStep("review");
-        }
-        break;
-      }
-
-      case "review": {
-        const input = userInput.toLowerCase().trim();
-        if (input === "yes") {
-          try {
-            // Get current user
-            const {
-              data: { user },
-              error: authError,
-            } = await supabase.auth.getUser();
-
-            if (authError || !user) {
-              addMessage(
-                "assistant",
-                "❌ Authentication error. Please make sure you're logged in."
-              );
-              setConversationStep("initial");
-              setIsProcessing(false);
-              return;
-            }
-
-            // Add created_by to estimate data
-            const finalEstimateData = {
-              ...estimateData,
-              created_by: user.id,
-            };
-
-            const result = await base(
-              "create",
-              "maintenanceEstimate",
-              finalEstimateData
-            );
-
-            if (result.success) {
-              setCreatedEstimateId(result.data?.id || null);
-              addMessage(
-                "assistant",
-                `🎉 Success! Your maintenance estimate has been created!\n\n**Estimate Number:** ${estimateData.estimateNumber}\n\nThe estimate has been saved as a draft. You can now save or view it using the buttons on the right.`
-              );
-              toast("✅ Estimate created successfully!");
-              setConversationStep("complete");
-            } else {
-              addMessage(
-                "assistant",
-                `❌ Sorry, there was an error creating the estimate: ${result.error}\n\nPlease try again.`
-              );
-              setConversationStep("initial");
-            }
-          } catch (error) {
+          if (isNaN(miles) || isNaN(travelCharge) || isNaN(parkingFees)) {
             addMessage(
               "assistant",
-              "❌ An unexpected error occurred. Please try again."
+              "Please make sure all values are valid numbers."
             );
-            setConversationStep("initial");
+          } else {
+            setEstimateData((prev) => ({
+              ...prev,
+              milesToSite: miles,
+              travelCharge: travelCharge,
+              parkingFees: parkingFees,
+              status: "Draft",
+              totalAmount: travelCharge + parkingFees,
+            }));
+            addMessage(
+              "assistant",
+              `Perfect! I've collected all the information.\n\n**Miles to Site:** ${miles}\n**Travel Charge:** $${travelCharge}\n**Parking Fees:** $${parkingFees}\n\nYour estimate is ready! Check the summary table below to review and edit any details. When you're satisfied, click "Save Estimate" to save it to the database.`
+            );
+            setConversationStep("review");
+            setShowSummary(true);
           }
-        } else if (input === "no") {
-          addMessage(
-            "assistant",
-            "No problem! Let's start over. What company would you like to create an estimate for?"
-          );
-          setConversationStep("company_search");
-          setSelectedCompany(null);
-          setSelectedSite(null);
-          setEstimateData({});
+        }
+        break;
+      }
+      case "review": {
+        const input = userInput.toLowerCase().trim();
+        if (input.includes("save")) {
+          await handleSaveEstimate();
         } else {
           addMessage(
             "assistant",
-            'Please reply "yes" to confirm or "no" to start over.'
+            'Please review the estimate summary table below. You can edit any field by clicking on it. When ready, type "save" or click the "Save Estimate" button.'
           );
         }
         break;
       }
-
       case "complete": {
         addMessage(
           "assistant",
           "Would you like to create another estimate? If so, tell me the company name!"
         );
-        setConversationStep("company_search");
+        setConversationStep("company&site_search");
         setSelectedCompany(null);
         setSelectedSite(null);
         setEstimateData({});
@@ -457,6 +516,10 @@ Everything look correct? Reply "yes" to create the estimate or "no" to start ove
     }
   };
 
+  const handleUpdateEstimate = (updatedData: Partial<EstimateData>) => {
+    setEstimateData(updatedData);
+  };
+
   const handleClear = () => {
     setMessages([
       {
@@ -475,6 +538,7 @@ Everything look correct? Reply "yes" to create the estimate or "no" to start ove
     setCompanies([]);
     setSites([]);
     setCreatedEstimateId(null);
+    setShowSummary(false);
   };
 
   const handleSaveDraft = async () => {
@@ -506,7 +570,20 @@ Everything look correct? Reply "yes" to create the estimate or "no" to start ove
           {messages.map((message, index) => (
             <MessageBubble key={index} message={message} />
           ))}
-          {isProcessing && (
+
+           {showSummary && conversationStep === "review" && (
+    <div className="my-4">
+      <EstimateSummaryTable
+        data={estimateData}
+        companyName={selectedCompany?.business_name}
+        siteName={selectedSite?.site_name}
+        onUpdate={handleUpdateEstimate}
+        onSave={handleSaveEstimate}
+      />
+    </div>
+  )}
+  
+  {isProcessing && (
             <div className="flex items-center gap-2 text-slate">
               <div className="animate-pulse">●</div>
               <div className="animate-pulse delay-100">●</div>
