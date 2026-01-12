@@ -495,14 +495,14 @@ Everything look correct? Reply "yes" to create the estimate or "no" to start ove
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-[650px]  bg-gray-50">
       {/* Left Side - Chat (takes remaining space) */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header - Fixed */}
         <HeaderAndChatTab onClear={handleClear} onBack={onNavigateBack} />
 
         {/* Messages Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-4 py-4">
           {messages.map((message, index) => (
             <MessageBubble key={index} message={message} />
           ))}
