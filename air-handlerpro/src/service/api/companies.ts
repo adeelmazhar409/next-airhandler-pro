@@ -66,6 +66,7 @@ export async function createCompany(
     }
 
     const insertData = mapTitlesToLabels(formData, CompanyFormProps);
+    insertData.created_by = user.id;
     const { sites, ...companyData } = insertData;
 
     const { data, error } = await supabase

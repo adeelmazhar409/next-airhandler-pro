@@ -29,7 +29,7 @@ export async function createServiceSite(
     }
 
     const insertData = mapTitlesToLabels(formData, SiteFormProps);
-
+    insertData.created_by = user.id;
     // Try "sites" table first, fallback to "service_sites"
     let { data, error } = await supabase
       .from("sites")

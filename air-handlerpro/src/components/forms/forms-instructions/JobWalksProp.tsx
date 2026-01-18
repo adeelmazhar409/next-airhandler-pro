@@ -1,71 +1,82 @@
 export const JobWalksFormProps = [
   {
     nature: "full",
-    type: "search-dropdown",
-    label: "Link to Customer (optional)",
+    type: "dropdown",
+    required: true,
+    label: "customer_site_id",
+    Title: "Customer Company",
     placeholder: "Search customers...",
-    option: [
-      "ABC Corporation",
-      "XYZ Industries",
-      "Tech Solutions Inc",
-      "Green Energy Co",
-    ],
+    linkTable: "sites",
+    linkTableValue: ["site_name","service_address"],
+    linkTableValue2: { table: "contacts", linkvalue: "service_site_id" },
   },
   {
     nature: "full",
     type: "text",
-    label: "Job Name / Site Address",
+    label: "job_name",
+    Title: "Job Name / Site Address",
     placeholder: "e.g., AC Repair - 123 Main St",
   },
-
   {
-    nature: "half",
-    type: "date",
-    label: "Date of Walk",
-    placeholder: "12/17/2025",
+    sectionName: "",
+    fields: [
+      {
+        nature: "half",
+        type: "date",
+        label: "date_of_walk",
+        Title: "Date of Walk",
+        placeholder: "12/17/2025",
+      },
+      {
+        nature: "half",
+        type: "dropdown",
+        label: "task_type",
+        Title: "Task Type",
+        placeholder: "Select task type",
+        linkTable: "task_types",
+        linkTableValue: "type",
+      },
+    ],
   },
-  {
-    nature: "half",
-    type: "dropdown",
-    label: "Task Type",
-    placeholder: "Select task type",
-    option: ["Walk", "Inspection", "Assessment", "Survey", "Site Visit"],
-  },
-
   {
     nature: "full",
     type: "textarea",
-    label: "Job Notes / Observations",
+    label: "job_notes",
+    Title: "Job Notes / Observations",
     placeholder: "Record issues, model/serials, access notes, etc.",
     rows: 6,
   },
   {
     nature: "full",
     type: "textarea",
-    label: "Next Step / Action Needed",
+    label: "next_step",
+    Title: "Next Step / Action Needed",
     placeholder: "Describe what needs to happen next...",
     rows: 5,
   },
 
   {
     nature: "full",
-    type: "dropdown",
-    label: "Assign To",
-    placeholder: "Select team member",
-    option: ["John Smith", "Sarah Johnson", "Mike Davis", "Emily Brown"],
+    type: "text",
+    label: "assigned_to",
+    Title: "Assign To",
+    placeholder: "Enter team member",
   },
-
   {
     nature: "full",
     type: "file",
-    label: "Photos",
-    placeholder: "Choose Files",
+    label: "photos",
+    Title: "Photos",
+    placeholder: "No file chosen",
+    message: "Upload photos to document your work",
     accept: "image/*",
     multiple: true,
+    required: true,
   },
-
   {
     sectionName: "button",
-    button: ["Cancel", "Save Job Walk"],
+    button: ["Cancel", "Create Job Walk"],
   },
 ];
+
+export const JobWalksLinkTable = ["sites", "contacts", "task_types", "users"];

@@ -21,8 +21,8 @@ export async function createContact(formData: any): Promise<ApiResponse<any>> {
     }
 
     const insertData = mapTitlesToLabels(formData, ContactProp);
-
-    console.log(insertData);
+    insertData.created_by = user.id;
+    
     const { data, error } = await supabase
       .from("contacts")
       .insert([{ ...insertData, created_by: user.id }])

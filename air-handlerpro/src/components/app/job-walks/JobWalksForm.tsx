@@ -5,10 +5,12 @@ import { JobWalksFormProps } from "@/components/forms/forms-instructions/JobWalk
 
 interface JobWalksFormProps {
   onCancel: () => void;
-  onSubmit: (formData: any) => void;
+  onSubmit: (formData: any) => void;  
+  linkTableData: any[];
+  editingJobWalk: any;
 }
 
-export function JobWalksForm({ onCancel, onSubmit }: JobWalksFormProps) {
+export function JobWalksForm({ onCancel, onSubmit, linkTableData, editingJobWalk }: JobWalksFormProps) {
   return (
     <div className="p-8">
       {/* Header */}
@@ -26,6 +28,8 @@ export function JobWalksForm({ onCancel, onSubmit }: JobWalksFormProps) {
       {/* Dynamic Form */}
       <div className="bg-white rounded-lg shadow-sm p-8">
         <DynamicFormBuilder
+          linkTableData={linkTableData}
+          editingData={editingJobWalk}
           config={JobWalksFormProps}
           onSubmit={onSubmit}
           onCancel={onCancel}

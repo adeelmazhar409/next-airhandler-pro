@@ -383,6 +383,26 @@ function buildFinalServiceReportObject(
   return finalServiceReportObject;
 }
 
+function buildFinalJobWalksObject(jobWalks: any[], relatedTables: any[]) {
+  const finalJobWalksObject = jobWalks.map((jw) => {
+    const site = relatedTables.find((t) => t.sites)?.sites.find((s: any) => s.id === jw.customer_site_id);
+    const taskType = relatedTables.find((t) => t.task_types)?.task_types.find((t: any) => t.id === jw.task_type);
+    const user = relatedTables.find((t) => t.users)?.users.find((u: any) => u.id === jw.created_by);
+    return {
+      id: jw.id,
+      job_name: jw.job_name,
+      date_of_walk: jw.date_of_walk,
+      task_type: taskType?.type ?? null,
+      job_notes: jw.job_notes,
+      next_step: jw.next_step,
+      assigned_to: jw.assigned_to || null,
+      photos_count: jw.photos_count || null,
+      created_by: user?.full_name || null,
+    };
+  });
+  return finalJobWalksObject;
+}
+
 function mapTitlesToLabels(data: any, formProps: any[]) {
   const titleLabelMap = buildTitleLabelMap(formProps);
 
@@ -425,6 +445,7 @@ export {
   buildFinalActivityObject,
   buildFinalWorkOrderObject,
   buildFinalServiceReportObject,
+  buildFinalJobWalksObject,
   mapTitlesToLabels,
   formatDateTime,
   toISOTimestamp,

@@ -48,8 +48,8 @@ export async function createServiceReport(
 
       insertData.photo = data.path;
     }
+    insertData.created_by = user.id;
 
-    console.log(insertData);
     const { data, error } = await supabase
       .from("service_reports")
       .insert([insertData])

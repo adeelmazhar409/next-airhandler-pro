@@ -1,50 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, Plus } from "lucide-react";
+import { toast } from "@/components/toast";
+import { createUpdate, fetchUpdates } from "@/service/api/updates";
+import {
+  formatDateTime,
+  fromISOTimestamp,
+} from "@/components/utility/HelperFunctions";
 
-interface Update {
-  id: string;
-  timestamp: string;
-  content: string;
-}
-
-interface Task {
-  id: string;
-  title: string;
-  assignedTo: string;
-  dueDate: string;
-  status: "pending" | "in-progress" | "completed";
-}
-
-interface JobWalkData {
-  id: number;
-  date: string;
-  jobName: string;
-  type: string;
-  user: string;
-  nextStep: string;
-  photos: number;
-  tech: string;
-  notes: string;
-  updates: Update[];
-  tasks: Task[];
-}
-
-interface JobWalkDetailPageProps {
-  data: JobWalkData;
-  onBack: () => void;
-}
-
-export default function JobWalkDetailPage({
-  data,
-  onBack,
-}: JobWalkDetailPageProps) {
+export default function JobWalkDetailPage({ data, onBack }: any) {
   const [newUpdate, setNewUpdate] = useState("");
-  const [updates, setUpdates] = useState<Update[]>(data.updates);
+  const [updates, setUpdates] = useState<any[]>([]);
   const [tasksExpanded, setTasksExpanded] = useState(false);
 
+  const fetchUpdatesService = async () => {
+    const response = await fetchUpdates();
+    if (response.success) {
+      setUpdates(response.data || []);
+    } else {
+      toast(response.message || "Failed to fetch updates");
+    }
+    return response;
+  };
+  useEffect(() => {
+    fetchUpdatesService();
+    fetchUpdates().then((response: any) => {
+      if (response.success) {
+        setUpdates(response.data);
+      } else {
+        toast(response.message || "Failed to fetch updates");
+        console.log(response.message);
+      }
+    });
+  }, []);
   const handleAddUpdate = () => {
+    createUpdate({
+      job_walk_id: data.id,
+      description: newUpdate,
+    }).then((response: any) => {
+      if (response.success) {
+        setUpdates([response.data, ...updates]);
+      }
+    });
     if (newUpdate.trim()) {
       const now = new Date();
       const timestamp =
@@ -61,7 +59,7 @@ export default function JobWalkDetailPage({
           hour12: true,
         });
 
-      const update: Update = {
+      const update: any = {
         id: Date.now().toString(),
         timestamp,
         content: newUpdate,
@@ -83,15 +81,14 @@ export default function JobWalkDetailPage({
   const getTypeBadge = (type: string) => {
     const badges: Record<string, string> = {
       Walk: "bg-gray-200 text-gray-700",
-      Inspection: "bg-blue-100 text-blue-800",
+      Install: "bg-blue-100 text-blue-800",
       Assessment: "bg-purple-100 text-purple-800",
-      Survey: "bg-green-100 text-green-800",
-      "Site Visit": "bg-orange-100 text-orange-800",
+      Quote: "bg-green-100 text-green-800",
       Repair: "bg-red-100 text-red-800",
       Maintenance: "bg-yellow-100 text-yellow-800",
       Other: "bg-gray-200 text-gray-700",
     };
-    return badges[type] || badges.Other;
+    return badges[type] || badges.Walk;
   };
 
   return (
@@ -109,20 +106,20 @@ export default function JobWalkDetailPage({
       <div className="bg-white border-2 border-black rounded-lg p-8">
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-charcoal">
-                {data.jobName}
-              </h1>
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${getTypeBadge(
-                  data.type
-                )}`}
-              >
-                {data.type}
-              </span>
-            </div>
-            <p className="text-slate text-sm">{data.date}</p>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-charcoal">
+              {data.job_name}
+            </h1>
+            <span className="text-slate text-sm rounded-full px-2 py-1 bg-silver/20">
+              {data.date_of_walk}
+            </span>
+            <span
+              className={`px-3 py-1 rounded-full border-[0.2px] border-charcoal/20 text-sm font-medium ${getTypeBadge(
+                data.task_type
+              )}`}
+            >
+              {data.task_type}
+            </span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -165,14 +162,14 @@ export default function JobWalkDetailPage({
         <div className="grid grid-cols-2 gap-6 mb-6">
           <div>
             <h3 className="text-base font-bold text-charcoal mb-2">Tech</h3>
-            <p className="text-charcoal">{data.tech || "—"}</p>
+            <p className="text-charcoal">{data.created_by || "—"}</p>
           </div>
 
           <div>
             <h3 className="text-base font-bold text-charcoal mb-2">
               Next Step
             </h3>
-            <p className="text-charcoal">{data.nextStep || "—"}</p>
+            <p className="text-charcoal">{data.next_step || "—"}</p>
           </div>
         </div>
 
@@ -180,7 +177,7 @@ export default function JobWalkDetailPage({
         <div className="mb-6">
           <h3 className="text-base font-bold text-charcoal mb-3">Notes</h3>
           <div className="text-charcoal text-sm leading-relaxed whitespace-pre-wrap">
-            {data.notes}
+            {data.job_notes}
           </div>
         </div>
 
@@ -200,7 +197,7 @@ export default function JobWalkDetailPage({
             />
             <button
               onClick={handleAddUpdate}
-              className="flex items-center gap-2 px-4 py-2 bg-charcoal text-white rounded-lg hover:bg-charcoal/90 transition-colors h-fit"
+              className="flex items-center gap-2 px-4 py-2 bg-charcoal text-white rounded-lg hover:bg-charcoal/90 transition-colors h-fit cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               Add
@@ -209,15 +206,19 @@ export default function JobWalkDetailPage({
 
           {/* Updates List */}
           <div className="space-y-3">
-            {updates.map((update) => (
-              <div
-                key={update.id}
-                className="p-4 border border-silver rounded-lg"
-              >
-                <p className="text-xs text-slate mb-2">{update.timestamp}</p>
-                <p className="text-sm text-charcoal">{update.content}</p>
-              </div>
-            ))}
+            {updates
+              ?.filter((update) => update.job_walk_id === data.id)
+              .map((update) => (
+                <div
+                  key={update.id}
+                  className="p-4 border border-silver rounded-lg"
+                >
+                  <p className="text-xs text-slate mb-2">
+                    {formatDateTime(update.created_at)}
+                  </p>
+                  <p className="text-sm text-charcoal">{update.description}</p>
+                </div>
+              ))}
           </div>
         </div>
 
@@ -231,7 +232,7 @@ export default function JobWalkDetailPage({
               <h3 className="text-base font-bold text-charcoal">
                 Tasks & Assignments
               </h3>
-              <span className="text-sm text-slate">({data.tasks.length})</span>
+              <span className="text-sm text-slate">({data.tasks?.length})</span>
             </div>
             <ChevronDown
               className={`w-5 h-5 text-slate transition-transform ${
@@ -245,7 +246,7 @@ export default function JobWalkDetailPage({
               {data.tasks.length === 0 ? (
                 <p className="text-sm text-slate py-4">No tasks assigned yet</p>
               ) : (
-                data.tasks.map((task) => (
+                data.tasks.map((task: any) => (
                   <div
                     key={task.id}
                     className="p-4 border border-silver rounded-lg hover:bg-platinum/20 transition-colors"

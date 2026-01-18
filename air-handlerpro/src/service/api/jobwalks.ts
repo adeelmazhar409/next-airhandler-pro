@@ -1,51 +1,6 @@
-/**
- * Job Walks API - Simple version matching form fields
- */
-
 import { supabase } from "@/lib/supabase";
-
-export interface JobWalkFormData {
-  customerCompanyId?: string | null;
-  customerSiteId?: string | null;
-  jobName: string;
-  dateOfWalk: string;
-  taskType?: string;
-  jobNotes?: string;
-  nextStep?: string;
-  assignedTo?: string | null;
-  photosCount?: number;
-}
-
-export interface JobWalk {
-  id: string;
-  customer_company_id: string | null;
-  customer_site_id: string | null;
-  job_name: string;
-  date_of_walk: string;
-  task_type: string | null;
-  job_notes: string | null;
-  next_step: string | null;
-  assigned_to: string | null;
-  photos_count: number;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
-  // Joined data
-  customer_company?: {
-    id: string;
-    business_name: string;
-  };
-  customer_site?: {
-    id: string;
-    site_name: string;
-    service_address: string;
-  };
-  assigned_user?: {
-    id: string;
-    email: string;
-    full_name: string;
-  };
-}
+import { JobWalksFormProps } from "@/components/forms/forms-instructions/JobWalksProp";
+import { mapTitlesToLabels } from "@/components/utility/HelperFunctions";
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -57,9 +12,7 @@ export interface ApiResponse<T> {
 /**
  * Create job walk
  */
-export async function createJobWalk(
-  formData: JobWalkFormData
-): Promise<ApiResponse<JobWalk>> {
+export async function createJobWalk(formData: any): Promise<ApiResponse<any>> {
   try {
     const {
       data: { user },
@@ -70,48 +23,44 @@ export async function createJobWalk(
       throw new Error("You must be logged in");
     }
 
-    const insertData = {
-      customer_company_id: formData.customerCompanyId || null,
-      customer_site_id: formData.customerSiteId || null,
-      job_name: formData.jobName,
-      date_of_walk: formData.dateOfWalk,
-      task_type: formData.taskType || null,
-      job_notes: formData.jobNotes || null,
-      next_step: formData.nextStep || null,
-      assigned_to: formData.assignedTo || null,
-      photos_count: formData.photosCount || 0,
-      created_by: user.id,
-    };
+    const { photos, ...insertData } = mapTitlesToLabels(
+      formData,
+      JobWalksFormProps
+    );
+
+    for (const file of photos) {
+      console.log("Uploading:", file.name);
+
+      const filePath = `${user.id}/${crypto.randomUUID()}-${file.name}`;
+
+      const { data, error } = await supabase.storage
+        .from("media")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type,
+        });
+
+      if (error) {
+        console.error("Upload failed:", error);
+        throw error;
+      }
+
+      insertData.photo = data.path;
+    }
+    insertData.created_by = user.id;
 
     const { data, error } = await supabase
       .from("job_walks")
       .insert([insertData])
-      .select(
-        `
-        *,
-        customer_company:companies!job_walks_customer_company_id_fkey(
-          id,
-          business_name
-        ),
-        customer_site:sites!job_walks_customer_site_id_fkey(
-          id,
-          site_name,
-          service_address
-        ),
-        assigned_user:users!job_walks_assigned_to_fkey(
-          id,
-          email,
-          full_name
-        )
-      `
-      )
+      .select()
       .single();
 
     if (error) throw new Error(error.message);
 
     return {
       success: true,
-      data: data as JobWalk,
+      data: data as any,
       message: "Job walk created",
     };
   } catch (error) {
@@ -125,36 +74,18 @@ export async function createJobWalk(
 /**
  * Fetch all job walks
  */
-export async function fetchJobWalks(): Promise<ApiResponse<JobWalk[]>> {
+export async function fetchJobWalks(): Promise<ApiResponse<any[]>> {
   try {
     const { data, error } = await supabase
       .from("job_walks")
-      .select(
-        `
-        *,
-        customer_company:companies!job_walks_customer_company_id_fkey(
-          id,
-          business_name
-        ),
-        customer_site:sites!job_walks_customer_site_id_fkey(
-          id,
-          site_name,
-          service_address
-        ),
-        assigned_user:users!job_walks_assigned_to_fkey(
-          id,
-          email,
-          full_name
-        )
-      `
-      )
+      .select("*")
       .order("date_of_walk", { ascending: false });
 
     if (error) throw new Error(error.message);
 
     return {
       success: true,
-      data: (data as JobWalk[]) || [],
+      data: (data as any[]) || [],
       message: "Job walks fetched",
     };
   } catch (error) {
@@ -168,9 +99,7 @@ export async function fetchJobWalks(): Promise<ApiResponse<JobWalk[]>> {
 /**
  * Fetch job walk by ID
  */
-export async function fetchJobWalkById(
-  id: string
-): Promise<ApiResponse<JobWalk>> {
+export async function fetchJobWalkById(id: string): Promise<ApiResponse<any>> {
   try {
     const { data, error } = await supabase
       .from("job_walks")
@@ -200,7 +129,7 @@ export async function fetchJobWalkById(
 
     return {
       success: true,
-      data: data as JobWalk,
+      data: data as any,
       message: "Job walk fetched",
     };
   } catch (error) {
@@ -216,33 +145,18 @@ export async function fetchJobWalkById(
  */
 export async function updateJobWalk(
   id: string,
-  formData: Partial<JobWalkFormData>
-): Promise<ApiResponse<JobWalk>> {
+  formData: Partial<any>
+): Promise<ApiResponse<any>> {
   try {
     const updateData: any = {
       updated_at: new Date().toISOString(),
     };
 
-    if (formData.customerCompanyId !== undefined)
-      updateData.customer_company_id = formData.customerCompanyId;
-    if (formData.customerSiteId !== undefined)
-      updateData.customer_site_id = formData.customerSiteId;
-    if (formData.jobName) updateData.job_name = formData.jobName;
-    if (formData.dateOfWalk) updateData.date_of_walk = formData.dateOfWalk;
-    if (formData.taskType !== undefined)
-      updateData.task_type = formData.taskType;
-    if (formData.jobNotes !== undefined)
-      updateData.job_notes = formData.jobNotes;
-    if (formData.nextStep !== undefined)
-      updateData.next_step = formData.nextStep;
-    if (formData.assignedTo !== undefined)
-      updateData.assigned_to = formData.assignedTo;
-    if (formData.photosCount !== undefined)
-      updateData.photos_count = formData.photosCount;
+    const insertData = mapTitlesToLabels(formData, JobWalksFormProps);
 
     const { data, error } = await supabase
       .from("job_walks")
-      .update(updateData)
+      .update(insertData)
       .eq("id", id)
       .select(
         `
@@ -269,7 +183,7 @@ export async function updateJobWalk(
 
     return {
       success: true,
-      data: data as JobWalk,
+      data: data as any,
       message: "Job walk updated",
     };
   } catch (error) {

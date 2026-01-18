@@ -24,7 +24,7 @@ export async function createWorkOrder(
     }
 
     let insertData = mapTitlesToLabels(formData, WorkOrderFormProps);
-
+    insertData.created_by = user.id;
     insertData.scheduled_start = toISOTimestamp({ date: insertData.scheduled_start.date, hour: insertData.scheduled_start.hour, minute: insertData.scheduled_start.minute });
     insertData.scheduled_end = toISOTimestamp({ date: insertData.scheduled_end.date, hour: insertData.scheduled_end.hour, minute: insertData.scheduled_end.minute });
 

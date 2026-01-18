@@ -28,7 +28,7 @@ export async function createActivity(
     }
 
     const insertData = mapTitlesToLabels(formData, ActivityFormProps);
-
+    insertData.created_by = user.id;
     // extract assigned_to from insertData and remove it from the record to avoid duplicate fields
     let assigned_to: any = insertData.assigned_to;
     // remove assigned_to from insertData for insert

@@ -91,14 +91,14 @@ const DynamicFormBuilder: React.FC<any> = ({
                     .string()
                     .min(1, `${field.Title} is required`)
                     .refine(
-                      (val) => val === "" || /^[a-zA-Z0-9 ]+$/.test(val),
+                      (val) => val === "" || /^[a-zA-Z0-9-_., ]+$/.test(val),
                       "Please enter only text"
                     )
                 : z
                     .string()
                     .optional()
                     .refine(
-                      (val) => !val || /^[a-zA-Z ]+$/.test(val),
+                      (val) => !val || /^[a-zA-Z0-9-_., ]+$/.test(val),
                       "Please enter only text"
                     );
               break;
@@ -1068,7 +1068,7 @@ const DynamicFormBuilder: React.FC<any> = ({
             defaultValue={editingData ? editingData[field.label] : []}
             render={({ field: { onChange, value } }) => {
               const files = value || [];
-              console.log(files);
+              console.log("files",files);
               return (
                 <div
                   className={getFieldWidth(field.nature)}
@@ -1097,7 +1097,7 @@ const DynamicFormBuilder: React.FC<any> = ({
                     </p>
                   </div>
 
-                  {typeof files === "object" && files?.length > 1 && (
+                  {typeof files === "object" && files?.length >= 1 && (
                     <div className="mt-3 space-y-2">
                       {files?.map((file: File, idx: number) => (
                         <div
@@ -1105,7 +1105,7 @@ const DynamicFormBuilder: React.FC<any> = ({
                           className="flex items-center justify-between px-3 py-2 bg-platinum rounded-lg"
                         >
                           <img
-                            src={URL.createObjectURL(file)}
+                            src={ URL.createObjectURL(file)}
                             alt={file.name}
                             width={100}
                             height={100}
@@ -1124,30 +1124,6 @@ const DynamicFormBuilder: React.FC<any> = ({
                           </button>
                         </div>
                       ))}
-                    </div>
-                  )}
-                  {files && (
-                    <div className="mt-3 space-y-2">
-                      <div className="flex items-center justify-between px-3 py-2 bg-platinum rounded-lg">
-                        <img
-                          src={files}
-                          alt={file.name}
-                          width={100}
-                          height={100}
-                        />
-                        <span className="text-sm text-charcoal truncate">
-                          {file.name}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            removeFile(field.label, 0, files, onChange)
-                          }
-                          className="ml-2 text-slate hover:text-red-500 transition-colors cursor-pointer"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
                     </div>
                   )}
                   {renderError(field.Title)}

@@ -34,7 +34,9 @@ export default function DataTable<T extends { id: string | number }>({
   emptyMessage = "No data available",
   actions,
 }: DataTableProps<T>) {
-  const [openDropdownId, setOpenDropdownId] = useState<string | number | null>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<string | number | null>(
+    null
+  );
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const getAlignmentClass = (align?: string) => {
@@ -54,7 +56,10 @@ export default function DataTable<T extends { id: string | number }>({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setOpenDropdownId(null);
       }
     };
@@ -100,7 +105,9 @@ export default function DataTable<T extends { id: string | number }>({
           <div className="bg-platinum/30 border-b border-silver">
             <div className="flex w-full">
               {columns.map((column, index) => {
-                const columnWidth = `${((column.span || 1) / totalSpan) * 100}%`;
+                const columnWidth = `${
+                  ((column.span || 1) / totalSpan) * 100
+                }%`;
                 return (
                   <div
                     key={`${column.key}-${index}`}
@@ -138,15 +145,23 @@ export default function DataTable<T extends { id: string | number }>({
                   onClick={() => onRowClick?.(item)}
                 >
                   {columns.map((column, index) => {
-                    const columnWidth = `${((column.span || 1) / totalSpan) * 100}%`;
+                    const columnWidth = `${
+                      ((column.span || 1) / totalSpan) * 100
+                    }%`;
                     return (
                       <div
                         key={`${column.key}-${index}`}
                         style={{ width: columnWidth }}
-                        className={`px-6 py-4 ${column.minWidth || ""} ${getAlignmentClass(
-                          column.align
-                        )}`}
+                        className={`px-6 py-4 ${
+                          column.minWidth || ""
+                        } ${getAlignmentClass(column.align)}`}
                       >
+                        {/* {console.log(
+                          item,
+                          column.key,
+                          item[column.key as keyof T],
+                          "item[column.key as keyof T]"
+                        )} */}
                         {column.render
                           ? column.render(item)
                           : (item[column.key as keyof T] as React.ReactNode)}
@@ -156,7 +171,10 @@ export default function DataTable<T extends { id: string | number }>({
 
                   {/* Actions Dropdown */}
                   {actions && actions.length > 0 && (
-                    <div className="px-6 py-4 w-20 text-right relative" ref={dropdownRef}>
+                    <div
+                      className="px-6 py-4 w-20 text-right relative"
+                      ref={dropdownRef}
+                    >
                       <button
                         onClick={(e) => toggleDropdown(item.id, e)}
                         className="p-2 text-slate hover:text-cerulean hover:bg-platinum rounded transition-colors"
@@ -170,7 +188,9 @@ export default function DataTable<T extends { id: string | number }>({
                           {actions.map((action, index) => (
                             <button
                               key={index}
-                              onClick={(e) => handleActionClick(action, item, e)}
+                              onClick={(e) =>
+                                handleActionClick(action, item, e)
+                              }
                               className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-platinum transition-colors ${
                                 action.className || "text-charcoal"
                               }`}
